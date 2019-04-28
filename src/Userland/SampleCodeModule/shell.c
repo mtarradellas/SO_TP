@@ -6,6 +6,43 @@
 #include "pongModule.h"
 #include "soundModule.h"
 
+#define INVCOM 0
+#define HELP   1
+#define CLEAR   2
+#define TIME   3
+#define PONG   4
+#define ZERODIV   5
+#define INVOPCODE   6
+#define ALEPUTO   7
+#define LENIA   8
+#define SHELLSHOCK   9
+#define EXIT   10
+
+#define MAXLEN 256
+
+void opCode();
+
+//Gets command ready to use in a switch function
+static int getCommand(char * command);
+// Executes the 'help' command. Displays help menu
+static void help();
+// Executes the 'clear' command. Clears screen
+static void clear();
+// Executes the 'time' command. Displays local time
+static void time();
+// Executes the 'pong' command. Initializes the pong game
+static void pong();
+// Executes the 'zerodiv' command. Triggers a Zero Division Exception
+static void zeroDiv();
+// Executes the 'invopcode' command. Triggers an Invalid OP Code Exception
+static void invOpCode();
+// Executes the 'lenia' command. Makes beep sound
+static void lenia();
+// Executes the 'exit' command. Exits the kernel
+static void exit();
+// Displays the message for when a command was not recognized
+static void invCom();
+
 int on = 1;
 void initShell(){
 
@@ -59,7 +96,7 @@ void initShell(){
    printf("\n\n End of program");
 }
 
-int getCommand(char * command) {
+static int getCommand(char * command) {
   if (!strCmp("help", command)) return HELP;
   if (!strCmp("clear", command)) return CLEAR;
   if (!strCmp("time", command)) return TIME;
@@ -71,7 +108,7 @@ int getCommand(char * command) {
   return INVCOM;
 }
 
-void help() {
+static void help() {
   printf("\n\n********  Help Menu  ********\n\n");
   printf("  * clear     :       Clears screen\n");
   printf("  * invopcode :       Executes Invalid OP Code Interruption\n");
@@ -86,33 +123,33 @@ void help() {
 
 }
 
-void clear() {
+static void clear() {
   clearScreen();
   printf("\n~~Welcome to Lenia's Shell~~\n\n\n");
 }
 
-void time(){
+static void time(){
   unsigned int h = getHour();
   unsigned int m = getMinute();
   unsigned int s = getSecond();
   printf("\nLocal Time: %d:%d:%d\n", h, m, s);
 }
 
-void pong() {
+static void pong() {
   startPong();
   clear();
 }
 
-void zeroDiv() {
+static void zeroDiv() {
   int a = 0;
   a = 2/a;
 }
 
-void invOpCode(){
+static void invOpCode(){
   opCode();
 }
 
-void lenia() {
+static void lenia() {
 
   doBeep();
   wait(20);
@@ -121,10 +158,10 @@ void lenia() {
 }
 
 
-void exit() {
+static void exit() {
   on = 0;
 }
 
-void invCom() {
+static void invCom() {
   printf("\nInvalid command\n");
 }

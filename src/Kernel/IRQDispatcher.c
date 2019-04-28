@@ -1,14 +1,9 @@
-//#include <time.h>
 #include <stdint.h>
 #include <keyboardDriver.h>
-#include <videoDriver.h>
-#include <naiveConsole.h>
 #include <timeDriver.h>
 
-void int20(void);
-void int21(void);
-
-
+static void int20(void);
+static void int21(void);
 
 void irqDispatcher(uint64_t irq) {
 
@@ -23,10 +18,10 @@ void irqDispatcher(uint64_t irq) {
 	return;
 }
 
-void int20() {
+static void int20() {
 	timeHandler();
 }
 
-void int21() {
+static void int21() {
 	keyboardHandler();
 }
