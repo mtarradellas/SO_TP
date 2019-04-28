@@ -1,11 +1,62 @@
 #include <keyboardDriver.h>
+
+#define BUFFER_SIZE 256
+#define LEFT_SHIFT_SC 42
+#define RIGHT_SHIFT_SC 54
+#define CAPSLOCK_SC 58
+#define LEFT_SHIFT_RELEASE 170
+#define RIGHT_SHIFT_RELEASE 182
+#define CTRL 0
+#define ALT 0
+#define UP 11
+#define RIGHT 0
+#define LEFT 0
+#define DOWN 9
+#define ESC 0
+#define BACKSPACE '\b'
+#define TAB 0
+#define ENTER '\n'
+#define LEFT_SHIFT 0
+#define RIGHT_SHIFT 0
+#define LEFT_ALT 0
+#define SPACE ' '
+#define CAPSLOCK 0
+#define F1 0
+#define F2 0
+#define F3 0
+#define F4 0
+#define F5 0
+#define F6 0
+#define F7 0
+#define F8 0
+#define F9 0
+#define F10 0
+#define F11 0
+#define F12 0
+#define NUM_LOCK 0
+#define SCROLL_LOCK 0
+#define INSERT 0
+#define SUPR 0
+#define HOME 0
+#define END 0
+#define REPAG 0
+#define AVPAG 0
+
+// Returns code for pressed key
+unsigned int _getKeyPress();
+
+// Adds character to the buffer as an ascii value
+static void addToBuffer(unsigned char c);
+
+// Decides if the given code is on key pressed or key released
+static int isNotPressed(unsigned char c);
+
 char SHIFT_ON = 0;
 char CAPSLOCK_ON = 0;
 int size = 0;
 char buffer[BUFFER_SIZE] = {0};
 int index = 0;
 int getIndex = 0;
-
 
 static unsigned char keys[] = { 0, ESC, '1', '2', '3', '4', '5', 
 '6', '7', '8', '9', '0', '-', '=', BACKSPACE,TAB, 'q', 'w','e', 'r', 't',
@@ -55,14 +106,14 @@ void keyboardHandler()
     addToBuffer(ascii);
    }
 
-void addToBuffer(unsigned char ascii)
+static void addToBuffer(unsigned char ascii)
     {
         buffer[index % BUFFER_SIZE] = ascii;
         index++;
         if (size < BUFFER_SIZE) size++;
     }
 
-int isNotPressed(unsigned char c)
+static int isNotPressed(unsigned char c)
     {
         return ( c & 0x80 );//return 1 if first bit is 1
     }

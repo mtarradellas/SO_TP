@@ -48,3 +48,23 @@ void * memcpy(void * destination, const void * source, uint64_t length)
 
 	return destination;
 }
+
+char * decToStr(int num, char * buffer) {
+    char const digit[] = "0123456789";
+    char * p = buffer;
+    if(num<0){
+        *p++ = '-';
+        num *= -1;
+    }
+    int shifter = num;
+    do{ //Move to where representation ends
+        ++p;
+        shifter = shifter/10;
+    }while(shifter);
+    *p = '\0';
+    do{ //Move back, inserting digits as you go
+        *--p = digit[num%10];
+        num = num/10;
+    }while(num);
+    return buffer;
+}

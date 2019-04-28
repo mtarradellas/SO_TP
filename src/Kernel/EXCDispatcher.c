@@ -1,9 +1,21 @@
 #include "stdint.h"
 #include "EXCDispatcher.h"
+#include "videoDriver.h"
+#include "lib.h"
+
 #define ZERO 0
 #define OPCODE 1
 
+// Displays the status of the registers at the time of a 'Zero Division' exception
+static void zero_division(uint64_t *sp);
 
+// Displays the status of the registers at the time of an 'Invialid OPcode' exception
+static void op_code(uint64_t *sp);
+
+// Prints registers and their contents
+static void printInfo(uint64_t* stackPointer);
+
+/////////////////////////////////////////////////////////
 void exceptionDispatcher(int exception, uint64_t *sp) {
 	switch(exception){
 		case ZERO:
@@ -16,17 +28,17 @@ void exceptionDispatcher(int exception, uint64_t *sp) {
 	return;
 }
 
-void zero_division(uint64_t *sp) {
+static void zero_division(uint64_t *sp) {
 	putStr("\nDivision by zero exception\n");
 	printInfo(sp);
 }
 
-void op_code(uint64_t *sp){
+static void op_code(uint64_t *sp){
 	putStr("\nInvalid OPcode \n");
 	printInfo(sp);
 }
 
-void printInfo(uint64_t * sp){
+static void printInfo(uint64_t * sp){
 	char * reg[]= {"RAX ","RBX ","RCX ","RDX ","RBP ","RDI ","RSI ","R8 ","R9 ","R10 ","R11 ","R12 ","R13 ","R14 ","R15 "};
 	int n, i, j;
 
@@ -38,24 +50,4 @@ void printInfo(uint64_t * sp){
 		putStr(b);
 		putStr("\n");
 	}
-}
-
-char * decToStr(int num, char * buffer) {
-    char const digit[] = "0123456789";
-    char * p = buffer;
-    if(num<0){
-        *p++ = '-';
-        num *= -1;
-    }
-    int shifter = num;
-    do{ //Move to where representation ends
-        ++p;
-        shifter = shifter/10;
-    }while(shifter);
-    *p = '\0';
-    do{ //Move back, inserting digits as you go
-        *--p = digit[num%10];
-        num = num/10;
-    }while(num);
-    return buffer;
 }

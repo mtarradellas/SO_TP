@@ -15,4 +15,5 @@ unsigned int getSecond();
 
 // Waits n ticks
 void wait(int n);
+
 #endif

@@ -4,6 +4,64 @@
 #include "timeModule.h"
 #include "soundModule.h"
 
+#define LEFT 0
+#define RIGHT 1
+
+#define P1UP 119
+#define P1DOWN 115
+
+#define P2UP 11
+#define P2DOWN 9
+
+#define UP -45
+#define DOWN 45
+
+typedef struct player{
+	int points;
+	int pos;
+	int side;
+} PlayerStruct;
+
+typedef struct ball{
+	int posX;
+	int posY;
+	int dirX;
+	int dirY;
+} BallStruct;
+
+typedef PlayerStruct * Player;
+typedef BallStruct * Ball;
+
+// Starts game
+static int play(Ball ball, Player p1, Player p2);
+// Displays initial screen of game
+static void printInitScreen(Ball ball, Player p1, Player p2);
+// Displays final screen in the case that the game ended on its own
+static void printWinScreen(int player);
+// Prints player's racket
+static void printPlayer(Color color, Player player);
+// Prints ball
+static void printBall(Color color, Ball ball);
+// Prints screen in the post-goal mode
+static void printGoalScreen(int goal, Ball ball, Player p1, Player p2);
+// Prints players' points
+static void printPoints(Player p1, Player p2);
+// Prints game's limits
+static void printFrame();
+// Moves player's racket
+static void movePlayer(Player p, int step);
+// Moves ball
+static int moveBall(Ball ball, Player p1, Player p2);
+// Used for when the ball is on the edge of the screen
+static int onEdge(Ball ball);
+// Used for when a goal was made
+static int onGoal(Ball ball);
+// Used for when the ball touches a racket
+static int onPlayer(Ball ball, Player p1, Player p2);
+// Manages a goal
+static void scoreGoal(int goal, Ball ball, Player p1, Player p2);
+// Recives an action from the player to move and executes it
+static void act(char com, Player p1, Player p2);
 
 static int xResolution;
 static int yResolution;
@@ -46,7 +104,7 @@ void startPong() {
 	return;
 }
 
-int play(Ball ball, Player p1, Player p2) {
+static int play(Ball ball, Player p1, Player p2) {
 	int playing = 1;
 	int exitStatus = 0;
 	while (playing) {
@@ -73,7 +131,7 @@ int play(Ball ball, Player p1, Player p2) {
 	return exitStatus;
 }
 
-void act(char command, Player p1, Player p2) {
+static void act(char command, Player p1, Player p2) {
 	switch(command) {
 		case P1UP:
 			movePlayer(p1, UP);
@@ -90,7 +148,7 @@ void act(char command, Player p1, Player p2) {
 	}
 }
 
-int moveBall(Ball ball, Player p1, Player p2) {
+static int moveBall(Ball ball, Player p1, Player p2) {
 	int goal = 0;
 	printBall(black, ball);
 	if (onEdge(ball)) {
@@ -106,7 +164,7 @@ int moveBall(Ball ball, Player p1, Player p2) {
 	return goal;
 }
 
-int onPlayer(Ball ball, Player p1, Player p2) {
+static int onPlayer(Ball ball, Player p1, Player p2) {
 	int touchRightX = 0;
 	int touchLeftX = 0;
 	if (ball->posX + ball->dirX + 10 >= xResolution-30-2) {
@@ -130,7 +188,7 @@ int onPlayer(Ball ball, Player p1, Player p2) {
 	return 0;
 }
 
-int onGoal(Ball ball) {
+static int onGoal(Ball ball) {
 	if (ball->posX + ball->dirX + 10 >= xResolution-2){
 		return 1;
 	}
@@ -140,7 +198,7 @@ int onGoal(Ball ball) {
 	return 0;
 }
 
-void scoreGoal(int goal, Ball ball, Player p1, Player p2) {
+static void scoreGoal(int goal, Ball ball, Player p1, Player p2) {
 	if (goal == 1) {
 		p1->points = p1->points + 1;
 	} else {
@@ -156,7 +214,7 @@ void scoreGoal(int goal, Ball ball, Player p1, Player p2) {
 	return;
 }
 
-void printGoalScreen(int goal, Ball ball, Player p1, Player p2) {
+static void printGoalScreen(int goal, Ball ball, Player p1, Player p2) {
 	char * str = "G O O O O O O O O O O O A A A A A L ! ! !";
 	setCursor((xResolution/2)-300, yResolution/2);
 	putStr(str);
@@ -166,14 +224,14 @@ void printGoalScreen(int goal, Ball ball, Player p1, Player p2) {
 	printInitScreen(ball, p1, p2);
 }
 
-int onEdge(Ball ball) {
+static int onEdge(Ball ball) {
 	if (ball->posY + ball->dirY + 10 >= yResolution-2 || ball->posY + ball->dirY - 10 <= 2){
 		return 1;
 	}
 	return 0;
 }
 
-void movePlayer(Player p, int step) {
+static void movePlayer(Player p, int step) {
 	int xPos = p->side == 0? 30 : xResolution-30;
 	int yPos = step < 0 ? (p->pos + 70) - abs(step/2) : (p->pos - 70) + abs(step/2);
 	if (step>0) {
@@ -190,7 +248,7 @@ void movePlayer(Player p, int step) {
 
 }
 
-void printInitScreen(Ball ball, Player p1, Player p2) {
+static void printInitScreen(Ball ball, Player p1, Player p2) {
 	clearScreen();
 	printFrame();
 	printPlayer(white, p1);
@@ -198,7 +256,7 @@ void printInitScreen(Ball ball, Player p1, Player p2) {
 	printBall(white, ball);
 }
 
-void printWinScreen(int player) {
+static void printWinScreen(int player) {
 	setCursor((xResolution/2)+50, 300);
 	char p[2];
 	decToStr(player, p);
@@ -207,24 +265,24 @@ void printWinScreen(int player) {
 	putStr(" WINS ! !");
 }
 
-void printPlayer(Color color, Player p) {
+static void printPlayer(Color color, Player p) {
 	int xPos = p->side == 0? 30 : xResolution-30;
 	int yPos = p->pos;
 	drawRectangle(color, xPos, yPos, 4, 70);
 }
 
-void printBall(Color color, Ball b) {
+static void printBall(Color color, Ball b) {
 	drawCircle(color, 10, b->posX, b->posY);
 }
 
-void printFrame() {
+static void printFrame() {
 	drawRectangle(white, xResolution/2, 2, (xResolution/2 )-2, 0);
 	drawRectangle(white, xResolution/2, yResolution-2, (xResolution/2 )-2, 0);
 	drawRectangle(white, 2, yResolution/2, 1, (yResolution/2)-2);
 	drawRectangle(white, xResolution-2, yResolution/2, 1, (yResolution/2)-2);
 }
 
-void printPoints(Player p1, Player p2) {
+static void printPoints(Player p1, Player p2) {
 	setCursor(50, 30);
 	char points[2];
 	decToStr(p1->points, points);
