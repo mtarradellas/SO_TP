@@ -5,6 +5,7 @@
 #include <naiveConsole.h>
 #include "videoDriver.h"
 #include "IDTLoader.h"
+#include "scheduler.h"
 
 
 extern uint8_t text;
@@ -56,7 +57,8 @@ int main() {
 	loadIDT();
 	ncClear();
 	
-	((EntryPoint)sampleCodeModuleAddress)();
+	tProcess initP = newProcess("initProcess", sampleCodeModuleAddress);
+	start(initP);
 
 	return 1;
 }
