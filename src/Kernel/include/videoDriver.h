@@ -91,10 +91,10 @@ void accomodateScreen();
 void clear();
 
 // Getter of the screen measures
-void getSize(int * x, int * y);
+void getScreenSize(int * x, int * y);
 
-// Draws ball for pong in the given coordinates
-void drawBall(Color color, int radius, int x, int y);
+// Draws cirle in the given coordinates
+void drawCircle(Color color, int radius, int x, int y);
 
 // Draws rectangle in the given coordinates
 void drawRectangle(Color color, int b, int h, int x, int y);

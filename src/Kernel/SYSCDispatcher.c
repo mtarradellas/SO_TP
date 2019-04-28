@@ -4,63 +4,31 @@
 #include "timeDriver.h"
 #include "SYSCDispatcher.h"
 
+typedef uint64_t(*SystemCall)();
+SystemCall syscall_array[] = {
+    (SystemCall) _read,
+    (SystemCall) _write,
+    (SystemCall) _wait,
+    (SystemCall) _getTime,
+    (SystemCall) _getScreenSize,
+    (SystemCall) _drawCircle,
+    (SystemCall) _drawRectangle,
+    (SystemCall) _beepon,
+    (SystemCall) _beepoff,
+    (SystemCall) _getCursor,
+    (SystemCall) _setCursor
 
-void syscallDispatcher(uint64_t syscall, uint64_t p1, uint64_t p2, uint64_t p3, uint64_t p4, uint64_t p5) {
-	switch(syscall) {
-		case READ:
-			read(p1, p2, p3);
-			break;
-		case WRITE:
-			write(p1, p2, p3, p4, p5);
-			break;
-		case WAIT:
-			wait( *( (int*) p1) );
-			break;
-		case BALL:
-			drawBall( *((Color*) p1), *((int*)p2), *((int*) p3), *((int*) p4));
-			break;
-		case RECTANGLE:
-			drawRectangle(*((Color*) p1), *((int*) p2), *((int*) p3), *((int*) p4), *((int*) p5));
-			break;
-		case BEEP:
-			switch(p1){
-				case DO:
-					beepon();
-					break;
-				case UNDO:
-					beepoff();
-					break;
-			}
-			break;
-		case CURSOR:
-			switch(p1){
-				case GET:
-					getCursor((int*)p2, (int*)p3);
-					break;
-				case SET:
-					setCursor(*(int*)p2, *(int*)p3);
-					break;
-			}	
-	}
+};
+
+void syscallDispatcher(uint64_t syscall, uint64_t p1, uint64_t p2, uint64_t p3, uint64_t p4, uint64_t p5){
+  syscall_array[syscall](p1, p2, p3, p4, p5);
 }
 
-void read(uint64_t mode, uint64_t p1, uint64_t p2) {
-	unsigned int * t = (unsigned int *) p1;
-	char * c = (char *) p1;
-	switch(mode) {
-		case TIME:
-			getTime(t, p2);
-			break;
-		case KEY:
-			*c = getKey();
-			break;
-		case SCREENSIZE:
-			getSize((int*) p1, (int*) p2);
-			break;
-	}
+void _read(char *c) {
+	*c = getKey();
 }
 
-void write(uint64_t mode, uint64_t p1, uint64_t p2, uint64_t p3, uint64_t p4) {
+void _write(uint64_t mode, uint64_t p1, uint64_t p2, uint64_t p3, uint64_t p4) {
 	switch(mode) {
 		case CHARACTER:
 			printChar(*((char*) p1), *((Color*) p2));
@@ -76,8 +44,11 @@ void write(uint64_t mode, uint64_t p1, uint64_t p2, uint64_t p3, uint64_t p4) {
 	}
 }
 
+void _wait(int * sec) {
+	wait(*sec);
+}
 
-void getTime(unsigned int * t, uint64_t time) {
+void _getTime(unsigned int * t, uint64_t time) {
 	switch(time) {
 		case HOUR:
 			*t = getHour();
@@ -89,5 +60,32 @@ void getTime(unsigned int * t, uint64_t time) {
 			*t = getSecond();
 			break;
 	}
+}
 
+void _getScreenSize(int *x, int *y) {
+	getScreenSize(x, y);
+}
+
+void _drawCircle(Color *color, int *radius, int *x, int *y) {
+	drawCircle(*color, *radius, *x, *y);
+}
+
+void _drawRectangle(Color *color, int *b, int *h, int *x, int *y) {
+	drawRectangle(*color, *b, *h, *x, *y);
+}
+
+void _beepon() {
+	beepon();
+}
+
+void _beepoff() {
+	beepoff();
+}
+
+void _getCursor(int *x, int *y) {
+	getCursor(x, y);
+}
+
+void _setCursor(int *x, int *y) {
+	setCursor(*x, *y);
 }

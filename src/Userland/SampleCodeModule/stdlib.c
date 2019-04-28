@@ -78,7 +78,7 @@ char * decToStr(int num, char * buffer) {
 
 char getChar() {
 	char c;
-	systemCall((uint64_t)READ,(uint64_t) KEY, (uint64_t)&c, 0, 0, 0);
+	systemCall((uint64_t)READ,(uint64_t) &c, 0, 0, 0, 0);
 	return c;
 }
 

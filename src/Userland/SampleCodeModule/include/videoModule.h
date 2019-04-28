@@ -19,7 +19,7 @@ typedef struct Color{
 */
 void clearScreen();
 void deleteChar();
-void drawBall(Color color, int radio, int x, int y);
+void drawCircle(Color color, int radio, int x, int y);
 void drawRectangle(Color color, int x, int y, int b, int h);
 void getSize(int * x, int * y);
 void getCursor(int * x, int * y);

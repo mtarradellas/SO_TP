@@ -6,19 +6,14 @@
 #define READ 0
 #define WRITE 1
 #define WAIT 2
-#define BALL 3
-#define RECTANGLE 4
-#define BEEP 5
-#define CURSOR 6
-
-#define GET 0
-#define SET 1
-
-#define KEY 0
-#define TIME 1
-#define SCREENSIZE 2
-#define DO 3
-#define UNDO 4
+#define GETTIME 3
+#define GETSCREENSIZE 4
+#define DRAWCIRCLE 5
+#define DRAWRECTANGLE 6
+#define BEEPON 7
+#define BEEPOFF 8
+#define GETCURSOR 9
+#define SETCURSOR 10
 
 #define CHARACTER 0
 #define DRAWCHAR 1
