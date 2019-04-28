@@ -54,11 +54,10 @@ void * initializeKernelBinary()
 
 int main() {
 
-	loadIDT();
-	ncClear();
-	
-	tProcess initP = newProcess("initProcess", sampleCodeModuleAddress);
-	start(initP);
-
+	loadIDT();	
+	//tProcess initP = newProcess("Shell", sampleCodeModuleAddress);
+	//start(initP);
+	schedTest(endOfKernel);
+	//((EntryPoint)sampleCodeModuleAddress)();
 	return 1;
 }
