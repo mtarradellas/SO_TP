@@ -4,25 +4,19 @@
 #define READ 0
 #define WRITE 1
 #define WAIT 2
-#define BALL 3
-#define RECTANGLE 4
-#define BEEP 5
-#define CURSOR 6
-
-#define GET 0
-#define SET 1
-
-#define KEY 0
-#define TIME 1
-#define SCREENSIZE 2
-#define DO 3
-#define UNDO 4
+#define GETTIME 3
+#define GETSCREENSIZE 4
+#define DRAWCIRCLE 5
+#define DRAWRECTANGLE 6
+#define BEEPON 7
+#define BEEPOFF 8
+#define GETCURSOR 9
+#define SETCURSOR 10
 
 #define CHARACTER 0
 #define DRAWCHAR 1
 #define CLEAR 2
 #define STRING 3
-
 
 #define HOUR 0
 #define MINUTE 1
@@ -32,15 +26,25 @@
 void syscallDispatcher(uint64_t syscall, uint64_t p1, uint64_t p2, uint64_t p3, uint64_t p4, uint64_t p5);
 
 // Handles Read syscalls
-void read(uint64_t mode, uint64_t p1, uint64_t p2);
+void _read(char *c);
 
 // Handles Write syscalls
-void write(uint64_t mode, uint64_t p1, uint64_t p2, uint64_t p3, uint64_t p4);
+void _write(uint64_t mode, uint64_t p1, uint64_t p2, uint64_t p3, uint64_t p4);
 
 // Calls Time Driver
-void getTime(unsigned int * dest, uint64_t time);
+void _getTime(unsigned int * dest, uint64_t time);
+
+void _wait(int * sec);
+void _getScreenSize(int *x, int *y);
+void _drawCircle(Color *color, int *radius, int *x, int *y);
+void _drawRectangle(Color *color, int *b, int *h, int *x, int *y);
+void _getCursor(int *x, int *y);
+void _setCursor(int *x, int *y);
 
 // Call beep functions
+void _beepon();
+void _beepoff();
+
 char beepon();
 void beepoff();
 

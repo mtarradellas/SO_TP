@@ -47,7 +47,7 @@ void setCursor(int x, int y) {
 void plotPixel(int x, int y, Color color){
 
     int where = y * videoStruct->pitch + x * (videoStruct->BitsPerPixel/8);       
-    char* screen = (char* ) (videoStruct->PhysBasePtr);
+    char* screen = (char* )(uint64_t)(videoStruct->PhysBasePtr);
     screen[where] = color.blue;
     screen[where + 1] = color.green;  
     screen[where + 2] = color.red;
@@ -140,9 +140,9 @@ void accomodateScreen() {
 
 void scrollUp() {
     int whereFrom = (MARGIN + 3*(CHAR_HEIGHT + LINE_SPACE)) * videoStruct->pitch + MARGIN * (videoStruct->BitsPerPixel/8);       
-    char * source = (char *) (videoStruct->PhysBasePtr + whereFrom);
+    char * source = (char *)(uint64_t)(videoStruct->PhysBasePtr + whereFrom);
     int whereTo = MARGIN * videoStruct->pitch + MARGIN * (videoStruct->BitsPerPixel/8);       
-    char * dest = (char *) (videoStruct->PhysBasePtr + whereTo);
+    char * dest = (char *)(uint64_t)(videoStruct->PhysBasePtr + whereTo);
     int size = (videoStruct->YResolution)*(videoStruct->XResolution)*3;
     memcpy(dest, source, size);
     cursor_x = MARGIN;
@@ -159,14 +159,13 @@ void clear() {
     cursor_y = MARGIN;
 }
 
-void getSize(int * x, int * y){
+void getScreenSize(int * x, int * y){
     *x = videoStruct->XResolution;
     *y = videoStruct->YResolution;
 
 }
 
-void drawBall(Color color, int radius, int x, int y){
-
+void drawCircle(Color color, int radius, int x, int y){
 
     for(int i = -radius; i <= radius; i++){
         for(int j = -radius; j <= radius; j++){

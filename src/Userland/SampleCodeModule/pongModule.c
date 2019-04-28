@@ -214,7 +214,7 @@ void printPlayer(Color color, Player p) {
 }
 
 void printBall(Color color, Ball b) {
-	drawBall(color, 10, b->posX, b->posY);
+	drawCircle(color, 10, b->posX, b->posY);
 }
 
 void printFrame() {
