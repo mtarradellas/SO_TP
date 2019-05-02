@@ -60,6 +60,7 @@ SECTION .text
 	pushState
 
 	mov rdi, %1 ; first parameter
+	mov rsi, rsp ; second parameter
 	
 	call irqDispatcher
 

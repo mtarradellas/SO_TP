@@ -9,10 +9,10 @@ typedef struct tProcess {
 	void (*code)();
 	void *stackBase;
 	void *stackTop;
+	uint64_t rsp;
 	int status;
 } tProcess;
 
 struct tProcess * newProcess(char *name, void *code);
-void runProcess(struct tProcess *process);
 
 #endif

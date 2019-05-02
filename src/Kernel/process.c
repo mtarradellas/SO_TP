@@ -19,7 +19,3 @@ tProcess * newProcess(char *name, void *code) {
 */
 	return NULL;//aux;
 }
-
-void runProcess(tProcess *process) {
-	(process->code)();
-}

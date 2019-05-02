@@ -2,10 +2,10 @@
 #include "process.h"
 #include "scheduler.h"
 #include "interruptions.h"
-//////////////////////TESTS
-#include "videoDriver.h"
 #include "lib.h"
 #include "timeDriver.h"
+//////////////////////TESTS
+#include "videoDriver.h"
 
 #define QUANTUM 1
 
@@ -21,14 +21,14 @@ typedef struct tPList {
 	struct tPList *next;
 } tPList;
 
+void _runProcess(uint64_t rsp); //jumps to rsp stack and continues its program execution
+
 void addProcess(tProcess *proc, int priority);
 static void freeNode(tPList *curr);
 static tPList * recRem(tPList *list, tProcess *proc, int *procTickets);
 void removeProcess(tProcess *proc);
 static int runTicket(int ticket);
 static int inRange(tRange *range, int num);
-int rand();
-
 
 static int runTicket(int ticket);
 static int inRange(tRange *range, int num);
@@ -49,7 +49,9 @@ void start(tProcess *initProcess) {
 }
 
 void addProcess(tProcess *proc, int priority) {
-	/*tPList *curr = mallocMemory(sizeof(tPlist*));
+	/*
+	srand(getSecond());
+	tPList *curr = mallocMemory(sizeof(tPlist*));
 	curr->tickRange = mallocMemory(sizeof(tRange*));
 	curr->process = proc;
 	curr->next = processList;
@@ -86,27 +88,27 @@ void removeProcess(tProcess *proc) {
 	processList = recRem(processList, proc, &procTickets);
 }
 
-void lottery() {
+void lottery(uint64_t rsp) {
 	if (processList == NULL) return;
 	if (quantum != 0) {
 		quantum--;
+		return;
 	}
 	else {
 		winner = rand() % tickets;
-		while(runTicket(winner) != 1) {
+		while(runTicket(winner, uint64_t rsp) != 1) {
 			winner = rand() % tickets;
 		}
 		quantum = QUANTUM;
-		runProcess(running);
+		_runProcess(running->rsp);
 	}
 }
 
-static int runTicket(int ticket) {
+static int runTicket(int ticket, uint64_t rsp) {
 	auxList = processList;
 	while(auxList != NULL) {
 		if (inRange(auxList->tickRange, ticket)) {
-			// BUSCAR MEMORIA DE AUX
-			// GUARDAR MEMORIA DEL RUNNING
+			running->rsp = rsp;
 			running = auxList->process;
 			return 1;
 		}
@@ -118,18 +120,20 @@ static int runTicket(int ticket) {
 static int inRange(tRange *range, int num) {
 	return num >= range->from && num <= range->to;
 }
-
-int rand() {
-	random++;
-	return random;
-}
+//////// T E S T S ////////////////////////////////////
 
 void fncOne() {
-	putStr(" in One ");
+	while(1) {
+		putStr(" in One ");
+		wait(2);
+	}
 }
 
 void fncTwo() {
-	putStr(" in Two ");
+	while(1) {
+		putStr(" in Two ");
+		wait(5);
+	}
 }
 
 void schedTest(uint8_t endOfKernel) {
@@ -138,7 +142,7 @@ void schedTest(uint8_t endOfKernel) {
 	tProcess *one = &tOne;
 	one->pid = 1;
 	one->code = fncOne;
-	one->stackBase = NULL;
+	one->stackBase = endOfKernel + 4000;
 	one->stackTop = NULL;
 	one->status = READY;
 
@@ -157,7 +161,7 @@ void schedTest(uint8_t endOfKernel) {
 	tProcess *two = &tTwo;
 	two->pid = 2;
 	two->code = fncTwo;
-	two->stackBase = NULL;
+	two->stackBase = endOfKernel + 8000 ;
 	two->stackTop = NULL;
 	two->status = READY;
 
@@ -179,7 +183,7 @@ void schedTest(uint8_t endOfKernel) {
 	//////////////////////////////////
 	_sti();
 	while(1) {
-		//putStr(" ~ ");
+		wait(1);
 	}
 	/*
 	int i = 0;
