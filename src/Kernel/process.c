@@ -7,11 +7,11 @@
 
 static long int id = 0;
 
-tProcess * newProcess(char *name, void *code) {
+tProcess * newProcess(char *name, int (*entry)(int, char*), int argc, char *argv) {
 
 	/*tProcess *aux = mallocMemory(sizeof(*aux));
 	aux->name = name;
-	aux->code = code;
+	aux->entry = entry;
 	aux->pid = id++;
 	aux->stackBase = mallocMemory(PROCMEM);
 	aux->stackTop = aux->stackBase + PROCMEM;

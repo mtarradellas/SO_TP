@@ -146,6 +146,8 @@ void schedTest(uint8_t endOfKernel) {
 	one->stackTop = NULL;
 	one->status = READY;
 
+	_initProcess(one->stackBase, one->entry, one->argc, one->argv);
+
 	tRange tRangeOne;
 	tRange *rangeOne = &tRangeOne;
 	rangeOne->from = 0;
@@ -164,6 +166,8 @@ void schedTest(uint8_t endOfKernel) {
 	two->stackBase = endOfKernel + 8000 ;
 	two->stackTop = NULL;
 	two->status = READY;
+
+	_initProcess(two->stackBase, two->entry, two->argc, two->argv);
 
 	tRange tRangeTwo;
 	tRange *rangeTwo = &tRangeTwo;

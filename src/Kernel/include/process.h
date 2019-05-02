@@ -6,13 +6,15 @@
 typedef struct tProcess {
 	long int pid;
 	char *name;
-	void (*code)();
-	void *stackBase;
-	void *stackTop;
+	int (*entry)(int, char*);
+	int argc;
+	char *argv;
+	uint64_t stackBase;
+	uint64_t stackTop;
 	uint64_t rsp;
 	int status;
 } tProcess;
 
-struct tProcess * newProcess(char *name, void *code);
+struct tProcess * newProcess(char *name, int (*entry)(int, char*), int argc, char *argv);
 
 #endif
