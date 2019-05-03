@@ -10,5 +10,6 @@
 
 void start(struct tProcess *initProcess);
 void lottery();
+char* getProcList();
 
 #endif
