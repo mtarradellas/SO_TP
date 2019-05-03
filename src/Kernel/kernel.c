@@ -5,6 +5,7 @@
 #include <naiveConsole.h>
 #include "videoDriver.h"
 #include "IDTLoader.h"
+#include "scheduler.h"
 
 
 extern uint8_t text;
@@ -53,10 +54,10 @@ void * initializeKernelBinary()
 
 int main() {
 
-	loadIDT();
-	ncClear();
-	
-	((EntryPoint)sampleCodeModuleAddress)();
-
+	loadIDT();	
+	//tProcess initP = newProcess("Shell", sampleCodeModuleAddress);
+	//start(initP);
+	schedTest(endOfKernel);
+	//((EntryPoint)sampleCodeModuleAddress)();
 	return 1;
 }

@@ -1,5 +1,11 @@
 #include <stdint.h>
 
+#define A 25214903917
+#define C 11
+#define M 281474976710656
+
+#define MOD 50
+
 void * memset(void * destination, int32_t c, uint64_t length)
 {
 	uint8_t chr = (uint8_t)c;
@@ -67,4 +73,19 @@ char * decToStr(int num, char * buffer) {
         num = num/10;
     }while(num);
     return buffer;
+}
+
+unsigned long int var = 1;
+
+void srand(unsigned long int seed) {
+	var = seed;
+}
+
+void lcg(unsigned long int *x, unsigned long int a, int c, unsigned long int m) {
+	*x = (a*(*x)+c) % m;
+}
+
+unsigned long int rand() {
+	lcg(&var, A, C, M);
+	return var;
 }

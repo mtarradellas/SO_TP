@@ -1,11 +1,12 @@
 #include <stdint.h>
-#include <keyboardDriver.h>
-#include <timeDriver.h>
+#include "keyboardDriver.h"
+#include "timeDriver.h"
+#include "scheduler.h"
 
 static void int20(void);
 static void int21(void);
 
-void irqDispatcher(uint64_t irq) {
+void irqDispatcher(uint64_t irq, uint64_t rsp) {
 
 	switch (irq) {
 		case 0:
@@ -20,6 +21,7 @@ void irqDispatcher(uint64_t irq) {
 
 static void int20() {
 	timeHandler();
+	lottery(rsp);
 }
 
 static void int21() {
