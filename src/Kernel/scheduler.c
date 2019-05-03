@@ -30,9 +30,6 @@ void removeProcess(tProcess *proc);
 static int runTicket(int ticket);
 static int inRange(tRange *range, int num);
 
-static int runTicket(int ticket);
-static int inRange(tRange *range, int num);
-
 static tPList *processList;
 static tPList *auxList;
 static int tickets;
@@ -119,6 +116,26 @@ static int runTicket(int ticket, uint64_t rsp) {
 
 static int inRange(tRange *range, int num) {
 	return num >= range->from && num <= range->to;
+}
+
+char* getProcList() {
+	char* strg = mallocMemory(BLOQUE);
+	int j=0;
+	auxList = processList;
+	while(auxList != NULL){ // considero que el nombre de los procesos tienen un ' /0' al final
+		int i=0;
+		while (auxList->process->name[i] != '/0'){
+			if(j%BLOQUE == 0){
+				strg = reallocMemory(strg,sizeof(char*)*(j+BLOQUE));
+			}
+			strg[j++] = auxList->process->name[i++];
+		}
+		strg[j] = '\n';
+		auxList = auxList->next;
+	}
+	strg = reallocMemory(strg,sizeof(char*) * j);
+	return strg;
+
 }
 //////// T E S T S ////////////////////////////////////
 
