@@ -1,1 +1,7 @@
 *.o
+src/Userland/0000-sampleCodeModule.bin
+src/Image/packedKernel.bin
+src/Image/x64BareBonesImage.img
+src/Image/x64BareBonesImage.qcow2
+src/Image/x64BareBonesImage.vmdk
+src/Kernel/kernel.bin
