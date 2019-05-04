@@ -1,29 +1,29 @@
-#include "shell.h"
-#include "stdlib.h"
+#include "include/shell.h"
 #include <stdint.h>
-#include "timeModule.h"
-#include "videoModule.h"
-#include "pongModule.h"
-#include "soundModule.h"
+#include "include/pongModule.h"
+#include "include/soundModule.h"
+#include "include/stdlib.h"
+#include "include/timeModule.h"
+#include "include/videoModule.h"
 
 #define INVCOM 0
-#define HELP   1
-#define CLEAR   2
-#define TIME   3
-#define PONG   4
-#define ZERODIV   5
-#define INVOPCODE   6
-#define ALEPUTO   7
-#define LENIA   8
-#define SHELLSHOCK   9
-#define EXIT   10
+#define HELP 1
+#define CLEAR 2
+#define TIME 3
+#define PONG 4
+#define ZERODIV 5
+#define INVOPCODE 6
+#define ALEPUTO 7
+#define LENIA 8
+#define SHELLSHOCK 9
+#define EXIT 10
 
 #define MAXLEN 256
 
 void opCode();
 
-//Gets command ready to use in a switch function
-static int getCommand(char * command);
+// Gets command ready to use in a switch function
+static int getCommand(char* command);
 // Executes the 'help' command. Displays help menu
 static void help();
 // Executes the 'clear' command. Clears screen
@@ -44,59 +44,59 @@ static void exit();
 static void invCom();
 
 int on = 1;
-void initShell(){
-
-  printf("\n~~WELCOME TO LENIA'S SHELL~~\n\nPlease type 'help' to find out about our commands\n\n\n");
+void initShell() {
+  printf(
+      "\n~~WELCOME TO LENIA'S SHELL~~\n\nPlease type 'help' to find out about "
+      "our commands\n\n\n");
 
   char command[MAXLEN];
-  while (on){
-
+  while (on) {
     printf("$> ");
     clearBuffer(command);
     scanAndPrint(command);
     int com = getCommand(command);
 
-    switch(com) {
+    switch (com) {
       case HELP:
-          help();
-          break;
+        help();
+        break;
 
       case CLEAR:
-          clear();
-          break;
+        clear();
+        break;
 
       case TIME:
-          time();
-          break;
+        time();
+        break;
 
       case PONG:
-          pong();
-          break;
+        pong();
+        break;
 
       case ZERODIV:
-          zeroDiv();
-          break;
+        zeroDiv();
+        break;
 
       case INVOPCODE:
-          invOpCode();
-          break;
+        invOpCode();
+        break;
 
       case LENIA:
-          lenia();
-          break;
+        lenia();
+        break;
 
       case EXIT:
-          exit();
-          break;
+        exit();
+        break;
 
       case INVCOM:
-          invCom();
+        invCom();
     }
   }
-   printf("\n\n End of program");
+  printf("\n\n End of program");
 }
 
-static int getCommand(char * command) {
+static int getCommand(char* command) {
   if (!strCmp("help", command)) return HELP;
   if (!strCmp("clear", command)) return CLEAR;
   if (!strCmp("time", command)) return TIME;
@@ -116,11 +116,14 @@ static void help() {
   printf("  * exit      :       Exits shell\n");
   printf("  * lenia     :       Beep\n");
   printf("  * time      :       Displays current time\n");
-  printf("  * pong      :       Iniciates pong when user presses 'enter' which will run until\n"); 
-  printf("                      end of game or until user presses 'backspace' to leave\n");
+  printf(
+      "  * pong      :       Iniciates pong when user presses 'enter' which "
+      "will run until\n");
+  printf(
+      "                      end of game or until user presses 'backspace' to "
+      "leave\n");
 
   printf("\n  Any other command will be taken as invalid\n\n");
-
 }
 
 static void clear() {
@@ -128,7 +131,7 @@ static void clear() {
   printf("\n~~Welcome to Lenia's Shell~~\n\n\n");
 }
 
-static void time(){
+static void time() {
   unsigned int h = getHour();
   unsigned int m = getMinute();
   unsigned int s = getSecond();
@@ -142,25 +145,19 @@ static void pong() {
 
 static void zeroDiv() {
   int a = 0;
-  a = 2/a;
+  a = 2 / a;
 }
 
-static void invOpCode(){
-  opCode();
-}
+static void invOpCode() { opCode(); }
 
 static void lenia() {
-
   doBeep();
   wait(20);
   noBeep();
   printf("\n");
 }
 
-
-static void exit() {
-  on = 0;
-}
+static void exit() { on = 0; }
 
 static void invCom() {
   printf("\nInvalid command\n");
