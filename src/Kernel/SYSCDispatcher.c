@@ -49,7 +49,6 @@ SystemCall syscall_array[] = {
     (SystemCall)_drawRectangle, (SystemCall)_beepon,
     (SystemCall)_beepoff,       (SystemCall)_getCursor,
     (SystemCall)_setCursor
-
 };
 
 void syscallDispatcher(uint64_t syscall, uint64_t p1, uint64_t p2, uint64_t p3,
