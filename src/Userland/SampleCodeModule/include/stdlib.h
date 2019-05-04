@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 // Prints string with formats
-void printf(char * fmt, ...);
+void printf(char* fmt, ...);
 
 // Prints char
 void putChar(char c);
@@ -16,21 +16,21 @@ void putDec(int i);
 char getChar();
 
 // Trensforms a decimal to string
-char * decToStr(int num, char * buffer);
+char* decToStr(int num, char* buffer);
 
 // Scans from buffer and prints the contents scanned
-void scanAndPrint(char * buffer);
+void scanAndPrint(char* buffer);
 
 // Compares two strings
-int strCmp(char * a, char * b);
+int strCmp(char* a, char* b);
 
 // Clears buffer
-void clearBuffer(char * buffer);
+void clearBuffer(char* buffer);
 
 // Returns absolut value of given int
 int abs(int n);
 
 // Prints string
-void putStr(char * string);
+void putStr(char* word);
 
 #endif

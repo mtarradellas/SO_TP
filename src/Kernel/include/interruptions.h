@@ -9,7 +9,6 @@ void _irq00Handler(void);
 // Keyboard
 void _irq01Handler(void);
 
-
 // Exceptions
 void _exception0Handler(void);
 void _exceptionInvalidOpcodeHandler(void);
@@ -25,7 +24,7 @@ void picMasterMask(uint8_t mask);
 
 void picSlaveMask(uint8_t mask);
 
-//Finishes CPU process.
+// Finishes CPU process.
 void haltcpu(void);
 
 #endif /* INTERRUPS_H_ */

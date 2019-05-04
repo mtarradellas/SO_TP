@@ -260,6 +260,6 @@
 #define XXXXXXX_ 0xFE
 #define XXXXXXXX 0xFF
 
-char * charMap(int c);
+char* charMap(int c);
 
 #endif
