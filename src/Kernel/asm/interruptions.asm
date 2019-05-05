@@ -56,7 +56,7 @@ SECTION .text
 %endmacro
 
 %macro irqHandlerMaster 1
-
+	cli
 	pushState
 
 	mov rdi, %1 ; first parameter
@@ -69,6 +69,7 @@ SECTION .text
 	out 20h, al
 
 	popState
+	sti
 	iretq
 %endmacro
 

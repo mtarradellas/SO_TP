@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "IDTLoader.h"
-// #include "scheduler.h"
+#include "scheduler.h"
 #include "videoDriver.h"
 
 extern uint8_t text;
@@ -42,10 +42,9 @@ void* initializeKernelBinary() {
 }
 
 int main() {
-  loadIDT();
-  // tProcess initP = newProcess("Shell", sampleCodeModuleAddress);
-  // start(initP);
-  // schedTest(endOfKernel);
-  ((EntryPoint)sampleCodeModuleAddress)();
+  _cli();
+  loadIDT();  
+  schedTest((uint64_t)sampleCodeModuleAddress);
+
   return 1;
 }

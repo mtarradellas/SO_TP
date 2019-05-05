@@ -7,8 +7,8 @@
 
 static long int id = 0;
 
-tProcess *newProcess(char *name, int (*entry)(int, char *), int argc,
-                     char *argv) {
+tProcess *newProcess(char *name, int (*entry)(int, char **), int argc,
+                     char **argv) {
   /*tProcess *aux = mallocMemory(sizeof(*aux));
   aux->name = name;
   aux->entry = entry;
