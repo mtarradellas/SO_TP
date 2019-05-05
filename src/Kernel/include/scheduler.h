@@ -1,15 +1,18 @@
-// #ifndef SCHEDULER_H
-// #define SCHEDULER_H
+#ifndef SCHEDULER_H
+#define SCHEDULER_H
 
-// #define HIGHP 100
-// #define MIDP 60
-// #define LOWP 40
+#include <stdint.h>
 
-// #define READY 0
-// #define BLOCKED 1
+#define HIGHP 100
+#define MIDP 60
+#define LOWP 40
 
-// void start(struct tProcess* initProcess);
-// void lottery();
-// char* getProcList();
+#define READY 0
+#define BLOCKED 1
 
-// #endif
+void start(void *initProcess);
+void lottery(uint64_t rsp);
+char *getProcList();
+void schedTest(uint64_t initStack);
+
+#endif

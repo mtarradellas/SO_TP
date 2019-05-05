@@ -24,7 +24,6 @@ static void IDTEntrySetup(int index, uint64_t offset);
 void loadIDT();
 
 void loadIDT() {
-  _cli();  // disables interruptions
 
   IDTEntrySetup(0x00, (uint64_t)&_exception0Handler);  // 0 division
   IDTEntrySetup(0x06,
@@ -36,7 +35,6 @@ void loadIDT() {
   picMasterMask(0xFC);  // enables only timer tick and keyboard interruptions
   picSlaveMask(0xFF);   // disables all slave pic interruptions
 
-  _sti();  // reenables interruptions
 }
 
 static void IDTEntrySetup(int index, uint64_t offset) {
