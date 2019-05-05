@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stddef.h>
+#include "lib.h"
 
 #define MEM_SIZE (1<<20)
 #define MAX_NUM_NODES 300

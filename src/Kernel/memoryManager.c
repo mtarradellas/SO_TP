@@ -8,9 +8,9 @@
 #include "include/videoDriver.h"
 
 static uint8_t * baseAddress;
-static const uint8_t * startAddress = 0x1000000;
+static const uint8_t * startAddress =(uint8_t *) 0x1000000;
 static listNode * memory;
-static numNodes;
+static size_t numNodes;
 
 void initializeMM();
 listNode * getNextNodeAddress();
@@ -20,7 +20,6 @@ listNode * getNextAvailableBlock(listNode * node);
 listNode * getBlockNode(uint8_t * address);
 listNode * getBestFitNode(size_t space);
 
-extern int a =0;
 
 void * malloc(size_t space) {
 
@@ -79,11 +78,11 @@ void * calloc(size_t space) {
 
 void free(void * memoryAddress) {
 
-	if ((memoryAddress == NULL) || (memoryAddress < baseAddress) || (memoryAddress > (baseAddress + MEM_SIZE))) {
+	if ((memoryAddress == NULL) || ((uint8_t *)memoryAddress < baseAddress) || ((uint8_t *)memoryAddress > (baseAddress + MEM_SIZE))) {
 		return;
 	}
 
-	listNode * oldNode = getBlockNode(memoryAddress);
+	listNode * oldNode = getBlockNode((uint8_t *)memoryAddress);
 	oldNode->available = 1;
 	
 }
@@ -240,7 +239,7 @@ void joinNodes(listNode * node) {
 
 }
 
-// used for testing
+// used for testing solo usar si el content es un string
 void printNode(listNode * node) {
 
 	if(node == NULL){
@@ -251,17 +250,17 @@ void printNode(listNode * node) {
 	}
 
 	putStr("content: ");
-	putStr(node->address);
+	putStr((char *)node->address);
 	newLine();
 
 	putStr("address ");
 	char buff[10];
-	putStr(decToStr((int)node->address,buff));
+	putStr(decToStr((size_t)node->address,buff));
 	newLine();
 
 	putStr("size: ");
 	char buffer[10];
-	putStr(decToStr((int)node->size,buffer));
+	putStr(decToStr((size_t)node->size,buffer));
 	newLine();
 
 	putStr("available: ");
