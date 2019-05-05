@@ -44,7 +44,46 @@ void* initializeKernelBinary() {
 int main() {
   _cli();
   loadIDT();  
-  schedTest((uint64_t)sampleCodeModuleAddress);
+  //schedTest((uint64_t)sampleCodeModuleAddress);
 
-  return 1;
+  //return 1;
+ 
+  char * ptr = (char *)calloc(6);
+
+
+  memcpy(ptr, "Lenia", sizeof("Lenia"));
+
+  printNode(getBlockNode(ptr));
+  putStr("00000000000000000000000000000\n");
+
+
+  char * ptr2 = (char *) realloc(ptr, 25);
+
+  memcpy(ptr2+5, " Y franco", sizeof(" Y franco"));
+
+
+
+
+  printNode(getBlockNode(ptr));
+  printNode(getBlockNode(ptr2));
+
+  putStr("00000000000000000000000000000\n");
+
+  char * ptr3 = (char *) realloc(ptr2, 29);
+
+  memcpy(ptr3+14, " Y alejo", sizeof(" Y alejo"));
+
+  printNode(getBlockNode(ptr));
+  printNode(getBlockNode(ptr2));
+  printNode(getBlockNode(ptr3));
+  putStr("00000000000000000000000000000\n");
+
+  char * ptr4 = (char *) malloc(43);
+  memcpy(ptr4, "babyy", sizeof("babyy"));
+  printNode(getBlockNode(ptr));
+  printNode(getBlockNode(ptr2));
+  printNode(getBlockNode(ptr3));
+  printNode(getBlockNode(ptr4));
+
+  return 1; 
 }
