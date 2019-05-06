@@ -48,6 +48,8 @@ void * realloc(void * memoryAddress, size_t space);
  */
 void * calloc(size_t space);
 
+void initializeMM();
+
 
 //not for user
 //used for tesing

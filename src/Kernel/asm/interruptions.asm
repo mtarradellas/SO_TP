@@ -16,6 +16,9 @@ GLOBAL _syscall_handler
 EXTERN irqDispatcher
 EXTERN exceptionDispatcher
 EXTERN syscallDispatcher
+EXTERN getStackBase
+EXTERN getEntryPoint
+EXTERN start
 
 SECTION .text
 
@@ -88,15 +91,29 @@ SECTION .text
 
 	popState
 
+	call getStackBase
+
+	mov rbp, rax
+	mov rsp, rax
+
+	call getEntryPoint
+
+	mov rdi, rax
+
+	call start
+
+	;push 0x0    ; Align
+	;push 0x0	; SS
+	;push rax  ; program stack base
+	;push 0x202	; FLAGS
+	;push 0x08	; CS
+	;push 400000h  ; IP for main of new process;
+
+	;mov rbp, rax
+
 	; signal pic EOI (End of Interrupt)
-	mov al, 20h
-	out 20h, al
-
-	;mov rsp, rbp   ;  Libera el stack utilizado por la funcion anterior que 
-	;add rsp, 8		;  no llego a liberarse al tener una exception, no estaba 
-				   	;  completamente seguro de como lograr que funcione 
-
-	mov qword [rsp],  400000h  ; set return to shell initialize
+	;mov al, 20h
+	;out 20h, al
 
 	iretq
 %endmacro

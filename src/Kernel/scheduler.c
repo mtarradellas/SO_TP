@@ -37,16 +37,21 @@ void removeProcess(tProcess *proc);
 static int runTicket(int ticket, uint64_t rsp);
 static int inRange(tRange *range, int num);
 
-static tPList *processList = NULL;
+static tPList *processList;
 static tPList *auxList;
-static int tickets = 0;
+static int tickets;
 static int winner;
-static int quantum = QUANTUM;
+static int quantum;
 static tProcess *running;
 
 int testrand();
 
 void start(int (*entryPoint)(int, char**)) {
+	processList = NULL;
+	tickets = 0;
+	quantum = QUANTUM;
+	initializeMM();
+	initPids();
 	tProcess *shell = newProcess("shell", entryPoint, 0, NULL);
 	if (shell == NULL) {
 		// throw error

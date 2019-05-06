@@ -18,4 +18,6 @@ typedef struct tProcess {
 struct tProcess *newProcess(char *name, int (*entry)(int, char **), int argc,
                             char **argv);
 
+void initPids();
+
 #endif

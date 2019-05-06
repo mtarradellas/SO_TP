@@ -23,6 +23,10 @@ void _cli();
 
 typedef int (*EntryPoint)();
 
+void* getEntryPoint() {
+  return sampleCodeModuleAddress;
+}
+
 void clearBSS(void* bssAddress, uint64_t bssSize) {
   memset(bssAddress, 0, bssSize);
 }
