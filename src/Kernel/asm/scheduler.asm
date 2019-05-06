@@ -53,7 +53,7 @@ _initProcess:
 	push rcx  ; rsi (argc for main)
 	push 8  ; r8
 	push 9  ; r9
-	push 9  ; r10
+	push 10  ; r10
 	push 11  ; r11
 	push 12  ; r12
 	push 13  ; r13

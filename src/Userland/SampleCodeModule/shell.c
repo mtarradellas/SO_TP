@@ -13,14 +13,14 @@
 #define PONG 4
 #define ZERODIV 5
 #define INVOPCODE 6
-#define ALEPUTO 7
-#define LENIA 8
-#define SHELLSHOCK 9
-#define EXIT 10
+#define LENIA 7
+#define EXIT 8
 
 #define MAXLEN 256
 
 void opCode();
+
+typedef void (*cmd)();
 
 // Gets command ready to use in a switch function
 static int getCommand(char* command);
@@ -43,7 +43,13 @@ static void exit();
 // Displays the message for when a command was not recognized
 static void invCom();
 
-void _forceInterrupt();
+cmd command_array[] = {
+  (cmd)invCom,     (cmd)help,
+  (cmd)clear,      (cmd)time,
+  (cmd)pong,       (cmd)zeroDiv,
+  (cmd)invOpCode,  (cmd)lenia,
+  (cmd)exit 
+};
 
 int on = 1;
 void initShell() {
@@ -56,43 +62,8 @@ void initShell() {
     clearBuffer(command);
     scanAndPrint(command);
     int com = getCommand(command);
-
-    switch (com) {
-      case HELP:
-        help();
-        break;
-
-      case CLEAR:
-        clear();
-        break;
-
-      case TIME:
-        time();
-        break;
-
-      case PONG:
-        pong();
-        break;
-
-      case ZERODIV:
-        zeroDiv();
-        break;
-
-      case INVOPCODE:
-        invOpCode();
-        break;
-
-      case LENIA:
-        lenia();
-        break;
-
-      case EXIT:
-        exit();
-        break;
-
-      case INVCOM:
-        invCom();
-    }
+    
+    command_array[com]();
   }
   printf("\n\n End of program");
 }
