@@ -102,19 +102,6 @@ SECTION .text
 
 	call start
 
-	;push 0x0    ; Align
-	;push 0x0	; SS
-	;push rax  ; program stack base
-	;push 0x202	; FLAGS
-	;push 0x08	; CS
-	;push 400000h  ; IP for main of new process;
-
-	;mov rbp, rax
-
-	; signal pic EOI (End of Interrupt)
-	;mov al, 20h
-	;out 20h, al
-
 	iretq
 %endmacro
 
