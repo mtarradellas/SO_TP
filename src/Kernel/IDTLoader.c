@@ -33,7 +33,6 @@ void loadIDT() {
 
   picMasterMask(0xFC);  // enables only timer tick and keyboard interruptions
   picSlaveMask(0xFF);   // disables all slave pic interruptions
-  _sti();
 }
 
 static void IDTEntrySetup(int index, uint64_t offset) {

@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 typedef struct tProcess {
-  long int pid;
+  unsigned long int pid;
   char *name;
   int (*entry)(int, char **argv);
   uint64_t stackBase;

@@ -51,6 +51,6 @@ int main() {
   _cli();
   loadIDT();
   start((EntryPoint)sampleCodeModuleAddress);
-
+  //((EntryPoint)sampleCodeModuleAddress)();
   return 1;
 }

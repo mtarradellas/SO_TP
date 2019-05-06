@@ -6,7 +6,6 @@ GLOBAL _cli
 section .text
 
 %macro pushState 0
-	push rax
 	push rbx
 	push rcx
 	push rdx
@@ -38,10 +37,10 @@ section .text
 	pop rdx
 	pop rcx
 	pop rbx
-	pop rax
 %endmacro
 
 systemCall:
+	cli
 	push rbp
 	mov rbp, rsp
 

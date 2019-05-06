@@ -81,3 +81,70 @@ unsigned long int rand() {
   lcg(&var, A, C, M);
   return var;
 }
+
+/*
+#include <stdio.h>
+#include <stdint.h>
+
+void srand(unsigned long int seed);
+void lcg(unsigned long int *x, unsigned long int a, int c, unsigned long int m);
+unsigned long int lcgParkMiller(unsigned long int *x);
+unsigned long int mylcg(unsigned long int *x);
+unsigned long int rand();
+unsigned long int rand2();
+
+unsigned long int myVar = 1;
+unsigned long int parlMillerVar = 7;
+
+void srand(unsigned long int seed) {
+  myVar = seed;
+}
+
+void lcg(unsigned long int *x, unsigned long int a, int c, unsigned long int m) {
+  *x = (a*(*x)+c) % m;
+}
+
+unsigned long int lcgParkMiller(unsigned long int *x) {
+  lcg(x, 48271, 0, 2147483647);
+  return *x;
+
+}
+
+unsigned long int mylcg(unsigned long int *x) {
+  lcg(x, 25214903917, 11, 281474976710656);
+  return *x;
+}
+
+unsigned long int rand() {
+  return mylcg(&myVar);
+}
+
+unsigned long int PMrand() {
+    return lcgParkMiller(&parlMillerVar);
+}
+
+int main() {
+  int vec1[10] = {0};
+  int vec2[10] = {0};
+  int a, b;
+
+  printf("My lcg:\n");
+  for (int i = 0; i < 500; i++) {
+    a = rand() % 10;
+    //printf("%d | ", a);
+    vec1[a]++;
+
+  }
+  printf("\nParker-Miller:\n");
+  for (int i = 0; i < 500; i++) {
+    b = rand2() % 10;
+    //printf("%d | ", b);
+    vec2[b]++;
+  }
+  printf("\nVec 1:  Vec 2:\n");
+  for (int i = 0; i < 10; i++) {
+    printf("%d:  %d       %d\n", i, vec1[i], vec2[i]);
+  }
+  return 0;
+}
+*/

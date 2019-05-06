@@ -155,17 +155,13 @@ _exceptionInvalidOpcodeHandler:
 
 ; System Call
 _syscall_handler:
-	cli
+
 	push rbp
 	mov rbp, rsp
 
-	pushState
-
 	call syscallDispatcher
 
-	popState
 	pop rbp
-	sti
 	iretq
 
 haltcpu:

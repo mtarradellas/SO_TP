@@ -9,7 +9,7 @@
 #include "videoDriver.h"
 typedef int (*mainFNC)();
 
-#define QUANTUM 0
+#define QUANTUM 1
 
 typedef struct tRange {
 	int from;
@@ -28,14 +28,15 @@ void _sti();
 void _interrupt();
 
 void _runProcess(uint64_t rsp); //jumps to rsp stack and continues its program execution
-int _initProcess(uint64_t stackBase, int (*entry)(int, char **), int argc, char **argv);
+uint64_t _initStack(uint64_t stackBase, int (*entry)(int, char **), int argc, char **argv, uint64_t stackRet);
 
-void addProcess(tProcess *proc, int priority);
 static void freeNode(tPList *curr);
 static tPList * recRem(tPList *list, tProcess *proc, int *procTickets);
 void removeProcess(tProcess *proc);
 static int runTicket(int ticket, uint64_t rsp);
 static int inRange(tRange *range, int num);
+static void endProcess();
+void run(int (*entry)(int, char**), int argc, char** argv);
 
 static tPList *processList;
 static tPList *auxList;
@@ -57,12 +58,26 @@ void start(int (*entryPoint)(int, char**)) {
 		// throw error
 		return;
 	}
-	addProcess(shell, HIGHP);
+	addProcess(shell, 1);
 	running = shell;
 	_runProcess(running->rsp);
 }
 
+void run(int (*entry)(int, char**), int argc, char** argv) {
+	entry(argc, argv);
+	_cli();
+	endProcess(running);
+}
+
+void endProcess() {
+	putStr("\nending process\n");
+	removeProcess(running);
+	_interrupt();
+}
+
 void addProcess(tProcess *proc, int priority) {
+	priority = 1;
+	proc->rsp = _initStack(proc->stackBase, proc->entry, proc->argc, proc->argv, run);
 	tPList *new = malloc(sizeof(*new));
 	if (new == NULL) {
 		// throw error
@@ -107,6 +122,7 @@ void removeProcess(tProcess *proc) {
 	int procTickets = 0;
 	processList = recRem(processList, proc, &procTickets);
 }
+
 void lottery(uint64_t rsp) {
 	if (processList == NULL) {return; }
 	if (quantum != 0) {
@@ -224,7 +240,7 @@ void schedTestStatic(uint64_t initAdress) {
 	one->stackBase = memAd;
 	one->stackTop = memAd - 4000;
 	one->status = READY;
-	one->rsp = _initProcess(one->stackBase, one->entry, one->argc, one->argv);
+	//one->rsp = _initProcess(one->stackBase, one->entry, one->argc, one->argv);
 
 	tRange tRangeOne;
 	tRange *rangeOne = &tRangeOne;
@@ -249,7 +265,7 @@ void schedTestStatic(uint64_t initAdress) {
 	two->stackBase = memAd - 8000 ;
 	two->stackTop = memAd - 11999;
 	two->status = READY;
-	two->rsp = _initProcess(two->stackBase, two->entry, two->argc, two->argv);
+	//two->rsp = _initProcess(two->stackBase, two->entry, two->argc, two->argv);
 
 	tRange tRangeTwo;
 	tRange *rangeTwo = &tRangeTwo;
