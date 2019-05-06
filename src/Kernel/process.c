@@ -10,12 +10,12 @@
 
 uint64_t _initProcess(uint64_t stackBase, int (*entry)(int, char **), int argc, char **argv);
 
-static long int id = 0;
+static long int id;
 
 tProcess *newProcess(char *name, int (*entry)(int, char **), int argc,
                      char **argv) {
   
-  tProcess *newP = malloc(sizeof(*newP));
+  tProcess *newP = (uint64_t)malloc(sizeof(*newP));
   if (newP == NULL) {
   	// throw error
   	putStr("newP NULL");
@@ -26,7 +26,7 @@ tProcess *newProcess(char *name, int (*entry)(int, char **), int argc,
   newP->entry = entry;
   newP->argc = argc;
   newP->argv = argv;
-  newP->stackBase = malloc(DEFAULT_PROC_MEM);
+  newP->stackBase = (uint64_t)malloc(DEFAULT_PROC_MEM);
   if (newP->stackBase == NULL) {
   	// throw error
   	putStr("stack NULL");
@@ -36,4 +36,8 @@ tProcess *newProcess(char *name, int (*entry)(int, char **), int argc,
   newP->rsp = _initProcess(newP->stackBase, newP->entry, newP->argc, newP->argv);
   newP->status = READY;
   return newP;
+}
+
+void initPids() {
+  id = 0;
 }

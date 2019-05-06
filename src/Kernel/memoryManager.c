@@ -12,7 +12,6 @@ static const uint8_t * startAddress =(uint8_t *) 0x1000000;
 static listNode * memory;
 static size_t numNodes;
 
-void initializeMM();
 listNode * getNextNodeAddress();
 void joinNodes(listNode * node);
 void resizing(listNode * bestFit, size_t space);
