@@ -20,8 +20,12 @@ _runProcess:
 	pop rdx
 	pop rcx
 	pop rbx
+
+	mov al, 20h
+	out 20h, al
+	
 	pop rax
-	sti
+
 	iretq
 
 _initProcess:
@@ -32,11 +36,11 @@ _initProcess:
 	mov rsp, rdi ; stack pointer of new process
 	mov rbx, rsp ; base stack pointer for new process
 	; simulation for interruped stack
-	push 0x0 
+	push 0x0    ; Align
 	push 0x0	; SS
 	push rbx  ; RSP
-	push 0x202	; EEFLAGS
-	push 0x008	; CS
+	push 0x202	; FLAGS
+	push 0x08	; CS
 	push rsi  ; IP for main of new process
 	; new registers for the new process to pop, numbered for testing
 	push 1  ; rax
@@ -44,8 +48,8 @@ _initProcess:
 	push 3  ; rcx
 	push 4  ; rdx
 	push rdi  ; rbp new base pointer
-	push rcx  ; rdi (argv for main)
-	push rdx  ; rsi (argc for main)
+	push rdx  ; rdi (argv for main)
+	push rcx  ; rsi (argc for main)
 	push 8  ; r8
 	push 9  ; r9
 	push 9  ; r10

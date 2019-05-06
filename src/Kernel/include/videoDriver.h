@@ -73,7 +73,7 @@ void drawChar(char c, int x, int y, Color color);
 void printChar(char c, Color color);
 
 // Prints string to screen where the cursor is set
-void putStr(char* str);
+void putStr(const char* str);
 
 // Deletes char where cursor is set
 void delChar();

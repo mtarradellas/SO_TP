@@ -1,6 +1,9 @@
 #include "timeDriver.h"
 #include "timeDriverASM.h"
 
+#include "videoDriver.h"
+#include "lib.h"
+
 void _sti();
 
 static unsigned long ticks = 0;
@@ -8,11 +11,16 @@ static unsigned long ticks = 0;
 void timeHandler() { ticks++; }
 
 int ticksElapsed() { return ticks; }
-
+//  N O   A N D A
 void wait(int n) {
   _sti();
-  unsigned long t = ticksElapsed() + n;
-  while (ticksElapsed() < t) {}
+  //char buff[50];
+  unsigned long t = ticks + n;
+  //putStr("");
+  //putStr(decToStr(t))
+  while (ticks < t) {
+  	//putStr("o");
+  }
 }
 
 unsigned int getHour() {

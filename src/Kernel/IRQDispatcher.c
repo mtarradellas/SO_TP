@@ -23,4 +23,5 @@ static void int20(uint64_t rsp) {
   lottery(rsp);
 }
 
-static void int21() { keyboardHandler(); }
+static void int21() { 
+  keyboardHandler(); }

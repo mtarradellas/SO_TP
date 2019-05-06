@@ -1,9 +1,10 @@
-#include <stdlib.h>
+#include <stddef.h>
 #include "process.h"
 #include "scheduler.h"
 #include "interruptions.h"
 #include "lib.h"
 #include "timeDriver.h"
+#include "memoryManager.h"
 //////////////////////TESTS
 #include "videoDriver.h"
 typedef int (*mainFNC)();
@@ -27,7 +28,7 @@ void _sti();
 void _interrupt();
 
 void _runProcess(uint64_t rsp); //jumps to rsp stack and continues its program execution
-int _initProcess(uint64_t stackBase, int (*entry)(int, char**), int argc, char **argv);
+int _initProcess(uint64_t stackBase, int (*entry)(int, char **), int argc, char **argv);
 
 void addProcess(tProcess *proc, int priority);
 static void freeNode(tPList *curr);
@@ -36,37 +37,49 @@ void removeProcess(tProcess *proc);
 static int runTicket(int ticket, uint64_t rsp);
 static int inRange(tRange *range, int num);
 
-static tPList *processList;
+static tPList *processList = NULL;
 static tPList *auxList;
-static int tickets;
+static int tickets = 0;
 static int winner;
 static int quantum = QUANTUM;
-static tProcess *running; // FALTA GUARDAR SU DATA EN EL SWITCH
+static tProcess *running;
 
 int testrand();
 
-void start(void *initProcess) {
-	addProcess((tProcess *) initProcess, HIGHP);
-	// Add system idle
+void start(int (*entryPoint)(int, char**)) {
+	tProcess *shell = newProcess("shell", entryPoint, 0, NULL);
+	if (shell == NULL) {
+		// throw error
+		return;
+	}
+	addProcess(shell, HIGHP);
+	running = shell;
+	_runProcess(running->rsp);
 }
 
 void addProcess(tProcess *proc, int priority) {
-	/*
-	srand(getSecond());
-	tPList *curr = mallocMemory(sizeof(tPlist*));
-	curr->tickRange = mallocMemory(sizeof(tRange*));
-	curr->process = proc;
-	curr->next = processList;
-	curr->tickRange->from = tickets;
-	curr->tickRange->to = tickets + priority - 1;
-	curr->priority = priority;
+	tPList *new = malloc(sizeof(*new));
+	if (new == NULL) {
+		// throw error
+		putStr("list node null");
+	}
+	new->tickRange = malloc(sizeof(*(new->tickRange)));
+	if (new->tickRange == NULL) {
+		// throw error
+		putStr("tickRange null");
+	}
+	new->process = proc;
+	new->next = processList;
+	new->tickRange->from = tickets;
+	new->tickRange->to = tickets + priority - 1;
+	new->priority = priority;
 	tickets += priority;
-	processList = curr;*/
+	processList = new;
 }
 
-static void freeNode(tPList *curr) {
-	//freeMemory(curr->process);
-	//freeMemory(curr->tickRange);
+static void freeNode(tPList *node) {
+	free(node->process);
+	free(node->tickRange);
 }
 
 static tPList * recRem(tPList *list, tProcess *proc, int *procTickets) {
@@ -101,7 +114,6 @@ void lottery(uint64_t rsp) {
 			winner = testrand() % tickets;
 		}
 		quantum = QUANTUM;
-		_sti();
 		_runProcess(running->rsp);
 	}
 }
@@ -142,36 +154,68 @@ char* getProcList() {/*
 	return NULL;//strg;
 
 }
-//////// T E S T S ////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////  ///////  ///////////////////////////////////////////////////////
+//////// T E S T S ///////////////////////  ///////  ///////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////           ///////////////////////////////////////////////////////
+///////////////////////////////////////  /////////////  ////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void fncOne() {
+void fncOne(int argc, char *argv[]) {
 	while(1) {
-		putStr("1 ");
-		for (int i = 0; i < 3000000; i++) {
+		putStr(argv[0]);
+		for (int i = 0; i < 300000000; i++) {
 			;
 		}
-		_interrupt();
+		//_interrupt();
 	}
 }
 
-void fncTwo() {
+void fncTwo(int argc, char *argv[]) {
 	while(1) {
-		putStr("2 ");
-		for (int i = 0; i < 3000000; i++) {
+		putStr(argv[0]);
+		for (int i = 0; i < 300000000; i++) {
 			;
 		}
-		_interrupt();
+		//_interrupt();
 	}
 }
 
-void schedTest(uint64_t initAdress) {
+void schedTestDinamic() {
+	char *str1 = "1 ~ ";
+	char* vec1[1];
+	vec1[0] = str1;
+	char *str2 = "2 ~ ";
+	char* vec2[1];
+	vec2[0] = str2;
+	tProcess *one = newProcess("One", (mainFNC)fncOne, 1, vec1);
+	tProcess *two = newProcess("Two", (mainFNC)fncTwo, 1, vec2);
+
+	addProcess(one, 1);
+	addProcess(two, 1);
+
+	running = one;
+	//removeProcess(two);
+	putStr("start:\n");
+	_runProcess(running->rsp);
+	while(1){
+
+	}
+}
+
+void schedTestStatic(uint64_t initAdress) {
+	putStr("welcome\n");
+	char *str1 = "1 ~ ";
+	char *vec1[1];
+	vec1[0] = str1;
 	uint64_t memAd = initAdress + 1000000;
 	tProcess tOne;
 	tProcess *one = &tOne;
 	one->pid = 1;
 	one->entry = (mainFNC)fncOne;
-	one->argc = 0;
-	one->argv = NULL;
+	one->argc = 1;
+	one->argv = vec1;
 	one->stackBase = memAd;
 	one->stackTop = memAd - 4000;
 	one->status = READY;
@@ -188,12 +232,15 @@ void schedTest(uint64_t initAdress) {
 	listOne->tickRange = rangeOne;
 	listOne->priority = 1;
 	///////////////////////////////////////////////////////////////////////////////////////
+	char *str2 = "2 ~ ";
+	char *vec2[1];
+	vec2[0] = str2;
 	tProcess tTwo;
 	tProcess *two = &tTwo;
 	two->pid = 2;
 	two->entry = (mainFNC)fncTwo;
-	two->argc = 0;
-	two->argv = NULL;
+	two->argc = 1;
+	two->argv = vec2;
 	two->stackBase = memAd - 8000 ;
 	two->stackTop = memAd - 11999;
 	two->status = READY;
@@ -216,6 +263,7 @@ void schedTest(uint64_t initAdress) {
 	running = one; 
 	tickets = 2;
 	//////////////////////////////////
+	putStr("run:\n");
 	_runProcess(running->rsp);
 	while(1) {
 	}
