@@ -1,4 +1,4 @@
-#include <stdlib.h>
+#include <stddef.h>
 #include "process.h"
 #include "scheduler.h"
 #include "interruptions.h"
@@ -58,12 +58,12 @@ void start(int (*entryPoint)(int, char**)) {
 }
 
 void addProcess(tProcess *proc, int priority) {
-	tPList *new = mallocMemory(sizeof(*new));
+	tPList *new = malloc(sizeof(*new));
 	if (new == NULL) {
 		// throw error
 		putStr("list node null");
 	}
-	new->tickRange = mallocMemory(sizeof(*(new->tickRange)));
+	new->tickRange = malloc(sizeof(*(new->tickRange)));
 	if (new->tickRange == NULL) {
 		// throw error
 		putStr("tickRange null");
@@ -78,8 +78,8 @@ void addProcess(tProcess *proc, int priority) {
 }
 
 static void freeNode(tPList *node) {
-	freeMemory(node->process);
-	freeMemory(node->tickRange);
+	free(node->process);
+	free(node->tickRange);
 }
 
 static tPList * recRem(tPList *list, tProcess *proc, int *procTickets) {

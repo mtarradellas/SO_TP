@@ -1,4 +1,4 @@
-#include <stdlib.h>
+#include <stddef.h>
 #include "include/process.h"
 #include "include/memoryManager.h"
 
@@ -15,7 +15,7 @@ static long int id = 0;
 tProcess *newProcess(char *name, int (*entry)(int, char **), int argc,
                      char **argv) {
   
-  tProcess *newP = mallocMemory(sizeof(*newP));
+  tProcess *newP = malloc(sizeof(*newP));
   if (newP == NULL) {
   	// throw error
   	putStr("newP NULL");
@@ -26,7 +26,7 @@ tProcess *newProcess(char *name, int (*entry)(int, char **), int argc,
   newP->entry = entry;
   newP->argc = argc;
   newP->argv = argv;
-  newP->stackBase = mallocMemory(DEFAULT_PROC_MEM);
+  newP->stackBase = malloc(DEFAULT_PROC_MEM);
   if (newP->stackBase == NULL) {
   	// throw error
   	putStr("stack NULL");
