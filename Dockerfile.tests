@@ -7,4 +7,4 @@ RUN apt-get update && apt-get install -y \
       libcunit1-doc \
       libcunit1-dev
 
-CMD cd sources && gcc -o run_tests tests/*.c  -lcunit -std=c99 && ./run_tests && rm run_tests
+CMD cd sources && gcc -o run_tests tests/*.c  -lcunit -std=c99 -fsanitize=address && ./run_tests && rm run_tests

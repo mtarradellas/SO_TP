@@ -1,9 +1,6 @@
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
 #include "CUnit/Basic.h"
 #include "include/sum_suite.h"
+#include "include/queue_suite.h"
 
 static CU_pSuite addSuiteToRegistry(char* suiteName);
 static int exitWithError();
@@ -16,6 +13,7 @@ typedef struct {
 // test suites
 suite_t suites[] = {
   {"sum_suite", &add_sum_tests},
+  {"queue_suite", &add_queue_tests}
 };
 
 int main(void) {
