@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include "videoModule.h"
 
+// SYSTEM CALLS
 #define READ 0
 #define WRITE 1
 #define WAIT 2
@@ -14,12 +15,18 @@
 #define BEEPOFF 8
 #define GETCURSOR 9
 #define SETCURSOR 10
+#define MALLOC 11
+#define REALLOC 12
+#define FREE 13
 
+
+// WRITE
 #define CHARACTER 0
 #define DRAWCHAR 1
 #define CLEAR 2
 #define STRING 3
 
+// TIME
 #define HOUR 0
 #define MINUTE 1
 #define SECOND 2

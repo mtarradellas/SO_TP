@@ -5,6 +5,7 @@
 #include "include/stdlib.h"
 #include "include/timeModule.h"
 #include "include/videoModule.h"
+#include "include/memoryModule.h"
 
 #define INVCOM 0
 #define HELP 1
@@ -15,6 +16,8 @@
 #define INVOPCODE 6
 #define LENIA 7
 #define EXIT 8
+
+#define MEMTEST 9
 
 #define MAXLEN 256
 
@@ -48,7 +51,7 @@ cmd command_array[] = {
   (cmd)clear,      (cmd)time,
   (cmd)pong,       (cmd)zeroDiv,
   (cmd)invOpCode,  (cmd)lenia,
-  (cmd)exit 
+  (cmd)exit
 };
 
 int on = 1;
@@ -62,7 +65,7 @@ void initShell() {
     clearBuffer(command);
     scanAndPrint(command);
     int com = getCommand(command);
-    
+
     command_array[com]();
   }
   printf("\n\n End of program");
