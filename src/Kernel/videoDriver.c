@@ -87,7 +87,7 @@ void printChar(char c, Color color) {
   accomodateScreen();
 }
 
-void putStr(char* str) {
+void putStr(const char* str) {
   int i = 0;
   char c;
   while ((c = str[i++])) {

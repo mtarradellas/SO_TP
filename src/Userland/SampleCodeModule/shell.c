@@ -43,12 +43,13 @@ static void exit();
 // Displays the message for when a command was not recognized
 static void invCom();
 
+void _forceInterrupt();
+
 int on = 1;
 void initShell() {
   printf(
       "\n~~WELCOME TO LENIA'S SHELL~~\n\nPlease type 'help' to find out about "
       "our commands\n\n\n");
-
   char command[MAXLEN];
   while (on) {
     printf("$> ");

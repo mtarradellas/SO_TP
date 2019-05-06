@@ -50,7 +50,6 @@ SystemCall syscall_array[] = {
     (SystemCall)_beepoff,       (SystemCall)_getCursor,
     (SystemCall)_setCursor
 };
-
 void syscallDispatcher(uint64_t syscall, uint64_t p1, uint64_t p2, uint64_t p3,
                        uint64_t p4, uint64_t p5) {
   syscall_array[syscall](p1, p2, p3, p4, p5);

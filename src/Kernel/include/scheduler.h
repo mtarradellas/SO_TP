@@ -10,9 +10,11 @@
 #define READY 0
 #define BLOCKED 1
 
-void start(void *initProcess);
+void start(int (*entryPoint)(int, char**));
 void lottery(uint64_t rsp);
 char *getProcList();
-void schedTest(uint64_t initStack);
+
+void schedTestDinamic();
+void schedTestStatic(uint64_t initStack);
 
 #endif

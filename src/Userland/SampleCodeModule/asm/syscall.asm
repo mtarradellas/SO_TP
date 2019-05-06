@@ -1,4 +1,7 @@
 GLOBAL systemCall
+GLOBAL _forceInterrupt
+GLOBAL _sti
+GLOBAL _cli
 
 section .text
 
@@ -48,5 +51,17 @@ systemCall:
 
 	popState
 	pop rbp
- 	
+ 	sti
  	ret
+
+_forceInterrupt:
+	int 20h
+	ret
+
+_sti:
+	sti
+	ret
+
+_cli:
+	cli
+	ret

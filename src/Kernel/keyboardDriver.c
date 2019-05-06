@@ -1,4 +1,5 @@
 #include "include/keyboardDriver.h"
+#include "lib.h"
 
 #define BUFFER_SIZE 256
 #define LEFT_SHIFT_SC 42

@@ -5,6 +5,7 @@
 
 char buffer[BUFFER_SIZE] = {0};
 
+
 void printf(char* fmt, ...) {
   va_list args;
   va_start(args, fmt);
@@ -87,6 +88,7 @@ void scanAndPrint(char* buffer) {
   char* p = buffer;
   int idx = 0;
   while ((c = getChar()) != '\n') {
+
     if ((c > 31 && c < 127) || c == '\b' || c == '\n') {
       if (c == '\b' && idx > 0) {
         deleteChar();

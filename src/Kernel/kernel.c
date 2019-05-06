@@ -7,9 +7,6 @@
 #include "scheduler.h"
 #include "videoDriver.h"
 
-//manejo de warnings
-#include "include/memoryManager.h"
-
 extern uint8_t text;
 extern uint8_t rodata;
 extern uint8_t data;
@@ -21,8 +18,6 @@ static const uint64_t PageSize = 0x1000;
 
 static void* const sampleCodeModuleAddress = (void*)0x400000;
 static void* const sampleDataModuleAddress = (void*)0x500000;
-
-void _cli();
 
 typedef int (*EntryPoint)();
 
@@ -48,47 +43,8 @@ void* initializeKernelBinary() {
 
 int main() {
   _cli();
-  loadIDT();  
-  //schedTest((uint64_t)sampleCodeModuleAddress);
+  loadIDT();
+  start((EntryPoint)sampleCodeModuleAddress);
 
-  //return 1;
- 
-  char * ptr = (char *)calloc(6);
-
-
-  memcpy(ptr, "Lenia", sizeof("Lenia"));
-
-  printNode(getBlockNode((uint8_t *)ptr));
-  putStr("00000000000000000000000000000\n");
-
-
-  char * ptr2 = (char *) realloc(ptr, 25);
-
-  memcpy(ptr2+5, " Y franco", sizeof(" Y franco"));
-
-
-
-
-  printNode(getBlockNode((uint8_t *)ptr));
-  printNode(getBlockNode((uint8_t *)ptr2));
-
-  putStr("00000000000000000000000000000\n");
-
-  char * ptr3 = (char *) realloc(ptr2, 29);
-
-  memcpy(ptr3+14, " Y alejo", sizeof(" Y alejo"));
-
-  printNode(getBlockNode((uint8_t *)ptr));
-  printNode(getBlockNode((uint8_t *)ptr2));
-  printNode(getBlockNode((uint8_t *)ptr3));
-  putStr("00000000000000000000000000000\n");
-
-  char * ptr4 = (char *) malloc(43);
-  memcpy(ptr4, "babyy", sizeof("babyy"));
-  printNode(getBlockNode((uint8_t *)ptr));
-  printNode(getBlockNode((uint8_t *)ptr2));
-  printNode(getBlockNode((uint8_t *)ptr3));
-  printNode(getBlockNode((uint8_t *)ptr4));
-
-  return 1; 
+  return 1;
 }
