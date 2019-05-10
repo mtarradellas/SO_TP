@@ -6,7 +6,6 @@ section .text
 
 _runProcess:
 	
-	; mov rax, [rsp]
 	mov rsp, rdi
 
 	pop r15
@@ -23,9 +22,6 @@ _runProcess:
 	pop rdx
 	pop rcx
 	pop rbx
-
-	;mov [rbp], rax
-
 	
 	; End Of Interrupt
 	mov al, 20h

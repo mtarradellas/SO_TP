@@ -40,7 +40,6 @@ section .text
 %endmacro
 
 systemCall:
-	cli
 	push rbp
 	mov rbp, rsp
 
@@ -50,7 +49,7 @@ systemCall:
 
 	popState
 	pop rbp
- 	sti
+ 	
  	ret
 
 _forceInterrupt:

@@ -1,4 +1,4 @@
-/*#include "include/mutex.h"
+#include "include/mutex.h"
 #include "include/scheduler.h"
 #include "include/lib.h"
 mutex_t mutexCreate() {
@@ -17,7 +17,7 @@ static int acquire(int* value) {
 
 void mutexDelete(mutex_t mutex) { free(mutex); }
 
-void mutexLock(mutex_t mutex) {
+void mutexLock(mutex_t mutex) {/*
   if (!acquire(&(mutex->value))) {
     mutex->ownerPID = getPID();
   } else {
@@ -25,11 +25,11 @@ void mutexLock(mutex_t mutex) {
     mutex->lockedQueue = offer(mutex->lockedQueue, pid);
     blockProcess(pid);
     _force_scheduler();
-  }
+  }*/
 }
 
 void mutexUnlock(mutex_t mutex) {
-  if (mutex->ownerPID != getPID()) return;
+  /*if (mutex->ownerPID != getPID()) return;
 
   while (mutex->lockedQueue != 0) {
     unsigned long pid = poll(mutex->lockedQueue);
@@ -38,5 +38,5 @@ void mutexUnlock(mutex_t mutex) {
     return;
   }
   mutex->value = 0;
+  */
 }
-*/

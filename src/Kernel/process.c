@@ -5,8 +5,6 @@
 #include "lib.h"
 #include "include/videoDriver.h"
 
-#define READY 0
-#define BLOCKED 1
 #define DEFAULT_PROC_MEM 4096  // 4k
 
 static long int id;
@@ -25,13 +23,13 @@ tProcess *newProcess(char *name, int (*entry)(int, char **), int argc,
   newP->entry = entry;
   newP->argc = argc;
   newP->argv = argv;
-  newP->stackBase = (uint64_t)malloc(DEFAULT_PROC_MEM) + DEFAULT_PROC_MEM;
+  newP->stackBase = (uint64_t)malloc(DEFAULT_PROC_MEM) + DEFAULT_PROC_MEM - 1;
   if (newP->stackBase == NULL) {
   	// throw error
   	putStr("stack NULL");
   	return NULL;
   }
-  newP->stackTop = newP->stackBase - DEFAULT_PROC_MEM;
+  newP->stackTop = newP->stackBase - DEFAULT_PROC_MEM + 1;
   newP->rsp = newP->stackBase;
   newP->status = READY;
   return newP;

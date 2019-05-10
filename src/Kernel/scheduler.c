@@ -7,7 +7,7 @@
 #include "memoryManager.h"
 //////////////////////TESTS
 #include "videoDriver.h"
-typedef int (*mainFNC)();
+typedef int (*entryFnc)();
 
 #define QUANTUM 1
 
@@ -37,6 +37,8 @@ static int runTicket(int ticket, uint64_t rsp);
 static int inRange(tRange *range, int num);
 static void endProcess();
 void run(int (*entry)(int, char**), int argc, char** argv);
+static tProcess* getProcess(unsigned long int pid);
+int idle(int argc, char** argv);
 
 static tPList *processList;
 static tPList *auxList;
@@ -47,37 +49,46 @@ static tProcess *running;
 
 int testrand();
 
+int idle(int argc, char** argv) {
+	while(1){
+		putStr("i");
+	}
+	return 0;
+}
+
 void start(int (*entryPoint)(int, char**)) {
 	processList = NULL;
 	tickets = 0;
 	quantum = QUANTUM;
 	initializeMM();
 	initPids();
-	tProcess *shell = newProcess("shell", entryPoint, 0, NULL);
+	tProcess* shell = newProcess("shell", entryPoint, 0, NULL);
 	if (shell == NULL) {
 		// throw error
 		return;
 	}
-	addProcess(shell, 1);
+	addProcess(shell, HIGHP);
+	//tProcess* sysIdle = newProcess("system_idle", idle, 1, NULL); // Le estoy dando 4k de mem pero a quien le importa
+	//addProcess(sysIdle, 1);
 	running = shell;
 	_runProcess(running->rsp);
 }
 
 void run(int (*entry)(int, char**), int argc, char** argv) {
+	if (argc == 1) {
+	}
 	entry(argc, argv);
 	_cli();
 	endProcess(running);
 }
 
 void endProcess() {
-	putStr("\nending process\n");
 	removeProcess(running);
 	_interrupt();
 }
 
 void addProcess(tProcess *proc, int priority) {
-	priority = 1;
-	proc->rsp = _initStack(proc->stackBase, proc->entry, proc->argc, proc->argv, run);
+	proc->rsp = _initStack(proc->stackBase, proc->entry, proc->argc, proc->argv, (uint64_t)run);
 	tPList *new = malloc(sizeof(*new));
 	if (new == NULL) {
 		// throw error
@@ -130,9 +141,9 @@ void lottery(uint64_t rsp) {
 		return;
 	}
 	else {
-		winner = testrand() % tickets;
+		winner = rand() % tickets;
 		while(runTicket(winner, rsp) != 1) {
-			winner = testrand() % tickets;
+			winner = rand() % tickets;
 		}
 		quantum = QUANTUM;
 		_runProcess(running->rsp);
@@ -150,6 +161,31 @@ static int runTicket(int ticket, uint64_t rsp) {
 		auxList = auxList->next;
 	}
 	return 0;
+}
+
+unsigned long int getPID() {
+	return running->pid;
+}
+
+void blockProcess(unsigned long int pid) {
+	tProcess* p = getProcess(pid);
+	p->status = BLOCKED;
+}
+
+void unblockProcess(unsigned long int pid) {
+	tProcess* p = getProcess(pid);
+	p->status = READY;
+}
+
+static tProcess* getProcess(unsigned long int pid) {
+	auxList = processList;
+	while(auxList != NULL && auxList->process->pid != pid) {
+		auxList = auxList->next;
+	}
+	if (auxList == NULL) {
+		return NULL;
+	}
+	return auxList->process;
 }
 
 static int inRange(tRange *range, int num) {
@@ -210,8 +246,8 @@ void schedTestDinamic() {
 	char *str2 = "2 ~ ";
 	char* vec2[1];
 	vec2[0] = str2;
-	tProcess *one = newProcess("One", (mainFNC)fncOne, 1, vec1);
-	tProcess *two = newProcess("Two", (mainFNC)fncTwo, 1, vec2);
+	tProcess *one = newProcess("One", (entryFnc)fncOne, 1, vec1);
+	tProcess *two = newProcess("Two", (entryFnc)fncTwo, 1, vec2);
 
 	addProcess(one, 1);
 	addProcess(two, 1);
@@ -234,7 +270,7 @@ void schedTestStatic(uint64_t initAdress) {
 	tProcess tOne;
 	tProcess *one = &tOne;
 	one->pid = 1;
-	one->entry = (mainFNC)fncOne;
+	one->entry = (entryFnc)fncOne;
 	one->argc = 1;
 	one->argv = vec1;
 	one->stackBase = memAd;
@@ -259,7 +295,7 @@ void schedTestStatic(uint64_t initAdress) {
 	tProcess tTwo;
 	tProcess *two = &tTwo;
 	two->pid = 2;
-	two->entry = (mainFNC)fncTwo;
+	two->entry = (entryFnc)fncTwo;
 	two->argc = 1;
 	two->argv = vec2;
 	two->stackBase = memAd - 8000 ;

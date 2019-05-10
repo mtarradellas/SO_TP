@@ -50,7 +50,8 @@ static void invCom();
 
 ////// T E S T S
 static void newProc();
-static void ptest();
+static void test1();
+static void test2();
 
 cmd command_array[] = {
   (cmd)invCom,     (cmd)help,
@@ -147,10 +148,22 @@ static void invCom() {
 /////////////////////////////////////////////////////////////////////////////////
 typedef int (*mainf)();
 static void newProc() {
-  unsigned long int pid = createProcess("ptest", (mainf)ptest, 0, NULL, 1);  
+  printf("\n");
+  unsigned long int pid1 = createProcess("test1", (mainf)test1, 0, NULL, HIGHP);  
+  unsigned long int pid2 = createProcess("test2", (mainf)test2, 0, NULL, HIGHP);  
 }
 
-static void ptest() {
-  printf("\nhola\n");
+static void test1() {
+  while(1) {
+    printf(" 1 ");
+    wait(30);
+  }
   return;
+}
+
+static void test2() {
+  while(1) {
+    printf(" 2 ");
+    wait(30);
+  }
 }

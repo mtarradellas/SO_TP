@@ -87,7 +87,7 @@ static unsigned char keysWithShift[] = {
     DOWN,     AVPAG, INSERT,     SUPR, 0,     0,        '>',         F11,
     F12};
 
-void keyboardHandler() {
+int keyboardHandler() {
   unsigned char scanCode = _getKeyPress();
   unsigned char ascii;
   switch (scanCode) {
@@ -104,7 +104,7 @@ void keyboardHandler() {
     if (scanCode == LEFT_SHIFT_RELEASE || scanCode == RIGHT_SHIFT_RELEASE) {
       SHIFT_ON = 0;
     }
-    return;
+    return 0;
   }
 
   if ((SHIFT_ON && CAPSLOCK_ON) || (!SHIFT_ON && !CAPSLOCK_ON)) {
@@ -113,6 +113,7 @@ void keyboardHandler() {
     ascii = keysWithShift[scanCode];
   }
   addToBuffer(ascii);
+  return 1;
 }
 
 static void addToBuffer(unsigned char ascii) {
@@ -129,9 +130,8 @@ unsigned char getKey() {
   if (size <= 0) {
     return 0;
   }
-  unsigned char key = buffer[getIndex % BUFFER_SIZE];
+  unsigned char key = buffer[getIndex%BUFFER_SIZE];
   getIndex++;
   size--;
   return key;
 }
-

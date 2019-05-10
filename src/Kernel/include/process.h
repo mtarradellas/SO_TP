@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 
+#define READY 0
+#define BLOCKED 1
+
 typedef struct tProcess {
   unsigned long int pid;
   char *name;

@@ -83,18 +83,18 @@ char getChar() {
   return c;
 }
 
-void scanAndPrint(char* buffer) {
+void scanAndPrint(char * buffer) {
   char c;
-  char* p = buffer;
+  char * p = buffer;
   int idx = 0;
-  while ((c = getChar()) != '\n') {
-
-    if ((c > 31 && c < 127) || c == '\b' || c == '\n') {
+  while((c = getChar()) != '\n') {
+    if ((c>31 && c<127) || c=='\b' || c=='\n') {
       if (c == '\b' && idx > 0) {
         deleteChar();
         p--;
         idx--;
-      } else if (c != '\b') {
+      }
+      else if (c!='\b'){
         putChar(c);
         *p = c;
         p++;
@@ -102,7 +102,7 @@ void scanAndPrint(char* buffer) {
       }
     }
   }
-  *p = 0;
+  *p = 0;  
 }
 
 void clearBuffer(char* buffer) {

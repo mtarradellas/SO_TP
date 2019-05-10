@@ -1,10 +1,11 @@
 #ifndef IPC_MUTEX_H
 #define IPC_MUTEX_H
 #include <stddef.h>
+#include "./PIDQueue.h"
 typedef struct {
   int value;
   unsigned long ownerPID;
-  NODE* lockedQueue;
+  PIDQueue lockedQueue;
 } tMutex;
 
 typedef tMutex* mutex_t;

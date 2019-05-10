@@ -6,6 +6,7 @@
 #include "include/memoryManager.h"
 #include "include/process.h"
 #include "include/scheduler.h"
+//#include "include/mutex.h"
 
 // SYSTEM CALLS
 #define READ 0
@@ -56,6 +57,18 @@ static void _realloc(void* src, size_t size, void** dest);
 static void _free(void* src);
 static unsigned long int _createProc(char* name, int (*entry)(int, char**), int argc, char** argv, int priority);
 
+typedef struct tProcList {
+  tProcess* process;
+  struct procList* next;
+} tProcList;
+
+typedef struct tReadMutex {
+  int keys;
+  tProcList* readQueue;
+}tReadMutex;
+
+tReadMutex readMutex;
+
 typedef uint64_t (*SystemCall)();
 SystemCall syscall_array[] = {
     (SystemCall)_read,          (SystemCall)_write,
@@ -73,7 +86,15 @@ void syscallDispatcher(uint64_t syscall, uint64_t p1, uint64_t p2, uint64_t p3,
 
 }
 
-static void _read(char *c) { *c = getKey(); }
+/*void signalAddedKey() {
+  readMutex.keys++;
+
+}*/
+
+static void _read(char *c) { 
+  //waitForKey();
+  *c = getKey(); 
+}
 
 static void _write(uint64_t mode, uint64_t p1, uint64_t p2, uint64_t p3,
                    uint64_t p4) {

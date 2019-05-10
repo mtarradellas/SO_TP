@@ -15,6 +15,9 @@ void start(int (*entryPoint)(int, char**));
 void lottery(uint64_t rsp);
 char *getProcList();
 void addProcess(tProcess *proc, int priority);
+unsigned long int getPID();
+void blockProcess(unsigned long int pid);
+void unblockProcess(unsigned long int pid);
 
 void schedTestDinamic();
 void schedTestStatic(uint64_t initStack);
