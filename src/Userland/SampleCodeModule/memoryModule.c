@@ -18,3 +18,7 @@ void* realloc(void* source, size_t size) {
 void free(void* source) {
   systemCall((uint64_t)FREE, (uint64_t)source, 0, 0, 0, 0);
 }
+
+void printNode(void* source) {
+  systemCall((uint64_t)PRINTNODE, (uint64_t)source, 0, 0, 0, 0);
+}

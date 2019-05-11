@@ -239,15 +239,16 @@ void joinNodes(listNode * node) {
 }
 
 // used for testing solo usar si el content es un string
-void printNode(listNode * node) {
+void printNode(uint8_t * address) {
 
+  listNode * node = getBlockNode(address);
   if(node == NULL){
     putStr("Invalid node: this node does not exist or has been freed \n");
     putStr("----");
     newLine();
     return;
   }
-
+  putStr("\n----\n");
   putStr("content: ");
   putStr((char *)node->address);
   newLine();

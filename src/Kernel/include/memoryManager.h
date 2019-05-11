@@ -54,7 +54,7 @@ void initializeMM();
 //not for user
 //used for tesing
 
-void printNode(listNode * node);
+void printNode(uint8_t * address);
 listNode * getBlockNode(uint8_t * address);
 
 #endif

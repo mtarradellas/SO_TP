@@ -20,6 +20,7 @@
 //////////////////////////
 #define NEWPROC 9
 //////////////////////////
+#define MEMTEST 10
 
 #define MAXLEN 256
 
@@ -48,6 +49,7 @@ static void exit();
 // Displays the message for when a command was not recognized
 static void invCom();
 
+static void memTest();
 ////// T E S T S
 static void newProc();
 static void test1();
@@ -58,7 +60,8 @@ cmd command_array[] = {
   (cmd)clear,      (cmd)time,
   (cmd)pong,       (cmd)zeroDiv,
   (cmd)invOpCode,  (cmd)lenia,
-  (cmd)exit,       (cmd)newProc
+  (cmd)exit,       (cmd)newProc,
+  (cmd)memTest
 };
 
 int on = 1;
@@ -88,6 +91,7 @@ static int getCommand(char* command) {
   if (!strCmp("lenia", command)) return LENIA;
   if (!strCmp("exit", command)) return EXIT;
   if (!strCmp("np", command)) return NEWPROC;
+  if (!strCmp("memtest", command)) return MEMTEST;
   return INVCOM;
 }
 
@@ -99,6 +103,7 @@ static void help() {
   printf("  * exit      :       Exits shell\n");
   printf("  * lenia     :       Beep\n");
   printf("  * time      :       Displays current time\n");
+  printf("  * memtest   :       Shows functioning Memory Management\n");
   printf(
       "  * pong      :       Iniciates pong when user presses 'enter' which "
       "will run until\n");
@@ -144,6 +149,43 @@ static void exit() { on = 0; }
 static void invCom() {
   printf("\nInvalid command");
 }
+
+static void memTest(){
+
+  char * mem = malloc(25);
+  printf("\n Memory has been allocated correctly (and string has been inserted). Showing memory block:");
+
+  char copy[25] = "Penguins have knees";
+  memcpy(mem, copy, sizeof(copy));
+
+  printNode(mem);
+
+  free(mem);
+  printf("Memory has been freed. Showing memory block:\n");
+
+  printNode(mem);
+
+  char * mem2 = malloc(16);
+  printf("\n New memory has been allocated correctly in the same block. Showing memory block:");
+
+  printNode(mem2);
+  char copy2[16] = "it works, relax";
+  memcpy(mem, copy2, sizeof(copy2));
+
+  printf("\n Showing memory block with new inserted string:");
+  printNode(mem2);
+
+  free(mem2);
+  printf("Memory has been freed.\n");
+
+  printf("\n        ////////////////////////////////////////////////////////////////////////////////////////////////////////////\n");
+  printf("        //////////////////////////////////////////  ///////  ///////////////////////////////////////////////////////\n");
+  printf("        //////////////////////////////////////////  ///////  ///////////////////////////////////////////////////////\n");
+  printf("        ////////////////////////////////////////////////////////////////////////////////////////////////////////////\n");
+  printf("        ///////////////////////////////////////  ////////////  /////////////////////////////////////////////////////\n");
+  printf("        ////////////////////////////////////////             ///////////////////////////////////////////////////////\n");
+  printf("        ////////////////////////////////////////////////////////////////////////////////////////////////////////////\n");
+}  
 /////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////
 typedef int (*mainf)();
