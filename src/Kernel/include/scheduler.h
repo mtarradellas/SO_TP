@@ -2,6 +2,7 @@
 #define SCHEDULER_H
 
 #include <stdint.h>
+#include "process.h"
 
 #define HIGHP 100
 #define MIDP 60
@@ -12,8 +13,13 @@
 
 void start(int (*entryPoint)(int, char**));
 void lottery(uint64_t rsp);
-char *getProcList();
+void addProcess(tProcess *proc);
+void removeProcess();
+tProcess* getCurrrentProcess();
+void initStack(tProcess* proc);
+void killProc(unsigned long int pid);
 
+char *getProcList();
 void schedTestDinamic();
 void schedTestStatic(uint64_t initStack);
 

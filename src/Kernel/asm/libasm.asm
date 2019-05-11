@@ -1,5 +1,6 @@
 GLOBAL cpuVendor
 GLOBAL printTimeASM
+GLOBAL _go_to
 
 section .text
 	
@@ -25,4 +26,9 @@ cpuVendor:
 
 	mov rsp, rbp
 	pop rbp
+	ret
+
+_go_to:
+	mov rsp, rdi
+	mov rbp, rsp
 	ret

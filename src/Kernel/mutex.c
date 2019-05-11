@@ -1,41 +1,42 @@
-// #include "include/mutex.h"
-// #include "include/scheduler.h"
-// #include "include/lib.h"
-// mutex_t mutexCreate() {
-//   mutex_t m = malloc(sizeof(tMutex));
-//   m->value = 0;
-//   m->ownerPID = -1;
-//   m->lockedQueue = NULL;
-//   return m;
-// }
+#include "include/memoryManager.h"
+#include "include/mutex.h"
+#include "include/lib.h"
+#include "include/scheduler.h"
 
-// static int acquire(int* value) {
-//   int ret = *value;
-//   *value = 1;
-//   return ret;
-// }
+void _interrupt();
 
-// void mutexDelete(mutex_t mutex) { free(mutex); }
+mutex_t mutexCreate() {
+  mutex_t m = malloc(sizeof(tMutex));
+  m->value = 0;
+  m->ownerPID = -1;
+  m->lockedQueue = newQueue();
+  return m;
+}
 
-// void mutexLock(mutex_t mutex) {
-//   if (!acquire(&(mutex->value))) {
-//     mutex->ownerPID = getPID();
-//   } else {
-//     unsigned long pid = getPID();
-//     mutex->lockedQueue = offer(mutex->lockedQueue, pid);
-//     blockProcess(pid);
-//     _force_scheduler();
-//   }
-// }
 
-// void mutexUnlock(mutex_t mutex) {
-//   if (mutex->ownerPID != getPID()) return;
+void mutexDelete(mutex_t mutex) {
+  freeQueue(mutex->lockedQueue);
+  free(mutex);
+}
 
-//   while (mutex->lockedQueue != 0) {
-//     unsigned long pid = poll(mutex->lockedQueue);
-//     mutex->ownerPID = pid;
-//     unblockProcess(pid);
-//     return;
-//   }
-//   mutex->value = 0;
-// }
+void mutexLock(mutex_t mutex) {
+  if (_mutex_acquire(&(mutex->value))) {
+    mutex->ownerPID = getCurrrentProcess()->pid;
+  } else {
+    offer(mutex->lockedQueue, getCurrrentProcess());
+    removeProcess();
+  }
+}
+
+void mutexUnlock(mutex_t mutex) {
+  if (mutex->ownerPID != getCurrrentProcess()->pid) return;
+
+  while (mutex->lockedQueue != 0) {
+    tProcess* proc = poll(mutex->lockedQueue);
+    mutex->ownerPID = proc->pid;
+    addProcess(proc);
+    return;
+  }
+  mutex->value = 0;
+}
+

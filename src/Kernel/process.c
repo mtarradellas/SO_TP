@@ -2,20 +2,17 @@
 #include "include/process.h"
 #include "include/memoryManager.h"
 
+#include "lib.h"
 #include "include/videoDriver.h"
 
-#define READY 0
-#define BLOCKED 1
 #define DEFAULT_PROC_MEM 4096  // 4k
-
-uint64_t _initProcess(uint64_t stackBase, int (*entry)(int, char **), int argc, char **argv);
 
 static long int id;
 
 tProcess *newProcess(char *name, int (*entry)(int, char **), int argc,
-                     char **argv) {
+                     char **argv, int priority) {
   
-  tProcess *newP = (uint64_t)malloc(sizeof(*newP));
+  tProcess *newP = malloc(sizeof(tProcess));
   if (newP == NULL) {
   	// throw error
   	putStr("newP NULL");
@@ -26,18 +23,24 @@ tProcess *newProcess(char *name, int (*entry)(int, char **), int argc,
   newP->entry = entry;
   newP->argc = argc;
   newP->argv = argv;
-  newP->stackBase = (uint64_t)malloc(DEFAULT_PROC_MEM);
-  if (newP->stackBase == NULL) {
+  newP->stackBase = (uint64_t)malloc(DEFAULT_PROC_MEM) + DEFAULT_PROC_MEM - 1;
+  if ((void*) newP->stackBase == NULL) {
   	// throw error
   	putStr("stack NULL");
   	return NULL;
   }
-  newP->stackTop = newP->stackBase - DEFAULT_PROC_MEM;
-  newP->rsp = _initProcess(newP->stackBase, newP->entry, newP->argc, newP->argv);
+  newP->stackTop = newP->stackBase - DEFAULT_PROC_MEM + 1;
+  newP->rsp = newP->stackBase;
+  newP->priority = priority;
   newP->status = READY;
   return newP;
 }
 
 void initPids() {
   id = 0;
+}
+
+void freeProcess(tProcess* process) {
+  free((tProcess*) process->stackTop);
+  free(process);
 }

@@ -8,6 +8,7 @@ void *memcpy(void *destination, const void *source, uint64_t length);
 
 // Transformes a decimal to string. used for displaying the registers
 char *decToStr(int num, char *buffer);
+unsigned long int rand();
 
 char *cpuVendor(char *result);
 

@@ -11,16 +11,10 @@ static unsigned long ticks = 0;
 void timeHandler() { ticks++; }
 
 int ticksElapsed() { return ticks; }
-//  N O   A N D A
 void wait(int n) {
   _sti();
-  //char buff[50];
   unsigned long t = ticks + n;
-  //putStr("");
-  //putStr(decToStr(t))
-  while (ticks < t) {
-  	//putStr("o");
-  }
+  while (ticks < t) {}
 }
 
 unsigned int getHour() {

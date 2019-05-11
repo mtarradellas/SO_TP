@@ -24,4 +24,8 @@ static void int20(uint64_t rsp) {
 }
 
 static void int21() { 
-  keyboardHandler(); }
+  //if(keyboardHandler() == 1) {
+  //  signalAddedKey();
+  //}
+  keyboardHandler();
+}

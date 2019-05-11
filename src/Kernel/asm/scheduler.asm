@@ -1,11 +1,13 @@
 GLOBAL _runProcess
-GLOBAL _initProcess
+GLOBAL _initStack
 GLOBAL _interrupt
 
 section .text
 
 _runProcess:
+	
 	mov rsp, rdi
+
 	pop r15
 	pop r14
 	pop r13
@@ -20,37 +22,37 @@ _runProcess:
 	pop rdx
 	pop rcx
 	pop rbx
-
+	
 	; End Of Interrupt
 	mov al, 20h
 	out 20h, al
-	
-	pop rax
 
+	pop rax
 	iretq
 
-_initProcess:
+_initStack:
 
 	push rbp
 	mov rbp, rsp
 
 	mov rsp, rdi ; stack pointer of new process
 	mov rbx, rsp ; base stack pointer for new process
+
 	; simulation for interruped stack
-	push 0x0    ; Align
+	push 0x0  ; Align
 	push 0x0	; SS
 	push rbx  ; RSP
 	push 0x202	; FLAGS
 	push 0x08	; CS
-	push rsi  ; IP for main of new process
+	push r8  ; IP for main wrapper of new process
 	; new registers for the new process to pop, numbered for testing
 	push 1  ; rax
 	push 2  ; rbx
 	push 3  ; rcx
-	push 4  ; rdx
+	push rcx  ; rdx
 	push rdi  ; rbp new base pointer
-	push rdx  ; rdi (argv for main)
-	push rcx  ; rsi (argc for main)
+	push rsi  ; rdi (process main)
+	push rdx  ; rsi (argc for main)
 	push 8  ; r8
 	push 9  ; r9
 	push 10  ; r10

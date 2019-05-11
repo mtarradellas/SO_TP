@@ -18,6 +18,9 @@
 #define MALLOC 11
 #define REALLOC 12
 #define FREE 13
+#define CREATEPROC 14
+#define PRINTNODE 15
+#define KILL 16
 
 
 // WRITE

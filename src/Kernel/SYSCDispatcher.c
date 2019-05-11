@@ -4,6 +4,9 @@
 #include "include/timeDriver.h"
 #include "include/videoDriver.h"
 #include "include/memoryManager.h"
+#include "include/process.h"
+#include "include/scheduler.h"
+//#include "include/mutex.h"
 
 // SYSTEM CALLS
 #define READ 0
@@ -20,6 +23,9 @@
 #define MALLOC 11
 #define REALLOC 12
 #define FREE 13
+#define CREATEPROC 14
+#define PRINTNODE 15
+#define KILL 16
 
 
 // WRITE
@@ -51,6 +57,22 @@ static void _beepoff();
 static void _malloc(void** dest, size_t size);
 static void _realloc(void* src, size_t size, void** dest);
 static void _free(void* src);
+static void _printNode(void* src);
+static unsigned long int _createProc(char* name, int (*entry)(int, char**), int argc, char** argv, int priority);
+static void _kill(unsigned long int pid);
+
+
+typedef struct tProcList {
+  tProcess* process;
+  struct procList* next;
+} tProcList;
+
+typedef struct tReadMutex {
+  int keys;
+  tProcList* readQueue;
+}tReadMutex;
+
+tReadMutex readMutex;
 
 typedef uint64_t (*SystemCall)();
 SystemCall syscall_array[] = {
@@ -60,14 +82,25 @@ SystemCall syscall_array[] = {
     (SystemCall)_drawRectangle, (SystemCall)_beepon,
     (SystemCall)_beepoff,       (SystemCall)_getCursor,
     (SystemCall)_setCursor,     (SystemCall)_malloc,
-    (SystemCall)_realloc,       (SystemCall)_free
+    (SystemCall)_realloc,       (SystemCall)_free,
+    (SystemCall)_createProc,    (SystemCall)_printNode,
+    (SystemCall)_kill
 };
 void syscallDispatcher(uint64_t syscall, uint64_t p1, uint64_t p2, uint64_t p3,
                        uint64_t p4, uint64_t p5) {
   syscall_array[syscall](p1, p2, p3, p4, p5);
+
 }
 
-static void _read(char *c) { *c = getKey(); }
+/*void signalAddedKey() {
+  readMutex.keys++;
+
+}*/
+
+static void _read(char *c) { 
+  //waitForKey();
+  *c = getKey(); 
+}
 
 static void _write(uint64_t mode, uint64_t p1, uint64_t p2, uint64_t p3,
                    uint64_t p4) {
@@ -125,3 +158,16 @@ static void _malloc(void** dest, size_t size) { *dest = malloc(size); }
 static void _realloc(void* src, size_t size, void**dest) { *dest = realloc(src, size); }
 
 static void _free(void* src) { free(src); }
+
+static unsigned long int _createProc(char* name, int (*entry)(int, char**), int argc, char** argv, int priority) {
+  tProcess* newP = newProcess(name, entry, argc, argv, priority);
+  initStack(newP);
+  addProcess(newP);
+  return newP->pid;
+}
+
+static void _printNode(void* src) { printNode(src); }
+
+static void _kill(unsigned long int pid) {
+  killProc(pid);
+}

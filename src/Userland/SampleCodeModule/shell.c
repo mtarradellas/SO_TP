@@ -6,6 +6,7 @@
 #include "include/timeModule.h"
 #include "include/videoModule.h"
 #include "include/memoryModule.h"
+#include "include/processModule.h"
 
 #define INVCOM 0
 #define HELP 1
@@ -16,8 +17,10 @@
 #define INVOPCODE 6
 #define LENIA 7
 #define EXIT 8
-
-#define MEMTEST 9
+//////////////////////////
+#define NEWPROC 9
+//////////////////////////
+#define MEMTEST 10
 
 #define MAXLEN 256
 
@@ -46,12 +49,19 @@ static void exit();
 // Displays the message for when a command was not recognized
 static void invCom();
 
+static void memTest();
+////// T E S T S
+static void newProc();
+static void test1();
+static void test2();
+
 cmd command_array[] = {
   (cmd)invCom,     (cmd)help,
   (cmd)clear,      (cmd)time,
   (cmd)pong,       (cmd)zeroDiv,
   (cmd)invOpCode,  (cmd)lenia,
-  (cmd)exit
+  (cmd)exit,       (cmd)newProc,
+  (cmd)memTest
 };
 
 int on = 1;
@@ -61,7 +71,7 @@ void initShell() {
       "our commands\n\n\n");
   char command[MAXLEN];
   while (on) {
-    printf("$> ");
+    printf("\n$> ");
     clearBuffer(command);
     scanAndPrint(command);
     int com = getCommand(command);
@@ -80,6 +90,8 @@ static int getCommand(char* command) {
   if (!strCmp("invopcode", command)) return INVOPCODE;
   if (!strCmp("lenia", command)) return LENIA;
   if (!strCmp("exit", command)) return EXIT;
+  if (!strCmp("np", command)) return NEWPROC;
+  if (!strCmp("memtest", command)) return MEMTEST;
   return INVCOM;
 }
 
@@ -91,6 +103,7 @@ static void help() {
   printf("  * exit      :       Exits shell\n");
   printf("  * lenia     :       Beep\n");
   printf("  * time      :       Displays current time\n");
+  printf("  * memtest   :       Shows functioning Memory Management\n");
   printf(
       "  * pong      :       Iniciates pong when user presses 'enter' which "
       "will run until\n");
@@ -98,19 +111,19 @@ static void help() {
       "                      end of game or until user presses 'backspace' to "
       "leave\n");
 
-  printf("\n  Any other command will be taken as invalid\n\n");
+  printf("\n  Any other command will be taken as invalid\n");
 }
 
 static void clear() {
   clearScreen();
-  printf("\n~~Welcome to Lenia's Shell~~\n\n\n");
+  printf("\n~~Welcome to Lenia's Shell~~\n\n");
 }
 
 static void time() {
   unsigned int h = getHour();
   unsigned int m = getMinute();
   unsigned int s = getSecond();
-  printf("\nLocal Time: %d:%d:%d\n", h, m, s);
+  printf("\nLocal Time: %d:%d:%d", h, m, s);
 }
 
 static void pong() {
@@ -129,11 +142,73 @@ static void lenia() {
   doBeep();
   wait(20);
   noBeep();
-  printf("\n");
 }
 
 static void exit() { on = 0; }
 
 static void invCom() {
-  printf("\nInvalid command\n");
+  printf("\nInvalid command");
+}
+
+static void memTest(){
+
+  char * mem = malloc(25);
+  printf("\n Memory has been allocated correctly (and string has been inserted). Showing memory block:");
+
+  char copy[25] = "Penguins have knees";
+  memcpy(mem, copy, sizeof(copy));
+
+  printNode(mem);
+
+  free(mem);
+  printf("Memory has been freed. Showing memory block:\n");
+
+  printNode(mem);
+
+  char * mem2 = malloc(16);
+  printf("\n New memory has been allocated correctly in the same block. Showing memory block:");
+
+  printNode(mem2);
+  char copy2[16] = "it works, relax";
+  memcpy(mem, copy2, sizeof(copy2));
+
+  printf("\n Showing memory block with new inserted string:");
+  printNode(mem2);
+
+  free(mem2);
+  printf("Memory has been freed.\n");
+
+  printf("\n        ////////////////////////////////////////////////////////////////////////////////////////////////////////////\n");
+  printf("        //////////////////////////////////////////  ///////  ///////////////////////////////////////////////////////\n");
+  printf("        //////////////////////////////////////////  ///////  ///////////////////////////////////////////////////////\n");
+  printf("        ////////////////////////////////////////////////////////////////////////////////////////////////////////////\n");
+  printf("        ///////////////////////////////////////  ////////////  /////////////////////////////////////////////////////\n");
+  printf("        ////////////////////////////////////////             ///////////////////////////////////////////////////////\n");
+  printf("        ////////////////////////////////////////////////////////////////////////////////////////////////////////////\n");
+}  
+/////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
+typedef int (*mainf)();
+static void newProc() {
+  printf("\n");
+  unsigned long int pid1 = createProcess("test1", (mainf)test1, 0, NULL, HIGHP);  
+  createProcess("test2", (mainf)test2, 0, NULL, HIGHP);  
+  wait(100);
+  printf("KILLING %d\n", pid1);
+  kill(pid1);
+}
+
+static void test1() {
+  while(1) {
+    printf("\n1\n");
+    wait(30);
+  }
+  return;
+}
+
+static void test2() {
+  while(1) {
+    printf("\n2\n");
+    wait(30);
+  }
 }
