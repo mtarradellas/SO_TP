@@ -24,6 +24,7 @@
 #define REALLOC 12
 #define FREE 13
 #define CREATEPROC 14
+#define KILL 15
 
 
 // WRITE
@@ -56,6 +57,7 @@ static void _malloc(void** dest, size_t size);
 static void _realloc(void* src, size_t size, void** dest);
 static void _free(void* src);
 static unsigned long int _createProc(char* name, int (*entry)(int, char**), int argc, char** argv, int priority);
+static void _kill(unsigned long int pid);
 
 
 typedef struct tProcList {
@@ -79,7 +81,7 @@ SystemCall syscall_array[] = {
     (SystemCall)_beepoff,       (SystemCall)_getCursor,
     (SystemCall)_setCursor,     (SystemCall)_malloc,
     (SystemCall)_realloc,       (SystemCall)_free,
-    (SystemCall)_createProc
+    (SystemCall)_createProc,    (SystemCall)_kill
 };
 void syscallDispatcher(uint64_t syscall, uint64_t p1, uint64_t p2, uint64_t p3,
                        uint64_t p4, uint64_t p5) {
@@ -159,4 +161,8 @@ static unsigned long int _createProc(char* name, int (*entry)(int, char**), int 
   initStack(newP);
   addProcess(newP);
   return newP->pid;
+}
+
+static void _kill(unsigned long int pid) {
+  killProc(pid);
 }

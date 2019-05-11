@@ -151,11 +151,14 @@ static void newProc() {
   printf("\n");
   unsigned long int pid1 = createProcess("test1", (mainf)test1, 0, NULL, HIGHP);  
   unsigned long int pid2 = createProcess("test2", (mainf)test2, 0, NULL, HIGHP);  
+  wait(100);
+  printf("KILLING %d\n", pid1);
+  kill(pid1);
 }
 
 static void test1() {
   while(1) {
-    printf(" 1 ");
+    printf("\n1\n");
     wait(30);
   }
   return;
@@ -163,7 +166,7 @@ static void test1() {
 
 static void test2() {
   while(1) {
-    printf(" 2 ");
+    printf("\n2\n");
     wait(30);
   }
 }

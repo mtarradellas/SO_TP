@@ -132,6 +132,15 @@ void removeProcess(tProcess *proc) {
 	processList = recRem(processList, proc, &procTickets);
 }
 
+void killProc(unsigned long int pid) {
+	_cli();
+	tProcess* p = getProcess(pid);
+	removeProcess(p);
+	freeProcess(p);
+	_sti();
+	_interrupt();
+}
+
 void lottery(uint64_t rsp) {
 	if (processList == NULL) {return; }
 	if (quantum != 0) {

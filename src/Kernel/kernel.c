@@ -51,5 +51,6 @@ int main() {
   _cli();
   loadIDT();
   start((EntryPoint)sampleCodeModuleAddress);
+  //schedTestDinamic();
   return 1;
 }

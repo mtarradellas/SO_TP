@@ -17,6 +17,7 @@ void addProcess(tProcess *proc);
 void removeProcess(tProcess *proc);
 tProcess* getRunning();
 void initStack(tProcess* proc);
+void killProc(unsigned long int pid);
 
 char *getProcList();
 void schedTestDinamic();

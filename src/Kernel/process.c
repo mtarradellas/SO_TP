@@ -39,3 +39,8 @@ tProcess *newProcess(char *name, int (*entry)(int, char **), int argc,
 void initPids() {
   id = 0;
 }
+
+void freeProcess(tProcess* process) {
+  free(process->stackTop);
+  free(process);
+}

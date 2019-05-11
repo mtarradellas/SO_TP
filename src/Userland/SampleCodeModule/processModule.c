@@ -7,3 +7,7 @@ unsigned long int createProcess(char* name, int (*entry)(int, char**), int argc,
                                       (uint64_t)entry, (uint64_t)argc, (uint64_t)argv, (uint64_t)priority);
 	return pid;
 }
+
+void kill(unsigned long int pid) {
+  systemCall((uint64_t)KILL, pid, 0, 0, 0, 0);
+}

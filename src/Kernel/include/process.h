@@ -23,5 +23,6 @@ struct tProcess *newProcess(char *name, int (*entry)(int, char **), int argc,
                             char **argv, int priority);
 
 void initPids();
+void freeProcess(tProcess* process);
 
 #endif

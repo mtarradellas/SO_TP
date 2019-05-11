@@ -38,8 +38,6 @@ _initStack:
 	mov rsp, rdi ; stack pointer of new process
 	mov rbx, rsp ; base stack pointer for new process
 
-	; mov [rsp], r8 ; return to end process after it finishes
-
 	; simulation for interruped stack
 	push 0x0  ; Align
 	push 0x0	; SS
