@@ -4,10 +4,6 @@
 #include <stdint.h>
 #include "process.h"
 
-#define HIGHP 100
-#define MIDP 60
-#define LOWP 40
-
 #define READY 0
 #define BLOCKED 1
 
@@ -18,6 +14,7 @@ void removeProcess(tProcess* process);
 tProcess* getCurrrentProcess();
 void initStack(tProcess* proc);
 void killProc(unsigned long int pid);
+void ps(tProcessData*** psVec, int* size);
 
 char *getProcList();
 void schedTestDinamic();

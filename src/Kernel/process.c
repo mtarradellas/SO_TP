@@ -44,3 +44,14 @@ void freeProcess(tProcess* process) {
   free((tProcess*) process->stackTop);
   free(process);
 }
+
+void getProcessData(tProcess* process, tProcessData* data) {
+  data->name = process->name;
+  data->memory = process->stackBase - process->stackTop;
+  data->pid = process->pid;
+  if (process->status == BLOCKED) {data->status = "Blocked";}
+  else {data->status = "Ready";}
+  if (process->priority == HIGHP) {data->priority = "High";}
+  else if (process->priority == MIDP) {data->priority = "Medium";}
+  else {data->priority = "Low";}
+}

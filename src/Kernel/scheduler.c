@@ -193,25 +193,24 @@ static int inRange(tRange *range, int num) {
 	return (num >= range->from) && (num <= range->to);
 }
 
-char* getProcList() {/*
-	char* strg = mallocMemory(BLOQUE);
-	int j=0;
+void ps(tProcessData*** psVec, int* size) {
+	_cli();
 	auxList = processList;
-	while(auxList != NULL){ // considero que el nombre de los procesos tienen un ' /0' al final
-		int i=0;
-		while (auxList->process->name[i] != '/0'){
-			if(j%BLOQUE == 0){
-				strg = reallocMemory(strg,sizeof(char*)*(j+BLOQUE));
-			}
-			strg[j++] = auxList->process->name[i++];
-		}
-		strg[j] = '\n';
+	tProcessData** auxVec = NULL;
+	int s = 0;
+	while(auxList != NULL) {
+		auxVec = realloc(auxVec, (s+1)*sizeof(*auxVec));
+		auxVec[s] = malloc(sizeof(tProcessData));
+		getProcessData(auxList->process, auxVec[s]);
+		s++;
 		auxList = auxList->next;
 	}
-	strg = reallocMemory(strg,sizeof(char*) * j);*/
-	return NULL;//strg;
-
+	(*psVec) = auxVec;
+	(*size) = s;
+	_sti();
 }
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////  ///////  ///////////////////////////////////////////////////////
 //////// T E S T S ///////////////////////  ///////  ///////////////////////////////////////////////////////

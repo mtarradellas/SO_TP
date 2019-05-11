@@ -3,6 +3,10 @@
 
 #include <stdint.h>
 
+#define HIGHP 100
+#define MIDP 60
+#define LOWP 40
+
 #define READY 0
 #define BLOCKED 1
 
@@ -19,10 +23,19 @@ typedef struct tProcess {
   char **argv;
 } tProcess;
 
+typedef struct tProcessData {
+  unsigned long int pid;
+  char* name;
+  char* status;
+  int memory;
+  char* priority;
+} tProcessData;
+
 struct tProcess *newProcess(char *name, int (*entry)(int, char **), int argc,
                             char **argv, int priority);
 
 void initPids();
 void freeProcess(tProcess* process);
+void getProcessData(tProcess* process, tProcessData* data);
 
 #endif

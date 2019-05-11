@@ -21,6 +21,7 @@
 #define CREATEPROC 14
 #define PRINTNODE 15
 #define KILL 16
+#define PS 17
 
 
 // WRITE

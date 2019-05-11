@@ -38,6 +38,10 @@ void * malloc(size_t space) {
 
 void * realloc(void * memoryAddress, size_t space) {
 
+  if (memoryAddress == NULL) {
+    return malloc(space);
+  }
+
   listNode * bestFitNode = getBestFitNode(space);
   listNode * oldNode = getBlockNode(memoryAddress);
 
