@@ -78,12 +78,12 @@ void start(int (*entryPoint)(int, char**)) {
 void run(int (*entry)(int, char**), int argc, char** argv) {
 	entry(argc, argv);
 	_cli();
-	endProcess(running);
+	endProcess();
 }
 
 void endProcess() {
 	removeProcess(running);
-	// free proc
+	free(running);
 	_interrupt();
 }
 
@@ -127,9 +127,9 @@ static tPList * recRem(tPList *list, tProcess *proc, int *procTickets) {
 	return list;
 }
 
-void removeProcess() {
+void removeProcess(tProcess* process) {
 	int procTickets = 0;
-	processList = recRem(processList, getCurrrentProcess(), &procTickets);
+	processList = recRem(processList, process, &procTickets);
 }
 
 void killProc(unsigned long int pid) {

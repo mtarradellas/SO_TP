@@ -20,11 +20,12 @@ void mutexDelete(mutex_t mutex) {
 }
 
 void mutexLock(mutex_t mutex) {
+  tProcess* running = getCurrrentProcess();
   if (_mutex_acquire(&(mutex->value))) {
-    mutex->ownerPID = getCurrrentProcess()->pid;
+    mutex->ownerPID = running->pid;
   } else {
-    offer(mutex->lockedQueue, getCurrrentProcess());
-    removeProcess();
+    offer(mutex->lockedQueue, running);
+    removeProcess(running);
   }
 }
 
