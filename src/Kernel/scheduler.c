@@ -7,6 +7,8 @@
 #include "memoryManager.h"
 //////////////////////TESTS
 #include "videoDriver.h"
+#include "SYSCDispatcher.h"
+
 typedef int (*entryFnc)();
 
 #define QUANTUM 1
@@ -19,7 +21,6 @@ typedef struct tRange {
 typedef struct tPList {
 	struct tProcess *process;
 	struct tRange *tickRange;
-	int priority;
 	struct tPList *next;
 } tPList;
 
@@ -32,7 +33,6 @@ uint64_t _initStack(uint64_t stackBase, int (*entry)(int, char **), int argc, ch
 
 static void freeNode(tPList *curr);
 static tPList * recRem(tPList *list, tProcess *proc, int *procTickets);
-void removeProcess(tProcess *proc);
 static int runTicket(int ticket, uint64_t rsp);
 static int inRange(tRange *range, int num);
 static void endProcess();
@@ -62,12 +62,13 @@ void start(int (*entryPoint)(int, char**)) {
 	quantum = QUANTUM;
 	initializeMM();
 	initPids();
-	tProcess* shell = newProcess("shell", entryPoint, 0, NULL);
+	tProcess* shell = newProcess("shell", entryPoint, 0, NULL, HIGHP);
 	if (shell == NULL) {
 		// throw error
 		return;
 	}
-	addProcess(shell, HIGHP);
+	initStack(shell);
+	addProcess(shell);
 	//tProcess* sysIdle = newProcess("system_idle", idle, 1, NULL); // Le estoy dando 4k de mem pero a quien le importa
 	//addProcess(sysIdle, 1);
 	running = shell;
@@ -75,8 +76,6 @@ void start(int (*entryPoint)(int, char**)) {
 }
 
 void run(int (*entry)(int, char**), int argc, char** argv) {
-	if (argc == 1) {
-	}
 	entry(argc, argv);
 	_cli();
 	endProcess(running);
@@ -84,11 +83,11 @@ void run(int (*entry)(int, char**), int argc, char** argv) {
 
 void endProcess() {
 	removeProcess(running);
+	// free proc
 	_interrupt();
 }
 
-void addProcess(tProcess *proc, int priority) {
-	proc->rsp = _initStack(proc->stackBase, proc->entry, proc->argc, proc->argv, (uint64_t)run);
+void addProcess(tProcess *proc) {
 	tPList *new = malloc(sizeof(*new));
 	if (new == NULL) {
 		// throw error
@@ -102,22 +101,21 @@ void addProcess(tProcess *proc, int priority) {
 	new->process = proc;
 	new->next = processList;
 	new->tickRange->from = tickets;
-	new->tickRange->to = tickets + priority - 1;
-	new->priority = priority;
-	tickets += priority;
+	new->tickRange->to = tickets + proc->priority - 1;
+	tickets += proc->priority;
 	processList = new;
 }
 
 static void freeNode(tPList *node) {
-	free(node->process);
 	free(node->tickRange);
+	free(node);
 }
 
 static tPList * recRem(tPList *list, tProcess *proc, int *procTickets) {
 	if(list == NULL)
 		return NULL;
 	if(list->process == proc) {
-		*procTickets = list->priority;
+		*procTickets = proc->priority;
 		tickets -= *procTickets;
 		tPList* aux = list->next;
 		freeNode(list);
@@ -163,18 +161,8 @@ static int runTicket(int ticket, uint64_t rsp) {
 	return 0;
 }
 
-unsigned long int getPID() {
-	return running->pid;
-}
-
-void blockProcess(unsigned long int pid) {
-	tProcess* p = getProcess(pid);
-	p->status = BLOCKED;
-}
-
-void unblockProcess(unsigned long int pid) {
-	tProcess* p = getProcess(pid);
-	p->status = READY;
+tProcess* getRunning() {
+	return running;
 }
 
 static tProcess* getProcess(unsigned long int pid) {
@@ -186,6 +174,10 @@ static tProcess* getProcess(unsigned long int pid) {
 		return NULL;
 	}
 	return auxList->process;
+}
+
+void initStack(tProcess* proc) {
+	proc->rsp = _initStack(proc->stackBase, proc->entry, proc->argc, proc->argv, (uint64_t)run);
 }
 
 static int inRange(tRange *range, int num) {
@@ -218,7 +210,7 @@ char* getProcList() {/*
 //////////////////////////////////////////           ///////////////////////////////////////////////////////
 ///////////////////////////////////////  /////////////  ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+/*
 void fncOne(int argc, char *argv[]) {
 	while(1) {
 		putStr(argv[0]);
@@ -239,28 +231,57 @@ void fncTwo(int argc, char *argv[]) {
 	}
 }
 
+void printProcList();
+
+void test1() {
+  while(1) {
+    putStr(" 1 ");
+    wait(10);
+  }
+  return;
+}
+
+void test2() {
+  while(1) {
+    putStr(" 2 ");
+    wait(10);
+  }
+}
+
+// con mallocs
 void schedTestDinamic() {
-	char *str1 = "1 ~ ";
-	char* vec1[1];
-	vec1[0] = str1;
-	char *str2 = "2 ~ ";
-	char* vec2[1];
-	vec2[0] = str2;
-	tProcess *one = newProcess("One", (entryFnc)fncOne, 1, vec1);
-	tProcess *two = newProcess("Two", (entryFnc)fncTwo, 1, vec2);
 
-	addProcess(one, 1);
-	addProcess(two, 1);
+	processList = NULL;
+	tickets = 0;
+	quantum = QUANTUM;
+	initializeMM();
+	initPids();
 
-	running = one;
-	//removeProcess(two);
+	tProcess* one = newProcess("one", test1, 0, NULL);
+  addProcess(one, 10);
+
+  tProcess* two = newProcess("two", test2, 0, NULL);
+  addProcess(two, 10);
+
+  running = two;
 	putStr("start:\n");
+	_sti();
 	_runProcess(running->rsp);
+	printProcList();
 	while(1){
 
 	}
 }
 
+void printProcList() {
+	auxList = processList;
+	while(auxList != NULL) {
+		putStr(auxList->process->name);
+		auxList = auxList->next;
+	}
+}
+
+// sin mallocs
 void schedTestStatic(uint64_t initAdress) {
 	putStr("welcome\n");
 	char *str1 = "1 ~ ";
@@ -330,3 +351,4 @@ int testrand() {
 	random++;
 	return random;
 }
+*/

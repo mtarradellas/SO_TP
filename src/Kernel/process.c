@@ -10,7 +10,7 @@
 static long int id;
 
 tProcess *newProcess(char *name, int (*entry)(int, char **), int argc,
-                     char **argv) {
+                     char **argv, int priority) {
   
   tProcess *newP = (uint64_t)malloc(sizeof(tProcess));
   if (newP == NULL) {
@@ -31,6 +31,7 @@ tProcess *newProcess(char *name, int (*entry)(int, char **), int argc,
   }
   newP->stackTop = newP->stackBase - DEFAULT_PROC_MEM + 1;
   newP->rsp = newP->stackBase;
+  newP->priority = priority;
   newP->status = READY;
   return newP;
 }
