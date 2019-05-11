@@ -12,7 +12,7 @@ static long int id;
 tProcess *newProcess(char *name, int (*entry)(int, char **), int argc,
                      char **argv, int priority) {
   
-  tProcess *newP = (uint64_t)malloc(sizeof(tProcess));
+  tProcess *newP = malloc(sizeof(tProcess));
   if (newP == NULL) {
   	// throw error
   	putStr("newP NULL");
@@ -24,7 +24,7 @@ tProcess *newProcess(char *name, int (*entry)(int, char **), int argc,
   newP->argc = argc;
   newP->argv = argv;
   newP->stackBase = (uint64_t)malloc(DEFAULT_PROC_MEM) + DEFAULT_PROC_MEM - 1;
-  if (newP->stackBase == NULL) {
+  if ((void*) newP->stackBase == NULL) {
   	// throw error
   	putStr("stack NULL");
   	return NULL;
@@ -41,6 +41,6 @@ void initPids() {
 }
 
 void freeProcess(tProcess* process) {
-  free(process->stackTop);
+  free((tProcess*) process->stackTop);
   free(process);
 }

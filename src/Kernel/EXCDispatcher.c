@@ -55,6 +55,6 @@ static void printInfo(uint64_t *sp) {
     putStr("\n");
   }
   putStr("RSP ");
-  putStr(decToStr((int)sp, buffer));
+  putStr(decToStr((uint64_t)sp, buffer));
   putStr("\n");
 }

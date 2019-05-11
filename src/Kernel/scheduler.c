@@ -127,9 +127,9 @@ static tPList * recRem(tPList *list, tProcess *proc, int *procTickets) {
 	return list;
 }
 
-void removeProcess(tProcess *proc) {
+void removeProcess() {
 	int procTickets = 0;
-	processList = recRem(processList, proc, &procTickets);
+	processList = recRem(processList, getCurrrentProcess(), &procTickets);
 }
 
 void killProc(unsigned long int pid) {
@@ -170,7 +170,7 @@ static int runTicket(int ticket, uint64_t rsp) {
 	return 0;
 }
 
-tProcess* getRunning() {
+tProcess* getCurrrentProcess() {
 	return running;
 }
 

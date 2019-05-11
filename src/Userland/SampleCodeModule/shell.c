@@ -192,7 +192,7 @@ typedef int (*mainf)();
 static void newProc() {
   printf("\n");
   unsigned long int pid1 = createProcess("test1", (mainf)test1, 0, NULL, HIGHP);  
-  unsigned long int pid2 = createProcess("test2", (mainf)test2, 0, NULL, HIGHP);  
+  createProcess("test2", (mainf)test2, 0, NULL, HIGHP);  
   wait(100);
   printf("KILLING %d\n", pid1);
   kill(pid1);

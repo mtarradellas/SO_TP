@@ -14,8 +14,8 @@
 void start(int (*entryPoint)(int, char**));
 void lottery(uint64_t rsp);
 void addProcess(tProcess *proc);
-void removeProcess(tProcess *proc);
-tProcess* getRunning();
+void removeProcess();
+tProcess* getCurrrentProcess();
 void initStack(tProcess* proc);
 void killProc(unsigned long int pid);
 

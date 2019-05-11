@@ -1,15 +1,15 @@
-#include "include/PIDQueue.h"
+#include "include/procQueue.h"
 #include "include/memoryManager.h"
 
-PIDQueue newQueue() {
-  PIDQueue queue = malloc(sizeof(*queue));
+procQueue newQueue() {
+  procQueue queue = malloc(sizeof(*queue));
   queue->first = NULL;
   queue->last = NULL;
   queue->size = 0;
   return queue;
 }
 
-void offer(PIDQueue queue, unsigned long elem) {
+void offer(procQueue queue, tProcess* elem) {
   if (queue == NULL) {
     return;
   }
@@ -28,8 +28,8 @@ void offer(PIDQueue queue, unsigned long elem) {
   return;
 }
 
-unsigned long poll(PIDQueue queue) {
-  unsigned long value;
+tProcess* poll(procQueue queue) {
+  tProcess* value;
   tNode *temp = queue->first;
   if (temp != NULL) {
     value = temp->elem;
@@ -41,9 +41,9 @@ unsigned long poll(PIDQueue queue) {
   return value;
 }
 
-int getSize(PIDQueue queue) { return queue->size; }
+int getSize(procQueue queue) { return queue->size; }
 
-void freeQueue(PIDQueue queue) {
+void freeQueue(procQueue queue) {
   if (queue == NULL) {
     return;
   }

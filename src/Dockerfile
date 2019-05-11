@@ -7,4 +7,4 @@ RUN apt-get update && apt-get install -y \
       git \
       qemu 
 
-CMD cd sources && cd Toolchain && make all && cd .. && make clean && make all
+CMD cd sources && cd Toolchain && make all > /dev/null && cd .. && make clean > /dev/null && make all > /dev/null
