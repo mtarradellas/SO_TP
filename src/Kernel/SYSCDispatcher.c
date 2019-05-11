@@ -57,6 +57,7 @@ static void _realloc(void* src, size_t size, void** dest);
 static void _free(void* src);
 static unsigned long int _createProc(char* name, int (*entry)(int, char**), int argc, char** argv, int priority);
 
+
 typedef struct tProcList {
   tProcess* process;
   struct procList* next;
@@ -154,7 +155,8 @@ static void _realloc(void* src, size_t size, void**dest) { *dest = realloc(src, 
 static void _free(void* src) { free(src); }
 
 static unsigned long int _createProc(char* name, int (*entry)(int, char**), int argc, char** argv, int priority) {
-  tProcess* newP = newProcess(name, entry, argc, argv);
-  addProcess(newP, priority);
+  tProcess* newP = newProcess(name, entry, argc, argv, priority);
+  initStack(newP);
+  addProcess(newP);
   return newP->pid;
 }
