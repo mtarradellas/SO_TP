@@ -15,7 +15,7 @@ tProcess* getCurrrentProcess();
 void initStack(tProcess* proc);
 void killProc(unsigned long int pid);
 
-char *getProcList();
+void printProcList();
 void schedTestDinamic();
 void schedTestStatic(uint64_t initStack);
 

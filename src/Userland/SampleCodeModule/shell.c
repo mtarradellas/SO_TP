@@ -204,23 +204,28 @@ static void memTest(){
 /////////////////////////////////////////////////////////////////////////////////
 typedef int (*mainf)();
 static void newProc() {
-  printf("\n");
   createProcess("test1", (mainf)test1, 0, NULL, MIDP);  
   createProcess("test2", (mainf)test2, 0, NULL, LOWP);  
-
+  printf("\n");
 }
 
 static void test1() {
-  while(1) {
-    printf("\n1\n");
+  int i = 0;
+  while(i < 5) {
+    printf("1\n");
     wait(30);
+    i++;
   }
+  printf("test 1 done\n");
   return;
 }
 
 static void test2() {
-  while(1) {
-    printf("\n2\n");
+  int i = 0;
+  while(i < 5) {
+    printf("2\n");
     wait(30);
+    i++;
   }
+  printf("test 2 done\n");
 }

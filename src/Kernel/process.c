@@ -64,7 +64,7 @@ static tPList* removeP(tPList* node, tProcess* process) {
     return aux;
   }
   node->next = removeP(node->next, process);
-  return NULL;
+  return node;
 }
 
 void initPids() {
