@@ -1,9 +1,9 @@
 #ifndef PROCESSMODULE_H
 #define PROCESSMODULE_H
 
-#define HIGHP 100
-#define MIDP 60
-#define LOWP 40
+#define HIGHP 250
+#define MIDP 150
+#define LOWP 10
 
 typedef struct tProcessData {
   unsigned long int pid;
