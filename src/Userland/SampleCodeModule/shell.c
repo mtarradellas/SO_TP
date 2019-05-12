@@ -17,9 +17,10 @@
 #define INVOPCODE 6
 #define LENIA 7
 #define EXIT 8
-#define NEWPROC 9
+#define PTEST 9
 #define MEMTEST 10
 #define PS 11
+#define KILLTEST 12
 
 #define MAXLEN 256
 
@@ -47,22 +48,24 @@ static void lenia();
 static void exit();
 // Displays the message for when a command was not recognized
 static void invCom();
-
-static void memTest();
-
+// Displays table with processes information
 static void ps();
-////// T E S T S
-static void newProc();
+// Memory allocation test
+static void memTest();
+// Multiple processes test
+static void pTest();
 static void test1();
 static void test2();
+static void killTest();
 
 cmd command_array[] = {
   (cmd)invCom,     (cmd)help,
   (cmd)clear,      (cmd)time,
   (cmd)pong,       (cmd)zeroDiv,
   (cmd)invOpCode,  (cmd)lenia,
-  (cmd)exit,       (cmd)newProc,
-  (cmd)memTest,    (cmd)ps
+  (cmd)exit,       (cmd)pTest,
+  (cmd)memTest,    (cmd)ps,
+  (cmd)killTest
 };
 
 int on = 1;
@@ -91,7 +94,8 @@ static int getCommand(char* command) {
   if (!strCmp("invopcode", command)) return INVOPCODE;
   if (!strCmp("lenia", command)) return LENIA;
   if (!strCmp("exit", command)) return EXIT;
-  if (!strCmp("np", command)) return NEWPROC;
+  if (!strCmp("ptest", command)) return PTEST;
+  if (!strCmp("killtest", command)) return KILLTEST;
   if (!strCmp("memtest", command)) return MEMTEST;
   if (!strCmp("ps", command)) return PS; 
   return INVCOM;
@@ -106,6 +110,8 @@ static void help() {
   printf("  * lenia     :       Beep\n");
   printf("  * time      :       Displays current time\n");
   printf("  * memtest   :       Shows functioning Memory Management\n");
+  printf("  * ptest     :       Runs multiple processes to show functionality\n");
+  printf("  * killtest  :       Kills all processes created from ptest command\n");
   printf("  * ps        :       Displays process table with, name, pid, status, foreground, memory, priority\n");
   printf(
       "  * pong      :       Iniciates pong when user presses 'enter' which "
@@ -200,20 +206,27 @@ static void memTest(){
   printf("        ////////////////////////////////////////             ///////////////////////////////////////////////////////\n");
   printf("        ////////////////////////////////////////////////////////////////////////////////////////////////////////////\n");
 }  
-/////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////
+
+unsigned long int testp[2];
 typedef int (*mainf)();
-static void newProc() {
-  createProcess("test1", (mainf)test1, 0, NULL, MIDP);  
-  createProcess("test2", (mainf)test2, 0, NULL, LOWP);  
-  printf("\n");
+static void pTest() {
+  printf("\nCreating two processes that will end after a couple of seconds\n");
+  printf("Process 1 has high priority, process 2 has low priority\n");
+  printf("You may kill all test processes at anytime with 'killtest' command\n");
+  testp[0] = createProcess("test1", (mainf)test1, 0, NULL, HIGHP);  
+  testp[1] = createProcess("test2", (mainf)test2, 0, NULL, LOWP);  
+}
+
+static void killTest() {
+  kill(testp[0]);
+  kill(testp[1]);
 }
 
 static void test1() {
   int i = 0;
   while(i < 5) {
-    printf("1\n");
-    wait(30);
+    printf("  ~1\n");
+    wait(50);
     i++;
   }
   printf("test 1 done\n");
@@ -223,8 +236,8 @@ static void test1() {
 static void test2() {
   int i = 0;
   while(i < 5) {
-    printf("2\n");
-    wait(30);
+    printf("  ~2\n");
+    wait(50);
     i++;
   }
   printf("test 2 done\n");
