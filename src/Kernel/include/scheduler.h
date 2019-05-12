@@ -14,7 +14,6 @@ void removeProcess(tProcess* process);
 tProcess* getCurrrentProcess();
 void initStack(tProcess* proc);
 void killProc(unsigned long int pid);
-void ps(tProcessData*** psVec, int* size);
 
 char *getProcList();
 void schedTestDinamic();

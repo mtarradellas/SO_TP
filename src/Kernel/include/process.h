@@ -37,5 +37,6 @@ struct tProcess *newProcess(char *name, int (*entry)(int, char **), int argc,
 void initPids();
 void freeProcess(tProcess* process);
 void getProcessData(tProcess* process, tProcessData* data);
+void ps(tProcessData*** psVec, int* size);
 
 #endif

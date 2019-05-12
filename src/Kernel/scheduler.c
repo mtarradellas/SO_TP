@@ -193,23 +193,6 @@ static int inRange(tRange *range, int num) {
 	return (num >= range->from) && (num <= range->to);
 }
 
-void ps(tProcessData*** psVec, int* size) {
-	_cli();
-	auxList = processList;
-	tProcessData** auxVec = NULL;
-	int s = 0;
-	while(auxList != NULL) {
-		auxVec = realloc(auxVec, (s+1)*sizeof(*auxVec));
-		auxVec[s] = malloc(sizeof(tProcessData));
-		getProcessData(auxList->process, auxVec[s]);
-		s++;
-		auxList = auxList->next;
-	}
-	(*psVec) = auxVec;
-	(*size) = s;
-	_sti();
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////  ///////  ///////////////////////////////////////////////////////
