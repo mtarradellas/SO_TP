@@ -26,6 +26,7 @@
 #define CREATEPROC 14
 #define PRINTNODE 15
 #define KILL 16
+#define PS 17
 
 
 // WRITE
@@ -60,6 +61,7 @@ static void _free(void* src);
 static void _printNode(void* src);
 static unsigned long int _createProc(char* name, int (*entry)(int, char**), int argc, char** argv, int priority);
 static void _kill(unsigned long int pid);
+static void _ps(tProcessData*** psVec, int *size);
 
 
 typedef struct tProcList {
@@ -84,7 +86,7 @@ SystemCall syscall_array[] = {
     (SystemCall)_setCursor,     (SystemCall)_malloc,
     (SystemCall)_realloc,       (SystemCall)_free,
     (SystemCall)_createProc,    (SystemCall)_printNode,
-    (SystemCall)_kill
+    (SystemCall)_kill,          (SystemCall)_ps
 };
 void syscallDispatcher(uint64_t syscall, uint64_t p1, uint64_t p2, uint64_t p3,
                        uint64_t p4, uint64_t p5) {
@@ -170,4 +172,8 @@ static void _printNode(void* src) { printNode(src); }
 
 static void _kill(unsigned long int pid) {
   killProc(pid);
+}
+
+static void _ps(tProcessData*** psVec, int *size) {
+  ps(psVec, size);
 }

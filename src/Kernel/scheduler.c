@@ -11,7 +11,7 @@
 
 typedef int (*entryFnc)();
 
-#define QUANTUM 1
+#define QUANTUM 0
 
 typedef struct tRange {
 	int from;
@@ -83,7 +83,8 @@ void run(int (*entry)(int, char**), int argc, char** argv) {
 
 void endProcess() {
 	removeProcess(running);
-	free(running);
+	freeProcess(running);
+	running = NULL;
 	_interrupt();
 }
 
@@ -161,7 +162,7 @@ static int runTicket(int ticket, uint64_t rsp) {
 	auxList = processList;
 	while(auxList != NULL) {
 		if (inRange(auxList->tickRange, ticket)) {
-			running->rsp = rsp;
+			if (running != NULL) running->rsp = rsp;
 			running = auxList->process;
 			return 1;
 		}
@@ -193,25 +194,7 @@ static int inRange(tRange *range, int num) {
 	return (num >= range->from) && (num <= range->to);
 }
 
-char* getProcList() {/*
-	char* strg = mallocMemory(BLOQUE);
-	int j=0;
-	auxList = processList;
-	while(auxList != NULL){ // considero que el nombre de los procesos tienen un ' /0' al final
-		int i=0;
-		while (auxList->process->name[i] != '/0'){
-			if(j%BLOQUE == 0){
-				strg = reallocMemory(strg,sizeof(char*)*(j+BLOQUE));
-			}
-			strg[j++] = auxList->process->name[i++];
-		}
-		strg[j] = '\n';
-		auxList = auxList->next;
-	}
-	strg = reallocMemory(strg,sizeof(char*) * j);*/
-	return NULL;//strg;
 
-}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////  ///////  ///////////////////////////////////////////////////////
 //////// T E S T S ///////////////////////  ///////  ///////////////////////////////////////////////////////
@@ -239,8 +222,6 @@ void fncTwo(int argc, char *argv[]) {
 		//_interrupt();
 	}
 }
-
-void printProcList();
 
 void test1() {
   while(1) {
@@ -281,7 +262,7 @@ void schedTestDinamic() {
 
 	}
 }
-
+*/
 void printProcList() {
 	auxList = processList;
 	while(auxList != NULL) {
@@ -289,7 +270,7 @@ void printProcList() {
 		auxList = auxList->next;
 	}
 }
-
+/*
 // sin mallocs
 void schedTestStatic(uint64_t initAdress) {
 	putStr("welcome\n");

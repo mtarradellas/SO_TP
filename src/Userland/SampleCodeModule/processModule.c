@@ -11,3 +11,7 @@ unsigned long int createProcess(char* name, int (*entry)(int, char**), int argc,
 void kill(unsigned long int pid) {
   systemCall((uint64_t)KILL, pid, 0, 0, 0, 0);
 }
+
+void getPS(tProcessData*** psVec, int *size) {
+  systemCall((uint64_t)PS, psVec, size, 0, 0, 0);
+}

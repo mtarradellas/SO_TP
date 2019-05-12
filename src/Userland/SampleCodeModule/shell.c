@@ -17,10 +17,9 @@
 #define INVOPCODE 6
 #define LENIA 7
 #define EXIT 8
-//////////////////////////
 #define NEWPROC 9
-//////////////////////////
 #define MEMTEST 10
+#define PS 11
 
 #define MAXLEN 256
 
@@ -50,6 +49,8 @@ static void exit();
 static void invCom();
 
 static void memTest();
+
+static void ps();
 ////// T E S T S
 static void newProc();
 static void test1();
@@ -61,7 +62,7 @@ cmd command_array[] = {
   (cmd)pong,       (cmd)zeroDiv,
   (cmd)invOpCode,  (cmd)lenia,
   (cmd)exit,       (cmd)newProc,
-  (cmd)memTest
+  (cmd)memTest,    (cmd)ps
 };
 
 int on = 1;
@@ -92,6 +93,7 @@ static int getCommand(char* command) {
   if (!strCmp("exit", command)) return EXIT;
   if (!strCmp("np", command)) return NEWPROC;
   if (!strCmp("memtest", command)) return MEMTEST;
+  if (!strCmp("ps", command)) return PS; 
   return INVCOM;
 }
 
@@ -104,6 +106,7 @@ static void help() {
   printf("  * lenia     :       Beep\n");
   printf("  * time      :       Displays current time\n");
   printf("  * memtest   :       Shows functioning Memory Management\n");
+  printf("  * ps        :       Displays process table with, name, pid, status, foreground, memory, priority\n");
   printf(
       "  * pong      :       Iniciates pong when user presses 'enter' which "
       "will run until\n");
@@ -150,6 +153,17 @@ static void invCom() {
   printf("\nInvalid command");
 }
 
+static void ps() {
+  tProcessData** psVec;
+  int size;
+  getPS(&psVec, &size);
+  printf("\nPID     Name      Status     Memory    Priority\n"); // 8 10 12 13 10
+  for (int i = 0; i < size; i++) {
+    printf("%d       %s     %s      %d      %s\n", psVec[i]->pid, psVec[i]->name, 
+                                          psVec[i]->status, psVec[i]->memory, psVec[i]->priority);
+  }
+}
+
 static void memTest(){
 
   char * mem = malloc(25);
@@ -190,25 +204,28 @@ static void memTest(){
 /////////////////////////////////////////////////////////////////////////////////
 typedef int (*mainf)();
 static void newProc() {
+  createProcess("test1", (mainf)test1, 0, NULL, MIDP);  
+  createProcess("test2", (mainf)test2, 0, NULL, LOWP);  
   printf("\n");
-  unsigned long int pid1 = createProcess("test1", (mainf)test1, 0, NULL, HIGHP);  
-  createProcess("test2", (mainf)test2, 0, NULL, HIGHP);  
-  wait(100);
-  printf("KILLING %d\n", pid1);
-  kill(pid1);
 }
 
 static void test1() {
-  while(1) {
-    printf("\n1\n");
+  int i = 0;
+  while(i < 5) {
+    printf("1\n");
     wait(30);
+    i++;
   }
+  printf("test 1 done\n");
   return;
 }
 
 static void test2() {
-  while(1) {
-    printf("\n2\n");
+  int i = 0;
+  while(i < 5) {
+    printf("2\n");
     wait(30);
+    i++;
   }
+  printf("test 2 done\n");
 }
