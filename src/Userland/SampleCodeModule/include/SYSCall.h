@@ -4,37 +4,33 @@
 #include "videoModule.h"
 
 // SYSTEM CALLS
-#define READ 0
-#define WRITE 1
-#define WAIT 2
-#define GETTIME 3
-#define GETSCREENSIZE 4
-#define DRAWCIRCLE 5
-#define DRAWRECTANGLE 6
-#define BEEPON 7
-#define BEEPOFF 8
-#define GETCURSOR 9
-#define SETCURSOR 10
-#define MALLOC 11
-#define REALLOC 12
-#define FREE 13
-#define CREATEPROC 14
-#define PRINTNODE 15
-#define KILL 16
-#define PS 17
-#define WAITPID 18
-
+typedef enum {
+  READ,
+  WRITE,
+  WAIT,
+  GETTIME,
+  GETSCREENSIZE,
+  DRAWCIRCLE,
+  DRAWRECTANGLE,
+  BEEPON,
+  BEEPOFF,
+  GETCURSOR,
+  SETCURSOR,
+  MALLOC,
+  REALLOC,
+  FREE,
+  CREATEPROC,
+  PRINTNODE,
+  KILL,
+  PS,
+  WAITPID
+} Syscall;
 
 // WRITE
-#define CHARACTER 0
-#define DRAWCHAR 1
-#define CLEAR 2
-#define STRING 3
+typedef enum { CHARACTER, DRAWCHAR, CLEAR, STRING } Write;
 
 // TIME
-#define HOUR 0
-#define MINUTE 1
-#define SECOND 2
+typedef enum {HOUR, MINUTE, SECOND} Time;
 
 #define BUFFER_SIZE 256
 

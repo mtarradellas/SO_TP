@@ -1,12 +1,12 @@
-#ifndef IPC_MUTEX_H
-#define IPC_MUTEX_H
+#ifndef MUTEX_H
+#define MUTEX_H
 #include <stddef.h>
-#include "./procQueue.h"
+#include "./queue.h"
 #include "./process.h"
 typedef struct {
   int value;
   unsigned long ownerPID;
-  procQueue lockedQueue;
+  queue_t lockedQueue;
 } tMutex;
 
 typedef tMutex* mutex_t;
