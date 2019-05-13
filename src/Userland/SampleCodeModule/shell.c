@@ -7,6 +7,7 @@
 #include "include/stdlib.h"
 #include "include/timeModule.h"
 #include "include/videoModule.h"
+#include "include/prodCon.h"
 typedef enum {
   INVCOM,
   HELP,
@@ -21,7 +22,8 @@ typedef enum {
   MEMTEST,
   PS,
   KILLTEST,
-  STACKOV
+  STACKOV,
+  PRODCON
 } Command;
 
 
@@ -29,6 +31,7 @@ typedef enum {
 
 void opCode();
 
+typedef int (*mainf)();
 typedef unsigned long int (*cmd)();
 
 // Gets command ready to use in a switch function
@@ -57,6 +60,8 @@ static unsigned long int exit();
 static unsigned long int invCom();
 // Displays table with processes information
 static unsigned long int ps();
+// Launches ProdCon application
+static unsigned long int prodCon();
 // Memory allocation test
 static unsigned long int memTest();
 // Multiple processes test wrapper
@@ -76,7 +81,8 @@ cmd command_array[] = {
   (cmd)invOpCode,  (cmd)lenia,
   (cmd)exit,       (cmd)pTestWrapper,
   (cmd)memTest,    (cmd)ps,
-  (cmd)killTest,   (cmd)stackOv
+  (cmd)killTest,   (cmd)stackOv,
+  (cmd)prodCon
 };
 
 
@@ -123,6 +129,7 @@ static int getCommand(char* command) {
   if (!strCmp("killtest", command)) return KILLTEST;
   if (!strCmp("memtest", command)) return MEMTEST;
   if (!strCmp("ps", command)) return PS;
+  if (!strCmp("prodcon", command)) return PRODCON;
   return INVCOM;
 }
 
@@ -145,6 +152,7 @@ static unsigned long int help() {
   printf("  * exit      :       Exits shell\n");
   printf("  * lenia     :       Beep\n");
   printf("  * time      :       Displays current time\n");
+  printf("  * prodcon   :       Launches ProdCon application\n");
   printf("  * memtest   :       Shows functioning Memory Management\n");
   printf(
       "  * ptest     :       Runs multiple processes to show functionality\n");
@@ -202,6 +210,7 @@ static unsigned long int stackOv() {
   printf("        ///////////////////////////////////////  /////////////  ////////////////////////////////////////////////////\n");
   printf("        ////////////////////////////////////////////////////////////////////////////////////////////////////////////\n");
   stackOv();
+  return 0;
 }
 
 static unsigned long int lenia() {
@@ -237,6 +246,9 @@ static unsigned long int ps() {
   return 0;
 }
 
+static unsigned long int prodCon() {
+  return createProcess("ProdCon", (mainf)startProdCon, 0, NULL, HIGHP);
+}
 
 static unsigned long int memTest(){
 
@@ -280,9 +292,6 @@ static unsigned long int memTest(){
   return 0;
 }  
 
-
-typedef int (*mainf)();
-
 static unsigned long int pTestWrapper() {
   return createProcess("procWrapp", (mainf)pTest, 0, NULL, MIDP);
 }
@@ -290,7 +299,7 @@ static unsigned long int pTestWrapper() {
 static void pTest() {
   if (sonsSize > 48) {
     printf("Maximun processes created, please wait for some to end or kill all with 'killtest' command\n");
-    return 0;
+    return;
   }
   printf("\nCreating two processes that will end after a couple of seconds\n");
   printf("Process 1 has high priority, process 2 has low priority\n");
