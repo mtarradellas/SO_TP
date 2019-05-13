@@ -3,28 +3,28 @@
 #include "include/lib.h"
 #include "include/scheduler.h"
 
-void _interrupt();
+int _mutexAcquire(int *mutexValue);
 
 mutex_t mutexCreate() {
   mutex_t m = malloc(sizeof(tMutex));
   m->value = 0;
   m->ownerPID = -1;
-  m->lockedQueue = newQueue();
+  m->lockedQueue = queueCreate(sizeof(tProcess*));
   return m;
 }
 
 
 void mutexDelete(mutex_t mutex) {
-  freeQueue(mutex->lockedQueue);
+  queueFree(mutex->lockedQueue);
   free(mutex);
 }
 
 void mutexLock(mutex_t mutex) {
   tProcess* running = getCurrrentProcess();
-  if (_mutex_acquire(&(mutex->value))) {
+  if (_mutexAcquire(&(mutex->value))) {
     mutex->ownerPID = running->pid;
   } else {
-    offer(mutex->lockedQueue, running);
+    queueOffer(mutex->lockedQueue, &running);
     removeProcess(running);
   }
 }
@@ -32,12 +32,16 @@ void mutexLock(mutex_t mutex) {
 void mutexUnlock(mutex_t mutex) {
   if (mutex->ownerPID != getCurrrentProcess()->pid) return;
 
-  while (mutex->lockedQueue != 0) {
-    tProcess* proc = poll(mutex->lockedQueue);
+  if (queueSize(mutex->lockedQueue) != 0) {
+    tProcess* proc = NULL;
+    queuePoll(mutex->lockedQueue, &proc);
     mutex->ownerPID = proc->pid;
     addProcess(proc);
-    return;
+  } else {
+    // is this really necessary?
+    mutex->ownerPID = -1;
   }
+
   mutex->value = 0;
 }
 

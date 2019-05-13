@@ -1,3 +1,8 @@
+/* 
+depracated class, generic queue "queue.h" should be used instead.
+this is still here just in case :)
+*/
+
 #include "include/procQueue.h"
 #include "include/memoryManager.h"
 

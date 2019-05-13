@@ -1,44 +1,45 @@
 #include <stdint.h>
 #include "include/SYSCDispatcher.h"
 #include "include/keyboardDriver.h"
-#include "include/timeDriver.h"
-#include "include/videoDriver.h"
 #include "include/memoryManager.h"
 #include "include/process.h"
 #include "include/scheduler.h"
-//#include "include/mutex.h"
+#include "include/timeDriver.h"
+#include "include/videoDriver.h"
+#include "include/mutex.h"
 
 // SYSTEM CALLS
-#define READ 0
-#define WRITE 1
-#define WAIT 2
-#define GETTIME 3
-#define GETSCREENSIZE 4
-#define DRAWCIRCLE 5
-#define DRAWRECTANGLE 6
-#define BEEPON 7
-#define BEEPOFF 8
-#define GETCURSOR 9
-#define SETCURSOR 10
-#define MALLOC 11
-#define REALLOC 12
-#define FREE 13
-#define CREATEPROC 14
-#define PRINTNODE 15
-#define KILL 16
-#define PS 17
-
+typedef enum {
+  READ,
+  WRITE,
+  WAIT,
+  GETTIME,
+  GETSCREENSIZE,
+  DRAWCIRCLE,
+  DRAWRECTANGLE,
+  BEEPON,
+  BEEPOFF,
+  GETCURSOR,
+  SETCURSOR,
+  MALLOC,
+  REALLOC,
+  FREE,
+  CREATEPROC,
+  PRINTNODE,
+  KILL,
+  PS
+} Syscall;
 
 // WRITE
-#define CHARACTER 0
-#define DRAWCHAR 1
-#define CLEAR 2
-#define STRING 3
+typedef enum {
+  CHARACTER,
+  DRAWCHAR,
+  CLEAR,
+  STRING
+} Write;
 
 // TIME
-#define HOUR 0
-#define MINUTE 1
-#define SECOND 2
+typedef enum {HOUR, MINUTE, SECOND} Time;
 
 void beepon();
 void beepoff();
@@ -55,24 +56,24 @@ static void _getCursor(int *x, int *y);
 static void _setCursor(int *x, int *y);
 static void _beepon();
 static void _beepoff();
-static void _malloc(void** dest, size_t size);
-static void _realloc(void* src, size_t size, void** dest);
-static void _free(void* src);
-static void _printNode(void* src);
-static unsigned long int _createProc(char* name, int (*entry)(int, char**), int argc, char** argv, int priority);
+static void _malloc(void **dest, size_t size);
+static void _realloc(void *src, size_t size, void **dest);
+static void _free(void *src);
+static void _printNode(void *src);
+static unsigned long int _createProc(char *name, int (*entry)(int, char **),
+                                     int argc, char **argv, int priority);
 static void _kill(unsigned long int pid);
-static void _ps(tProcessData*** psVec, int *size);
-
+static void _ps(tProcessData ***psVec, int *size);
 
 typedef struct tProcList {
-  tProcess* process;
-  struct procList* next;
+  tProcess *process;
+  struct procList *next;
 } tProcList;
 
 typedef struct tReadMutex {
   int keys;
-  tProcList* readQueue;
-}tReadMutex;
+  tProcList *readQueue;
+} tReadMutex;
 
 tReadMutex readMutex;
 
@@ -86,12 +87,10 @@ SystemCall syscall_array[] = {
     (SystemCall)_setCursor,     (SystemCall)_malloc,
     (SystemCall)_realloc,       (SystemCall)_free,
     (SystemCall)_createProc,    (SystemCall)_printNode,
-    (SystemCall)_kill,          (SystemCall)_ps
-};
+    (SystemCall)_kill,          (SystemCall)_ps};
 void syscallDispatcher(uint64_t syscall, uint64_t p1, uint64_t p2, uint64_t p3,
                        uint64_t p4, uint64_t p5) {
   syscall_array[syscall](p1, p2, p3, p4, p5);
-
 }
 
 /*void signalAddedKey() {
@@ -99,9 +98,9 @@ void syscallDispatcher(uint64_t syscall, uint64_t p1, uint64_t p2, uint64_t p3,
 
 }*/
 
-static void _read(char *c) { 
-  //waitForKey();
-  *c = getKey(); 
+static void _read(char *c) {
+  // waitForKey();
+  *c = getKey();
 }
 
 static void _write(uint64_t mode, uint64_t p1, uint64_t p2, uint64_t p3,
@@ -155,25 +154,24 @@ static void _getCursor(int *x, int *y) { getCursor(x, y); }
 
 static void _setCursor(int *x, int *y) { setCursor(*x, *y); }
 
-static void _malloc(void** dest, size_t size) { *dest = malloc(size); }
+static void _malloc(void **dest, size_t size) { *dest = malloc(size); }
 
-static void _realloc(void* src, size_t size, void**dest) { *dest = realloc(src, size); }
+static void _realloc(void *src, size_t size, void **dest) {
+  *dest = realloc(src, size);
+}
 
-static void _free(void* src) { free(src); }
+static void _free(void *src) { free(src); }
 
-static unsigned long int _createProc(char* name, int (*entry)(int, char**), int argc, char** argv, int priority) {
-  tProcess* newP = newProcess(name, entry, argc, argv, priority);
+static unsigned long int _createProc(char *name, int (*entry)(int, char **),
+                                     int argc, char **argv, int priority) {
+  tProcess *newP = newProcess(name, entry, argc, argv, priority);
   initStack(newP);
   addProcess(newP);
   return newP->pid;
 }
 
-static void _printNode(void* src) { printNode(src); }
+static void _printNode(void *src) { printNode(src); }
 
-static void _kill(unsigned long int pid) {
-  killProc(pid);
-}
+static void _kill(unsigned long int pid) { killProc(pid); }
 
-static void _ps(tProcessData*** psVec, int *size) {
-  ps(psVec, size);
-}
+static void _ps(tProcessData ***psVec, int *size) { ps(psVec, size); }

@@ -1,8 +1,8 @@
-GLOBAL _mutex_acquire
+GLOBAL _mutexAcquire
 
 section .text
 
-_mutex_acquire:
+_mutexAcquire:
 	push rbp
 	mov rbp, rsp
 
