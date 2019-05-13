@@ -2,11 +2,11 @@
 #include "include/SYSCDispatcher.h"
 #include "include/keyboardDriver.h"
 #include "include/memoryManager.h"
+#include "include/mutex.h"
 #include "include/process.h"
 #include "include/scheduler.h"
 #include "include/timeDriver.h"
 #include "include/videoDriver.h"
-#include "include/mutex.h"
 
 // SYSTEM CALLS
 typedef enum {
@@ -28,20 +28,18 @@ typedef enum {
   PRINTNODE,
   KILL,
   PS,
-  WAITPID
+  WAITPID,
+  MUTEXOPEN,
+  MUTEXCLOSE,
+  MUTEXLOCK,
+  MUTEXUNLOCK
 } Syscall;
 
-
 // WRITE
-typedef enum {
-  CHARACTER,
-  DRAWCHAR,
-  CLEAR,
-  STRING
-} Write;
+typedef enum { CHARACTER, DRAWCHAR, CLEAR, STRING } Write;
 
 // TIME
-typedef enum {HOUR, MINUTE, SECOND} Time;
+typedef enum { HOUR, MINUTE, SECOND } Time;
 
 void beepon();
 void beepoff();
@@ -68,9 +66,13 @@ static void _printNode(void *src);
 static unsigned long int _createProc(char *name, int (*entry)(int, char **),
                                      int argc, char **argv, int priority);
 static void _kill(unsigned long int pid);
-static void _ps(tProcessData*** psVec, int *size);
+static void _ps(tProcessData ***psVec, int *size);
 static void _waitpid(unsigned long int pid);
 
+static int _mutexOpen(char id[MAX_MUTEX_ID]);
+static int _mutexClose(char id[MAX_MUTEX_ID]);
+static int _mutexLock(char id[MAX_MUTEX_ID]);
+static int _mutexUnlock(char id[MAX_MUTEX_ID]);
 
 typedef struct tProcList {
   tProcess *process;
@@ -85,6 +87,8 @@ typedef struct tReadMutex {
 tReadMutex readMutex;
 
 typedef uint64_t (*SystemCall)();
+
+// queue_t mutexQueue;
 SystemCall syscall_array[] = {
     (SystemCall)_read,          (SystemCall)_write,
     (SystemCall)_wait,          (SystemCall)_getTime,
@@ -95,8 +99,9 @@ SystemCall syscall_array[] = {
     (SystemCall)_realloc,       (SystemCall)_free,
     (SystemCall)_createProc,    (SystemCall)_printNode,
     (SystemCall)_kill,          (SystemCall)_ps,
-    (SystemCall)_waitpid
-};
+    (SystemCall)_waitpid,       (SystemCall)_mutexOpen,
+    (SystemCall)_mutexClose,    (SystemCall)_mutexLock,
+    (SystemCall)_mutexUnlock};
 void syscallDispatcher(uint64_t syscall, uint64_t p1, uint64_t p2, uint64_t p3,
                        uint64_t p4, uint64_t p5) {
   syscall_array[syscall](p1, p2, p3, p4, p5);
@@ -183,13 +188,75 @@ static void _printNode(void *src) { printNode(src); }
 
 static void _kill(unsigned long int pid) { killProc(pid); }
 
-static void _ps(tProcessData*** psVec, int *size) {
-  ps(psVec, size);
-}
+static void _ps(tProcessData ***psVec, int *size) { ps(psVec, size); }
 
 static void _waitpid(unsigned long int pid) {
   _sti();
-  while(getProcess(pid) != NULL) {
+  while (getProcess(pid) != NULL) {
     ;
   }
+}
+
+static int mutexCmp(void *a, void *b) {
+  char *left = ((MutexData *)a)->id;
+  char *right = ((MutexData *)b)->id;
+
+  return strcmp(left, right);
+}
+static int _mutexOpen(char id[MAX_MUTEX_ID]) {
+  if (mutexQueue == NULL) {
+    mutexQueue = queueCreate(sizeof(MutexData));
+  }
+  MutexData data;
+  memcpy(data.id, id, strlen(id));
+  data.mutex = NULL;
+  int errStatus = queueFind(mutexQueue, &mutexCmp, &data, &data);
+  if (errStatus == 0) {
+    // mutex already exists
+    return 1;
+  }
+  if (errStatus == 3) {
+    data.mutex = mutexCreate();
+    queueOffer(mutexQueue, &data);
+    return 1;
+  }
+  return 0;
+}
+
+static int _mutexClose(char id[MAX_MUTEX_ID]) {
+  if (mutexQueue == NULL) return 1;
+  MutexData data;
+  memcpy(data.id, id, strlen(id));
+  data.mutex = NULL;
+  int errStatus = queueFind(mutexQueue, &mutexCmp, &data, &data);
+  if (errStatus == 0) {
+    mutexDelete(data.mutex);
+    queueRemove(mutexQueue, &mutexCmp, &data);
+    return 0;
+  }
+  return 2;
+}
+static int _mutexLock(char id[MAX_MUTEX_ID]) {
+  if (mutexQueue == NULL) return 1;
+  MutexData data;
+  memcpy(data.id, id, strlen(id));
+  data.mutex = NULL;
+  int errStatus = queueFind(mutexQueue, &mutexCmp, &data, &data);
+  if (errStatus == 0) {
+    mutexLock(data.mutex);
+    return 0;
+  }
+  return 2;
+}
+static int _mutexUnlock(char id[MAX_MUTEX_ID]) {
+  if (mutexQueue == NULL) return 1;
+  MutexData data;
+  memcpy(data.id, id, strlen(id));
+  data.mutex = NULL;
+  int errStatus = queueFind(mutexQueue, &mutexCmp, &data, &data);
+  if (errStatus == 0) {
+    mutexUnlock(data.mutex);
+    return 0;
+  }
+  return 2;
 }

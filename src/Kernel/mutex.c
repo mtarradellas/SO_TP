@@ -4,6 +4,7 @@
 #include "include/scheduler.h"
 
 int _mutexAcquire(int *mutexValue);
+queue_t mutexQueue;
 
 mutex_t mutexCreate() {
   mutex_t m = malloc(sizeof(tMutex));

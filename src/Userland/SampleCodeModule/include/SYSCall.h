@@ -23,14 +23,18 @@ typedef enum {
   PRINTNODE,
   KILL,
   PS,
-  WAITPID
+  WAITPID,
+  MUTEXOPEN,
+  MUTEXCLOSE,
+  MUTEXLOCK,
+  MUTEXUNLOCK
 } Syscall;
 
 // WRITE
 typedef enum { CHARACTER, DRAWCHAR, CLEAR, STRING } Write;
 
 // TIME
-typedef enum {HOUR, MINUTE, SECOND} Time;
+typedef enum { HOUR, MINUTE, SECOND } Time;
 
 #define BUFFER_SIZE 256
 

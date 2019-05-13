@@ -2,7 +2,6 @@
 #include <moduleLoader.h>
 #include <naiveConsole.h>
 #include <stdint.h>
-#include <string.h>
 #include "IDTLoader.h"
 #include "scheduler.h"
 #include "videoDriver.h"

@@ -82,6 +82,26 @@ unsigned long int rand() {
   return var;
 }
 
+int strcmp(char* a, char* b) {
+  while (*a && *b) {
+    if (*a > *b) return 1;
+    if (*a < *b) return -1;
+    a++;
+    b++;
+  }
+  if (*a) return 1;
+  if (*b) return -1;
+  return 0;
+}
+
+int strlen(char* str) {
+  int len = 0;
+  while(*str != 0) {
+    len++;
+    str++;
+  }
+  return len;
+}
 /*
 #include <stdio.h>
 #include <stdint.h>

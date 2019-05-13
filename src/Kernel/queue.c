@@ -17,6 +17,7 @@ typedef struct QueueStruct {
 
 queue_t queueCreate(size_t bytes) {
   queue_t queue = malloc(sizeof(QueueStruct));
+  if (queue == NULL) return queue;
   queue->bytes = bytes;
   queue->size = 0;
   queue->first = NULL;
@@ -69,7 +70,7 @@ void queueFree(queue_t queue) {
     free(queue->first);
     queue->first = aux;
   }
-  
+
   free(queue);
 }
 int queueGetNext(queue_t queue, void* ret) {
@@ -84,11 +85,9 @@ int queueFind(queue_t queue, int (*cmp)(void*, void*), void* value, void* ret) {
   if (queue == NULL) return 1;
   if (queue->first == NULL) return 2;
 
-  Node* next = queue->first->next;
   if ((*cmp)(queue->first->data, value) == 0) {
-    free(queue->first->data);
-    free(queue->first);
-    queue->first = next;
+    memcpy(ret, queue->first->data, queue->bytes);
+    return 0;
   }
 
   Node* aux = queue->first;
@@ -111,6 +110,7 @@ int queueRemove(queue_t queue, int (*cmp)(void*, void*), void* elem) {
     free(queue->first);
     queue->first = next;
     queue->size--;
+    return 0;
   }
 
   Node* aux = queue->first;
