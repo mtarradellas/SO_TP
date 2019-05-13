@@ -105,7 +105,7 @@ void ps(tProcessData*** psVec, int* size) {
   _sti();
 }
 
-int getProcess(unsigned long int pid) {
+tProcess* getProcess(unsigned long int pid) {
   tPList* aux = list;
   while(aux != NULL) {
     if (aux->process->pid == pid) {
