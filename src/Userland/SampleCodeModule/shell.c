@@ -21,6 +21,7 @@
 #define MEMTEST 10
 #define PS 11
 #define KILLTEST 12
+#define STACKOV 13
 
 #define MAXLEN 256
 
@@ -44,6 +45,8 @@ static unsigned long int pong();
 static unsigned long int zeroDiv();
 // Executes the 'invopcode' command. Triggers an Invalid OP Code Exception
 static unsigned long int invOpCode();
+// Triggers a stack overflow by calling an endless recursive function
+static unsigned long int stackOv();
 // Executes the 'lenia' command. Makes beep sound
 static unsigned long int lenia();
 // Executes the 'exit' command. Exits the kernel
@@ -70,7 +73,7 @@ cmd command_array[] = {
   (cmd)invOpCode,  (cmd)lenia,
   (cmd)exit,       (cmd)pTestWrapper,
   (cmd)memTest,    (cmd)ps,
-  (cmd)killTest
+  (cmd)killTest,   (cmd)stackOv
 };
 
 int sonsVec[50];
@@ -109,6 +112,7 @@ static int getCommand(char* command) {
   if (!strCmp("pong", command)) return PONG;
   if (!strCmp("zerodiv", command)) return ZERODIV;
   if (!strCmp("invopcode", command)) return INVOPCODE;
+  if (!strCmp("stackov", command)) return STACKOV;
   if (!strCmp("lenia", command)) return LENIA;
   if (!strCmp("exit", command)) return EXIT;
   if (!strCmp("ptest", command)) return PTEST;
@@ -133,6 +137,7 @@ static unsigned long int help() {
   printf("  * clear     :       Clears screen\n");
   printf("  * invopcode :       Executes Invalid OP Code Interruption\n");
   printf("  * zerodiv   :       Executes Zero Division Interruption\n");
+  printf("  * stackov   :       Executes Stack Overflow Exception via recursive function\n");
   printf("  * exit      :       Exits shell\n");
   printf("  * lenia     :       Beep\n");
   printf("  * time      :       Displays current time\n");
@@ -179,6 +184,17 @@ static unsigned long int zeroDiv() {
 }
 
 static unsigned long int invOpCode() { opCode(); return 0;}
+
+static unsigned long int stackOv() {
+  printf("\n        ////////////////////////////////////////////////////////////////////////////////////////////////////////////\n");
+  printf("        //////////////////////////////////////////  ///////  ///////////////////////////////////////////////////////\n");
+  printf("        //////////////////////////////////////////  ///////  ///////////////////////////////////////////////////////\n");
+  printf("        ////////////////////////////////////////////////////////////////////////////////////////////////////////////\n");
+  printf("        /////////////////////////////////////////              //////////////////////////////////////////////////////\n");
+  printf("        ///////////////////////////////////////  /////////////  ////////////////////////////////////////////////////\n");
+  printf("        ////////////////////////////////////////////////////////////////////////////////////////////////////////////\n");
+  stackOv();
+}
 
 static unsigned long int lenia() {
   doBeep();
@@ -269,6 +285,7 @@ static void pTest() {
   sonsVec[sonsSize++] = pid2;
   waitpid(pid1);
   waitpid(pid2);
+  printf("\n");
 }
 
 static unsigned long int killTest() {
@@ -286,7 +303,7 @@ static void test1() {
     wait(30);
     i++;
   }
-  printf("test 1 done\n");
+  printf(" test 1 done ");
   return;
 }
 
@@ -297,5 +314,5 @@ static void test2() {
     wait(30);
     i++;
   }
-  printf("test 2 done\n");
+  printf(" test 2 done ");
 }
