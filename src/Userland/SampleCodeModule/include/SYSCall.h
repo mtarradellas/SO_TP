@@ -22,7 +22,8 @@ typedef enum {
   CREATEPROC,
   PRINTNODE,
   KILL,
-  PS
+  PS,
+  WAITPID
 } Syscall;
 
 // WRITE

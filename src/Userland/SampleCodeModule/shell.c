@@ -20,74 +20,103 @@ typedef enum {
   PTEST,
   MEMTEST,
   PS,
-  KILLTEST
+  KILLTEST,
+  STACKOV
 } Command;
+
 
 #define MAXLEN 256
 
 void opCode();
 
-typedef void (*cmd)();
+typedef unsigned long int (*cmd)();
 
 // Gets command ready to use in a switch function
 static int getCommand(char* command);
+// Checks if command is set to background or foreground
+static void checkForeground(char* command);
 // Executes the 'help' command. Displays help menu
-static void help();
+static unsigned long int help();
 // Executes the 'clear' command. Clears screen
-static void clear();
+static unsigned long int clear();
 // Executes the 'time' command. Displays local time
-static void time();
+static unsigned long int time();
 // Executes the 'pong' command. Initializes the pong game
-static void pong();
+static unsigned long int pong();
 // Executes the 'zerodiv' command. Triggers a Zero Division Exception
-static void zeroDiv();
+static unsigned long int zeroDiv();
 // Executes the 'invopcode' command. Triggers an Invalid OP Code Exception
-static void invOpCode();
+static unsigned long int invOpCode();
+// Triggers a stack overflow by calling an endless recursive function
+static unsigned long int stackOv();
 // Executes the 'lenia' command. Makes beep sound
-static void lenia();
+static unsigned long int lenia();
 // Executes the 'exit' command. Exits the kernel
-static void exit();
+static unsigned long int exit();
 // Displays the message for when a command was not recognized
-static void invCom();
+static unsigned long int invCom();
 // Displays table with processes information
-static void ps();
+static unsigned long int ps();
 // Memory allocation test
-static void memTest();
-// Multiple processes test
+static unsigned long int memTest();
+// Multiple processes test wrapper
+static unsigned long int pTestWrapper();
+// Kills all processes from test
+static unsigned long int killTest();
 static void pTest();
 static void test1();
 static void test2();
-static void killTest();
 
-cmd command_array[] = {(cmd)invCom,  (cmd)help,    (cmd)clear,     (cmd)time,
-                       (cmd)pong,    (cmd)zeroDiv, (cmd)invOpCode, (cmd)lenia,
-                       (cmd)exit,    (cmd)pTest,   (cmd)memTest,   (cmd)ps,
-                       (cmd)killTest};
 
-int on = 1;
+
+cmd command_array[] = {
+  (cmd)invCom,     (cmd)help,
+  (cmd)clear,      (cmd)time,
+  (cmd)pong,       (cmd)zeroDiv,
+  (cmd)invOpCode,  (cmd)lenia,
+  (cmd)exit,       (cmd)pTestWrapper,
+  (cmd)memTest,    (cmd)ps,
+  (cmd)killTest,   (cmd)stackOv
+};
+
+
+int sonsVec[50];
+int sonsSize = 0;
+int on;
+int foreground;
 void initShell() {
+  on = 1;
   printf(
       "\n~~WELCOME TO LENIA'S SHELL~~\n\nPlease type 'help' to find out about "
       "our commands\n\n\n");
   char command[MAXLEN];
   while (on) {
+    foreground = 1;
     printf("\n$> ");
     clearBuffer(command);
     scanAndPrint(command);
     int com = getCommand(command);
 
-    command_array[com]();
+    int pid = command_array[com]();
+    if (pid == 0) {
+      foreground = 0;
+    }
+    if (foreground == 1) {
+      waitpid(pid);
+    }
   }
   printf("\n\n End of program");
 }
 
 static int getCommand(char* command) {
+  checkForeground(command);
   if (!strCmp("help", command)) return HELP;
   if (!strCmp("clear", command)) return CLEAR;
   if (!strCmp("time", command)) return TIME;
   if (!strCmp("pong", command)) return PONG;
   if (!strCmp("zerodiv", command)) return ZERODIV;
   if (!strCmp("invopcode", command)) return INVOPCODE;
+  if (!strCmp("stackov", command)) return STACKOV;
   if (!strCmp("lenia", command)) return LENIA;
   if (!strCmp("exit", command)) return EXIT;
   if (!strCmp("ptest", command)) return PTEST;
@@ -97,11 +126,22 @@ static int getCommand(char* command) {
   return INVCOM;
 }
 
-static void help() {
+static void checkForeground(char* command) {
+  int len = strLen(command);
+  if (len < 3) return;
+  if (strCmp(" &", command + len - 2) == 0) {
+    foreground = 0;
+    command[len-2] = 0;
+    command[len-1] = 0;
+  }
+}
+
+static unsigned long int help() {
   printf("\n\n********  Help Menu  ********\n\n");
   printf("  * clear     :       Clears screen\n");
   printf("  * invopcode :       Executes Invalid OP Code Interruption\n");
   printf("  * zerodiv   :       Executes Zero Division Interruption\n");
+  printf("  * stackov   :       Executes Stack Overflow Exception via recursive function\n");
   printf("  * exit      :       Exits shell\n");
   printf("  * lenia     :       Beep\n");
   printf("  * time      :       Displays current time\n");
@@ -121,60 +161,88 @@ static void help() {
       "leave\n");
 
   printf("\n  Any other command will be taken as invalid\n");
+  printf("  Commands may be executed on background by typing ' &' at the end\n");
+  return 0;
 }
 
-static void clear() {
+static unsigned long int clear() {
   clearScreen();
   printf("\n~~Welcome to Lenia's Shell~~\n\n");
+  return 0;
 }
 
-static void time() {
+static unsigned long int time() {
   unsigned int h = getHour();
   unsigned int m = getMinute();
   unsigned int s = getSecond();
   printf("\nLocal Time: %d:%d:%d", h, m, s);
+  return 0;
 }
 
-static void pong() {
+static unsigned long int pong() {
   startPong();
   clear();
+  return 0;
 }
 
-static void zeroDiv() {
+static unsigned long int zeroDiv() {
   int a = 0;
   a = 2 / a;
+  return 0;
 }
 
-static void invOpCode() { opCode(); }
+static unsigned long int invOpCode() { opCode(); return 0;}
 
-static void lenia() {
+static unsigned long int stackOv() {
+  printf("\n        ////////////////////////////////////////////////////////////////////////////////////////////////////////////\n");
+  printf("        //////////////////////////////////////////  ///////  ///////////////////////////////////////////////////////\n");
+  printf("        //////////////////////////////////////////  ///////  ///////////////////////////////////////////////////////\n");
+  printf("        ////////////////////////////////////////////////////////////////////////////////////////////////////////////\n");
+  printf("        /////////////////////////////////////////              //////////////////////////////////////////////////////\n");
+  printf("        ///////////////////////////////////////  /////////////  ////////////////////////////////////////////////////\n");
+  printf("        ////////////////////////////////////////////////////////////////////////////////////////////////////////////\n");
+  stackOv();
+}
+
+static unsigned long int lenia() {
   doBeep();
   wait(20);
   noBeep();
+  return 0;
 }
 
-static void exit() { on = 0; }
+static unsigned long int exit() { 
+  on = 0; 
+  return 0;
+}
 
-static void invCom() { printf("\nInvalid command"); }
+static unsigned long int invCom() {
+  printf("\nInvalid command");
+  return 0;
+}
 
-static void ps() {
+
+static unsigned long int ps() {
   tProcessData** psVec;
   int size;
   getPS(&psVec, &size);
-  printf(
-      "\nPID     Name      Status     Memory    Priority\n");  // 8 10 12 13 10
+
+  printf("\nPID     Status     Memory    Priority     Name\n");
   for (int i = 0; i < size; i++) {
-    printf("%d       %s     %s      %d      %s\n", psVec[i]->pid,
-           psVec[i]->name, psVec[i]->status, psVec[i]->memory,
-           psVec[i]->priority);
+    printf("%d       %s    %d      %s       %s\n", psVec[i]->pid, psVec[i]->status, 
+                                psVec[i]->memory, psVec[i]->priority, psVec[i]->name);
+    free(psVec[i]);
   }
+  free(psVec);
+  return 0;
 }
 
-static void memTest() {
-  char* mem = malloc(25);
-  printf(
-      "\n Memory has been allocated correctly (and string has been inserted). "
-      "Showing memory block:");
+
+static unsigned long int memTest(){
+
+  char * mem = malloc(25);
+  printf("\n Memory has been allocated correctly (and string has been inserted). Showing memory block:");
+
 
   char copy[25] = "Penguins have knees";
   memcpy(mem, copy, sizeof(copy));
@@ -201,65 +269,67 @@ static void memTest() {
   free(mem2);
   printf("Memory has been freed.\n");
 
-  printf(
-      "\n        "
-      "////////////////////////////////////////////////////////////////////////"
-      "////////////////////////////////////\n");
-  printf(
-      "        //////////////////////////////////////////  ///////  "
-      "///////////////////////////////////////////////////////\n");
-  printf(
-      "        //////////////////////////////////////////  ///////  "
-      "///////////////////////////////////////////////////////\n");
-  printf(
-      "        "
-      "////////////////////////////////////////////////////////////////////////"
-      "////////////////////////////////////\n");
-  printf(
-      "        ///////////////////////////////////////  ////////////  "
-      "/////////////////////////////////////////////////////\n");
-  printf(
-      "        ////////////////////////////////////////             "
-      "///////////////////////////////////////////////////////\n");
-  printf(
-      "        "
-      "////////////////////////////////////////////////////////////////////////"
-      "////////////////////////////////////\n");
+
+  printf("\n        ////////////////////////////////////////////////////////////////////////////////////////////////////////////\n");
+  printf("        //////////////////////////////////////////  ///////  ///////////////////////////////////////////////////////\n");
+  printf("        //////////////////////////////////////////  ///////  ///////////////////////////////////////////////////////\n");
+  printf("        ////////////////////////////////////////////////////////////////////////////////////////////////////////////\n");
+  printf("        ///////////////////////////////////////  ////////////  /////////////////////////////////////////////////////\n");
+  printf("        ////////////////////////////////////////             ///////////////////////////////////////////////////////\n");
+  printf("        ////////////////////////////////////////////////////////////////////////////////////////////////////////////\n");
+  return 0;
+}  
+
+
+typedef int (*mainf)();
+
+static unsigned long int pTestWrapper() {
+  return createProcess("procWrapp", (mainf)pTest, 0, NULL, MIDP);
 }
 
-unsigned long int testp[2];
-typedef int (*mainf)();
 static void pTest() {
+  if (sonsSize > 48) {
+    printf("Maximun processes created, please wait for some to end or kill all with 'killtest' command\n");
+    return 0;
+  }
   printf("\nCreating two processes that will end after a couple of seconds\n");
   printf("Process 1 has high priority, process 2 has low priority\n");
-  printf(
-      "You may kill all test processes at anytime with 'killtest' command\n");
-  testp[0] = createProcess("test1", (mainf)test1, 0, NULL, HIGHP);
-  testp[1] = createProcess("test2", (mainf)test2, 0, NULL, LOWP);
+
+  printf("If on background, you may kill all test processes at anytime with 'killtest' command\n");
+  int pid1 = createProcess("test1", (mainf)test1, 0, NULL, HIGHP);  
+  int pid2 = createProcess("test2", (mainf)test2, 0, NULL, LOWP);  
+  sonsVec[sonsSize++] = pid1;
+  sonsVec[sonsSize++] = pid2;
+  waitpid(pid1);
+  waitpid(pid2);
+  printf("\n");
 }
 
-static void killTest() {
-  kill(testp[0]);
-  kill(testp[1]);
+static unsigned long int killTest() {
+  for (int i = 0; i < sonsSize; i++) {
+    kill(sonsVec[i]);
+  }
+  sonsSize = 0;
+  return 0;
 }
 
 static void test1() {
   int i = 0;
-  while (i < 5) {
-    printf("  ~1\n");
-    wait(50);
+  while(i < 4) {
+    printf("  1  ");
+    wait(30);
     i++;
   }
-  printf("test 1 done\n");
+  printf(" test 1 done ");
   return;
 }
 
 static void test2() {
   int i = 0;
-  while (i < 5) {
-    printf("  ~2\n");
-    wait(50);
+  while(i < 4) {
+    printf("  2  ");
+    wait(30);
     i++;
   }
-  printf("test 2 done\n");
+  printf(" test 2 done ");
 }
