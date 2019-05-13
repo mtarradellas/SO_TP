@@ -10,6 +10,7 @@ GLOBAL _irq01Handler
 
 GLOBAL _exception0Handler
 GLOBAL _exceptionInvalidOpcodeHandler
+GLOBAL _exceptionStackOverflowHandler
 
 GLOBAL _syscall_handler
 
@@ -152,6 +153,11 @@ _exception0Handler:
 ; Invalid Opcode Exception
 _exceptionInvalidOpcodeHandler:
 	exceptionHandler 1
+
+; Stack Overflow Exception
+_exceptionStackOverflowHandler:
+	exceptionHandler 2
+
 
 ; System Call
 _syscall_handler:

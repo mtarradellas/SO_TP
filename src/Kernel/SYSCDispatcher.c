@@ -27,6 +27,7 @@
 #define PRINTNODE 15
 #define KILL 16
 #define PS 17
+#define WAITPID 18
 
 
 // WRITE
@@ -42,6 +43,9 @@
 
 void beepon();
 void beepoff();
+
+void _cli();
+void _sti();
 
 static void _read(char *c);
 static void _write(uint64_t mode, uint64_t p1, uint64_t p2, uint64_t p3,
@@ -62,6 +66,7 @@ static void _printNode(void* src);
 static unsigned long int _createProc(char* name, int (*entry)(int, char**), int argc, char** argv, int priority);
 static void _kill(unsigned long int pid);
 static void _ps(tProcessData*** psVec, int *size);
+static void _waitpid(unsigned long int pid);
 
 
 typedef struct tProcList {
@@ -86,7 +91,8 @@ SystemCall syscall_array[] = {
     (SystemCall)_setCursor,     (SystemCall)_malloc,
     (SystemCall)_realloc,       (SystemCall)_free,
     (SystemCall)_createProc,    (SystemCall)_printNode,
-    (SystemCall)_kill,          (SystemCall)_ps
+    (SystemCall)_kill,          (SystemCall)_ps,
+    (SystemCall)_waitpid
 };
 void syscallDispatcher(uint64_t syscall, uint64_t p1, uint64_t p2, uint64_t p3,
                        uint64_t p4, uint64_t p5) {
@@ -176,4 +182,11 @@ static void _kill(unsigned long int pid) {
 
 static void _ps(tProcessData*** psVec, int *size) {
   ps(psVec, size);
+}
+
+static void _waitpid(unsigned long int pid) {
+  _sti();
+  while(getProcess(pid) != NULL) {
+    ;
+  }
 }

@@ -5,14 +5,12 @@
 #include "lib.h"
 #include "include/videoDriver.h"
 
-#define DEFAULT_PROC_MEM 4096  // 4k
+#define DEFAULT_PROC_MEM 4096  // 8k
 
 typedef struct tPList {
   tProcess* process;
   struct tPList* next;
 } tPList;
-
-tPList* list;
 
 void _cli();
 void _sti();
@@ -20,6 +18,7 @@ static void addP(tProcess* process);
 static tPList* removeP(tPList* node, tProcess* process);
 
 static long int id;
+tPList* list;
 
 tProcess *newProcess(char *name, int (*entry)(int, char **), int argc,
                      char **argv, int priority) {
@@ -67,8 +66,9 @@ static tPList* removeP(tPList* node, tProcess* process) {
   return node;
 }
 
-void initPids() {
+void initializeProcesses() {
   id = 0;
+  list = NULL;
 }
 
 void freeProcess(tProcess* process) {
@@ -82,10 +82,10 @@ void getProcessData(tProcess* process, tProcessData* data) {
   data->memory = process->stackBase - process->stackTop;
   data->pid = process->pid;
   if (process->status == BLOCKED) {data->status = "Blocked";}
-  else {data->status = "Ready";}
-  if (process->priority == HIGHP) {data->priority = "High";}
+  else {data->status = "Ready  ";}
+  if (process->priority == HIGHP) {data->priority = "High  ";}
   else if (process->priority == MIDP) {data->priority = "Medium";}
-  else {data->priority = "Low";}
+  else {data->priority = "Low   ";}
 }
 
 void ps(tProcessData*** psVec, int* size) {
@@ -103,4 +103,15 @@ void ps(tProcessData*** psVec, int* size) {
   (*psVec) = auxVec;
   (*size) = s;
   _sti();
+}
+
+int getProcess(unsigned long int pid) {
+  tPList* aux = list;
+  while(aux != NULL) {
+    if (aux->process->pid == pid) {
+      return aux->process;
+    }
+    aux = aux->next;
+  }
+  return NULL;
 }

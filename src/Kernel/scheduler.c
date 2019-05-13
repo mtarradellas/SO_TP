@@ -8,6 +8,7 @@
 //////////////////////TESTS
 #include "videoDriver.h"
 #include "SYSCDispatcher.h"
+#include "EXCDispatcher.h"
 
 typedef int (*entryFnc)();
 
@@ -27,6 +28,7 @@ typedef struct tPList {
 void _cli();
 void _sti();
 void _interrupt();
+void _exceptionStackOverflowHandler();
 
 void _runProcess(uint64_t rsp); //jumps to rsp stack and continues its program execution
 uint64_t _initStack(uint64_t stackBase, int (*entry)(int, char **), int argc, char **argv, uint64_t stackRet);
@@ -37,31 +39,24 @@ static int runTicket(int ticket, uint64_t rsp);
 static int inRange(tRange *range, int num);
 static void endProcess();
 void run(int (*entry)(int, char**), int argc, char** argv);
-static tProcess* getProcess(unsigned long int pid);
-int idle(int argc, char** argv);
+static tProcess* getSchedProcess(unsigned long int pid);
 
 static tPList *processList;
 static tPList *auxList;
 static int tickets;
 static int winner;
 static int quantum;
-static tProcess *running;
+static tProcess *running = NULL;
 
 int testrand();
-
-int idle(int argc, char** argv) {
-	while(1){
-		putStr("i");
-	}
-	return 0;
-}
 
 void start(int (*entryPoint)(int, char**)) {
 	processList = NULL;
 	tickets = 0;
 	quantum = QUANTUM;
+	running = NULL;
 	initializeMM();
-	initPids();
+	initializeProcesses();
 	tProcess* shell = newProcess("shell", entryPoint, 0, NULL, HIGHP);
 	if (shell == NULL) {
 		// throw error
@@ -69,8 +64,6 @@ void start(int (*entryPoint)(int, char**)) {
 	}
 	initStack(shell);
 	addProcess(shell);
-	//tProcess* sysIdle = newProcess("system_idle", idle, 1, NULL); // Le estoy dando 4k de mem pero a quien le importa
-	//addProcess(sysIdle, 1);
 	running = shell;
 	_runProcess(running->rsp);
 }
@@ -135,7 +128,7 @@ void removeProcess(tProcess* process) {
 
 void killProc(unsigned long int pid) {
 	_cli();
-	tProcess* p = getProcess(pid);
+	tProcess* p = getSchedProcess(pid);
 	removeProcess(p);
 	freeProcess(p);
 	_sti();
@@ -143,6 +136,10 @@ void killProc(unsigned long int pid) {
 }
 
 void lottery(uint64_t rsp) {
+	if (running != NULL && rsp < running->stackTop) {
+		// stack overflow
+		_exceptionStackOverflowHandler();
+	}
 	if (processList == NULL) {return; }
 	if (quantum != 0) {
 		quantum--;
@@ -175,7 +172,7 @@ tProcess* getCurrrentProcess() {
 	return running;
 }
 
-static tProcess* getProcess(unsigned long int pid) {
+static tProcess* getSchedProcess(unsigned long int pid) {
 	auxList = processList;
 	while(auxList != NULL && auxList->process->pid != pid) {
 		auxList = auxList->next;

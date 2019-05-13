@@ -20,6 +20,7 @@ static void* const sampleCodeModuleAddress = (void*)0x400000;
 static void* const sampleDataModuleAddress = (void*)0x500000;
 
 void _cli();
+void _go_to(void* sp);
 
 typedef int (*EntryPoint)();
 
@@ -49,6 +50,7 @@ void* initializeKernelBinary() {
 
 int main() {
   _cli();
+  _go_to(getStackBase());
   loadIDT();
   start((EntryPoint)sampleCodeModuleAddress);
   //schedTestDinamic();

@@ -15,3 +15,8 @@ void kill(unsigned long int pid) {
 void getPS(tProcessData*** psVec, int *size) {
   systemCall((uint64_t)PS, psVec, size, 0, 0, 0);
 }
+
+
+void waitpid(unsigned long int pid) {
+  systemCall((uint64_t)WAITPID, pid, 0, 0, 0, 0);
+}
