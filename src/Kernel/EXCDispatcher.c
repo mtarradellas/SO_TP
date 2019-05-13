@@ -5,6 +5,7 @@
 
 #define ZERO 0
 #define OPCODE 1
+#define STACKOV 2
 
 // Displays the status of the registers at the time of a 'Zero Division'
 // exception
@@ -13,6 +14,9 @@ static void zero_division(uint64_t *sp);
 // Displays the status of the registers at the time of an 'Invialid OPcode'
 // exception
 static void op_code(uint64_t *sp);
+
+// Stack overflow blablabla
+static void stack_overflow(uint64_t *sp);
 
 // Prints registers and their contents
 static void printInfo(uint64_t *stackPointer);
@@ -26,18 +30,25 @@ void exceptionDispatcher(int exception, uint64_t *sp) {
     case OPCODE:
       op_code(sp);
       break;
+    case STACKOV:
+      stack_overflow(sp);
   }
   putStr("\n~~~ REBOOTING SYSTEM...\n");
   return;
 }
 
 static void zero_division(uint64_t *sp) {
-  putStr("\nDivision by zero exception\n");
+  putStr("\n~ZERO DIVISON~\n");
   printInfo(sp);
 }
 
 static void op_code(uint64_t *sp) {
-  putStr("\nInvalid OPcode \n");
+  putStr("\n~INVALID OPCODE~\n");
+  printInfo(sp);
+}
+
+static void stack_overflow(uint64_t *sp) {
+  putStr("\n~STACK OVERFLOW~\n");
   printInfo(sp);
 }
 

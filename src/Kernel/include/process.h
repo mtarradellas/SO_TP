@@ -5,7 +5,7 @@
 
 #define HIGHP 250
 #define MIDP 150
-#define LOWP 10
+#define LOWP 50
 
 #define READY 0
 #define BLOCKED 1
@@ -34,9 +34,10 @@ typedef struct tProcessData {
 struct tProcess *newProcess(char *name, int (*entry)(int, char **), int argc,
                             char **argv, int priority);
 
-void initPids();
+void initializeProcesses();
 void freeProcess(tProcess* process);
 void getProcessData(tProcess* process, tProcessData* data);
 void ps(tProcessData*** psVec, int* size);
+int getProcess(unsigned long int pid);
 
 #endif

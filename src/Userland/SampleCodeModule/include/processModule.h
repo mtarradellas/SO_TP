@@ -3,7 +3,7 @@
 
 #define HIGHP 250
 #define MIDP 150
-#define LOWP 10
+#define LOWP 50
 
 typedef struct tProcessData {
   unsigned long int pid;
@@ -16,5 +16,6 @@ typedef struct tProcessData {
 unsigned long int createProcess(char* name, int (*entry)(int, char**), int argc, char** argv, int priority);
 void kill(unsigned long int);
 void getPS(tProcessData*** psVec, int *size);
+void waitpid(unsigned long int pid);
 
 #endif

@@ -24,6 +24,9 @@ void scanAndPrint(char* buffer);
 // Compares two strings
 int strCmp(char* a, char* b);
 
+// Returns string length
+int strLen(char* str);
+
 // Clears buffer
 void clearBuffer(char* buffer);
 

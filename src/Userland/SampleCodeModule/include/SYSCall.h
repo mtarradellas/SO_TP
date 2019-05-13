@@ -22,6 +22,7 @@
 #define PRINTNODE 15
 #define KILL 16
 #define PS 17
+#define WAITPID 18
 
 
 // WRITE

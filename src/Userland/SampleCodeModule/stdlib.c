@@ -130,6 +130,15 @@ int abs(int n) {
   return -n;
 }
 
+int strLen(char* str) {
+  int len = 0;
+  while(*str != 0) {
+    len++;
+    str++;
+  }
+  return len;
+}
+
 void *memcpy(void *destination, const void *source, uint64_t length) {
   /*
    * memcpy does not support overlapping buffers, so always do it

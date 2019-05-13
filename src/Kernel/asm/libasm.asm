@@ -29,6 +29,8 @@ cpuVendor:
 	ret
 
 _go_to:
+	mov rbp, [rsp]
 	mov rsp, rdi
+	mov [rsp], rbp
 	mov rbp, rsp
 	ret
