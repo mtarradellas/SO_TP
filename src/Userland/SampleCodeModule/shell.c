@@ -32,7 +32,6 @@ typedef enum {
 
 void _opCode();
 
-typedef int (*mainf)();
 typedef unsigned long int (*cmd)();
 
 // Gets command ready to use in a switch function
