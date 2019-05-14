@@ -36,6 +36,8 @@ int abs(int n);
 // Prints string
 void putStr(char* word);
 
+int atoi(char* str);
+
 void *memcpy(void *destination, const void *source, uint64_t length);
 
 #endif

@@ -5,11 +5,11 @@
 #include "lib.h"
 #include "timeDriver.h"
 #include "memoryManager.h"
+#include "mutex.h"
 //////////////////////TESTS
 #include "videoDriver.h"
 #include "SYSCDispatcher.h"
 #include "EXCDispatcher.h"
-
 typedef int (*entryFnc)();
 
 #define QUANTUM 0
@@ -57,6 +57,7 @@ void start(int (*entryPoint)(int, char**)) {
 	running = NULL;
 	initializeMM();
 	initializeProcesses();
+	mutexQueue = NULL;
 	tProcess* shell = newProcess("shell", entryPoint, 0, NULL, HIGHP);
 	if (shell == NULL) {
 		// throw error
@@ -124,6 +125,7 @@ static tPList * recRem(tPList *list, tProcess *proc, int *procTickets) {
 void removeProcess(tProcess* process) {
 	int procTickets = 0;
 	processList = recRem(processList, process, &procTickets);
+	_interrupt();
 }
 
 void killProc(unsigned long int pid) {

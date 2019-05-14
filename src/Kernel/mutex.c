@@ -9,7 +9,7 @@ queue_t mutexQueue;
 mutex_t mutexCreate() {
   mutex_t m = malloc(sizeof(tMutex));
   m->value = 0;
-  m->ownerPID = -1;
+  m->ownerPID = 1;
   m->lockedQueue = queueCreate(sizeof(tProcess*));
   return m;
 }
@@ -22,7 +22,9 @@ void mutexDelete(mutex_t mutex) {
 
 void mutexLock(mutex_t mutex) {
   tProcess* running = getCurrrentProcess();
-  if (_mutexAcquire(&(mutex->value))) {
+  int a = 0;
+
+  if (!_mutexAcquire(&(mutex->value))) {
     mutex->ownerPID = running->pid;
   } else {
     queueOffer(mutex->lockedQueue, &running);

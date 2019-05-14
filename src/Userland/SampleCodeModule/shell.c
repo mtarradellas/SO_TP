@@ -7,6 +7,7 @@
 #include "include/stdlib.h"
 #include "include/timeModule.h"
 #include "include/videoModule.h"
+#include "include/mutexModule.h"
 typedef enum {
   INVCOM,
   HELP,
@@ -21,7 +22,8 @@ typedef enum {
   MEMTEST,
   PS,
   KILLTEST,
-  STACKOV
+  STACKOV,
+  MUTEX
 } Command;
 
 
@@ -63,6 +65,8 @@ static unsigned long int memTest();
 static unsigned long int pTestWrapper();
 // Kills all processes from test
 static unsigned long int killTest();
+
+static unsigned long int mutex();
 static void pTest();
 static void test1();
 static void test2();
@@ -76,7 +80,8 @@ cmd command_array[] = {
   (cmd)invOpCode,  (cmd)lenia,
   (cmd)exit,       (cmd)pTestWrapper,
   (cmd)memTest,    (cmd)ps,
-  (cmd)killTest,   (cmd)stackOv
+  (cmd)killTest,   (cmd)stackOv,
+  (cmd)mutex
 };
 
 
@@ -123,6 +128,7 @@ static int getCommand(char* command) {
   if (!strCmp("killtest", command)) return KILLTEST;
   if (!strCmp("memtest", command)) return MEMTEST;
   if (!strCmp("ps", command)) return PS;
+  if (!strCmp("mutex", command)) return MUTEX;
   return INVCOM;
 }
 
@@ -162,6 +168,7 @@ static unsigned long int help() {
 
   printf("\n  Any other command will be taken as invalid\n");
   printf("  Commands may be executed on background by typing ' &' at the end\n");
+  printf(" * mutex   : manu puto");
   return 0;
 }
 
@@ -285,6 +292,55 @@ typedef int (*mainf)();
 
 static unsigned long int pTestWrapper() {
   return createProcess("procWrapp", (mainf)pTest, 0, NULL, MIDP);
+}
+
+int global = 0;
+
+static void addUp(void) {
+  do {
+    mutexLock("pepe");
+    global++;
+    // if(global == 60) ps();
+    printf("%d\n", global);
+    mutexUnlock("pepe");
+  } while (global < 100);
+}
+static void addDown(int* a) {
+  (*a)--;
+}
+
+static void doSomething() {
+  mutexLock("pepe");
+  int i = 0;
+  global += 1;
+  printf("\n Job %d started\n", global);
+  // for (i = 0; i < 100000000; i++) {}
+  wait(30);
+  printf("\n Job %d finished\n", global);
+  if (global == 2) ps();
+  mutexUnlock("pepe");
+  printf("paso el unblock :) \n");
+}
+
+
+static unsigned long int mutex() {
+  int amount = 2;
+  mutexOpen("pepe");
+  global = 0;
+  char** argv = NULL;
+  int procs[amount];
+  for (int i = 0; i < amount; i++) {
+    procs[i] = createProcess("mutexTest", (mainf)doSomething, 0, argv, HIGHP);
+  }
+
+  // for (int i = 0; i < amount; i++) {
+  //   waitpid(procs[i]);
+  // }
+ 
+  
+
+  // mutexClose("pepe");
+  return 0;
 }
 
 static void pTest() {

@@ -38,6 +38,6 @@ void initializeProcesses();
 void freeProcess(tProcess* process);
 void getProcessData(tProcess* process, tProcessData* data);
 void ps(tProcessData*** psVec, int* size);
-int getProcess(unsigned long int pid);
+tProcess* getProcess(unsigned long int pid);
 
 #endif

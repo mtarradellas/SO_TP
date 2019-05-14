@@ -8,7 +8,8 @@
 #include "include/timeDriver.h"
 #include "include/videoDriver.h"
 
-// SYSTEM CALLS
+#include "include/lib.h"
+
 typedef enum {
   READ,
   WRITE,
@@ -35,10 +36,8 @@ typedef enum {
   MUTEXUNLOCK
 } Syscall;
 
-// WRITE
 typedef enum { CHARACTER, DRAWCHAR, CLEAR, STRING } Write;
 
-// TIME
 typedef enum { HOUR, MINUTE, SECOND } Time;
 
 void beepon();
@@ -88,7 +87,6 @@ tReadMutex readMutex;
 
 typedef uint64_t (*SystemCall)();
 
-// queue_t mutexQueue;
 SystemCall syscall_array[] = {
     (SystemCall)_read,          (SystemCall)_write,
     (SystemCall)_wait,          (SystemCall)_getTime,
@@ -113,7 +111,6 @@ void syscallDispatcher(uint64_t syscall, uint64_t p1, uint64_t p2, uint64_t p3,
 }*/
 
 static void _read(char *c) {
-  // waitForKey();
   *c = getKey();
 }
 
@@ -205,18 +202,16 @@ static int mutexCmp(void *a, void *b) {
 }
 static int _mutexOpen(char id[MAX_MUTEX_ID]) {
   if (mutexQueue == NULL) {
-    mutexQueue = queueCreate(sizeof(MutexData));
+    mutexQueue = queueCreate(sizeof(MutexData*));
   }
-  MutexData data;
-  memcpy(data.id, id, strlen(id));
-  data.mutex = NULL;
+  MutexData* data = malloc(sizeof(MutexData));
+  memcpy(data->id, id, strlen(id));
+  data->mutex = NULL;
   int errStatus = queueFind(mutexQueue, &mutexCmp, &data, &data);
   if (errStatus == 0) {
-    // mutex already exists
     return 1;
-  }
-  if (errStatus == 3) {
-    data.mutex = mutexCreate();
+  } else {
+    data->mutex = mutexCreate();
     queueOffer(mutexQueue, &data);
     return 1;
   }
@@ -225,12 +220,12 @@ static int _mutexOpen(char id[MAX_MUTEX_ID]) {
 
 static int _mutexClose(char id[MAX_MUTEX_ID]) {
   if (mutexQueue == NULL) return 1;
-  MutexData data;
-  memcpy(data.id, id, strlen(id));
-  data.mutex = NULL;
+  MutexData* data;
+  memcpy(data->id, id, strlen(id));
+  data->mutex = NULL;
   int errStatus = queueFind(mutexQueue, &mutexCmp, &data, &data);
   if (errStatus == 0) {
-    mutexDelete(data.mutex);
+    mutexDelete(data->mutex);
     queueRemove(mutexQueue, &mutexCmp, &data);
     return 0;
   }
@@ -238,25 +233,26 @@ static int _mutexClose(char id[MAX_MUTEX_ID]) {
 }
 static int _mutexLock(char id[MAX_MUTEX_ID]) {
   if (mutexQueue == NULL) return 1;
-  MutexData data;
-  memcpy(data.id, id, strlen(id));
-  data.mutex = NULL;
-  int errStatus = queueFind(mutexQueue, &mutexCmp, &data, &data);
-  if (errStatus == 0) {
-    mutexLock(data.mutex);
-    return 0;
+  MutexData* data;
+  queueResetIter(mutexQueue);
+  while (queueGetNext(mutexQueue, &data) == 0) {
+    if (strcmp(id, data->id) == 0) {
+      mutexLock(data->mutex);
+      return 0;
+    }
   }
   return 2;
 }
 static int _mutexUnlock(char id[MAX_MUTEX_ID]) {
   if (mutexQueue == NULL) return 1;
-  MutexData data;
-  memcpy(data.id, id, strlen(id));
-  data.mutex = NULL;
-  int errStatus = queueFind(mutexQueue, &mutexCmp, &data, &data);
-  if (errStatus == 0) {
-    mutexUnlock(data.mutex);
-    return 0;
+  MutexData* data;
+  queueResetIter(mutexQueue);
+  while (queueGetNext(mutexQueue, &data) == 0) {
+    if (strcmp(id, data->id) == 0) {
+      printf("llegue aca en todos?\n");
+      mutexUnlock(data->mutex);
+      return 0;
+    }
   }
   return 2;
 }
