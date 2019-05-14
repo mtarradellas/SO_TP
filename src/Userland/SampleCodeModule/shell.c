@@ -323,20 +323,9 @@ static unsigned long int pTestWrapper() {
 
 int global = 0;
 
-static void addUp(void) {
-  do {
-    mutexLock("pepe");
-    global++;
-    // if(global == 60) ps();
-    printf("%d\n", global);
-    mutexUnlock("pepe");
-  } while (global < 100);
-}
-static void addDown(int* a) { (*a)--; }
 
 static void doSomething() {
   mutexLock("pepe");
-  int i = 0;
   global += 1;
   printf("\n Job %d started\n", global);
   wait(15);
