@@ -4,6 +4,8 @@
 #include "include/timeModule.h"
 #include "include/processModule.h"
 #include "include/memoryModule.h"
+#include "include/semModule.h"
+#include "include/mutexModule.h"
 
 #define INITPROD 2
 #define INITCONS 2
@@ -34,8 +36,8 @@ int getcmd(char* cmd);
 
 
 static int products[10] = {0};
-static int prod[5] = {0};
-static int cons[5] = {0};
+static int prod[2] = {0};
+static int cons[2] = {0};
 static int products_size;
 static int prod_size;
 static int cons_size;
@@ -46,9 +48,15 @@ static int on = 1;
 char action[50];
 void startProdCon() {
   printInitScreen();
-  printf("     Welcome to my shitty ass fucking ProdCon\n");
-  wait(30);
+  printf("Type addp to add producer\n");
+  printf("Type delp to delete producer\n");
+  printf("Type addc to add consumer\n");
+  printf("Type delp to delete consumer\n");
+  printf("Press backspapce to exit\n");
+  wait(20);
   setCursor(250, 100);
+  mutexOpen("producer");
+  semOpen("consumer", 0);
   createShowProc();
   createInitProd();
   createInitCons();
@@ -107,6 +115,9 @@ void startProdCon() {
   for(int i = 0; i < cons_size; i++) {
     kill(cons[i]);
   }
+  mutexClose("producer");
+  semClose("consumer");
+  clearScreen();
 }
 
 static unsigned long int pss() {
@@ -125,11 +136,11 @@ static unsigned long int pss() {
 }
 
 int getcmd(char* command) {
-  if (!strCmp("exit", command)) return EXIT;
-  if (!strCmp("addprod", command)) return ADDPROD;
-  if (!strCmp("addcons", command)) return ADDCONS;
-  if (!strCmp("delcons", command)) return DELCONS;
-  if (!strCmp("delprod", command)) return DELPROD;
+  if (!strCmp("q", command)) return EXIT;
+  if (!strCmp("addp", command)) return ADDPROD;
+  if (!strCmp("addc", command)) return ADDCONS;
+  if (!strCmp("delc", command)) return DELCONS;
+  if (!strCmp("delp", command)) return DELPROD;
   if (!strCmp("ps", command)) return PS;
   return INVCOM;
 }
@@ -160,12 +171,14 @@ void shProc() {
   int y;
   getCursor(&x, &y);
   x += 200;
-  y += 100;
+  y += 50;
   while(1) {
     setCursor(x, y);
     for (int i = 0; i < 10; i++) {
       printf(" %d ", products[i]);
     }
+    printf("\n\nProducers: %d | Consumers: %d\n",prod_size, cons_size);
+    //pss();
   }
   // PRINTS VEC
 }
@@ -193,24 +206,26 @@ void deleteCons() {
 
 void producer(int id) {
   while(1) {
-    // lock
+    mutexLock("producer");
     if (products_size < 10) {
       products[products_size]++;
       products_size++;
+      semPost("consumer");
     }
-    // unlock
-    wait(10);
+    mutexUnlock("producer");
+    wait(30);
   }
 }
 
 void consumer(int id) {
   while(1) {
-    // lock
+    mutexLock("producer");
+    semWait("consumer");
     if (products_size > 0) {
-      products[products_size]--;
+      products[products_size-1]--;
       products_size--;
     }
-    // unlock
-    wait(10);
+    mutexUnlock("producer");
+    wait(30);
   }
 }
