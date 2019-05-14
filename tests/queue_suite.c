@@ -1,7 +1,22 @@
-// Example test suite
-#include "../src/Kernel/include/process.h"
-#include "../src/Kernel/queue.c"
+#include"../queue/queue.c"
+#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "CUnit/Basic.h"
+
+typedef struct tProcess {
+  unsigned long int pid;
+  char *name;
+  int (*entry)(int, char **argv);
+  uint64_t stackBase;
+  uint64_t stackTop;
+  uint64_t rsp;
+  int priority;
+  int status;
+  int argc;
+  char **argv;
+} tProcess;
+
 
 static queue_t queue;
 static void setup() { queue = queueCreate(sizeof(tProcess*)); }
