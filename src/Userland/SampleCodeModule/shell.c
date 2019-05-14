@@ -322,17 +322,14 @@ static void doSomething() {
   int i = 0;
   global += 1;
   printf("\n Job %d started\n", global);
-  // for (i = 0; i < 100000000; i++) {}
-  wait(30);
+  wait(15);
   printf("\n Job %d finished\n", global);
-  if (global == 2) ps();
   mutexUnlock("pepe");
-  printf("paso el unblock :) \n");
 }
 
 
 static unsigned long int mutex() {
-  int amount = 2;
+  int amount = 3;
   mutexOpen("pepe");
   global = 0;
   char** argv = NULL;
@@ -341,13 +338,11 @@ static unsigned long int mutex() {
     procs[i] = createProcess("mutexTest", (mainf)doSomething, 0, argv, HIGHP);
   }
 
-  // for (int i = 0; i < amount; i++) {
-  //   waitpid(procs[i]);
-  // }
+  for (int i = 0; i < amount; i++) {
+    waitpid(procs[i]);
+  }
  
-  
-
-  // mutexClose("pepe");
+  mutexClose("pepe");
   return 0;
 }
 

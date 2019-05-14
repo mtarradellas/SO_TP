@@ -5,6 +5,7 @@
 
 int _mutexAcquire(int *mutexValue);
 queue_t mutexQueue;
+void _interrupt();
 
 mutex_t mutexCreate() {
   mutex_t m = malloc(sizeof(tMutex));
@@ -22,13 +23,12 @@ void mutexDelete(mutex_t mutex) {
 
 void mutexLock(mutex_t mutex) {
   tProcess* running = getCurrrentProcess();
-  int a = 0;
-
   if (!_mutexAcquire(&(mutex->value))) {
     mutex->ownerPID = running->pid;
   } else {
     queueOffer(mutex->lockedQueue, &running);
     removeProcess(running);
+    _interrupt();
   }
 }
 
@@ -40,6 +40,7 @@ void mutexUnlock(mutex_t mutex) {
     queuePoll(mutex->lockedQueue, &proc);
     mutex->ownerPID = proc->pid;
     addProcess(proc);
+    _interrupt();
   } else {
     // is this really necessary?
     mutex->ownerPID = -1;

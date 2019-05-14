@@ -249,7 +249,6 @@ static int _mutexUnlock(char id[MAX_MUTEX_ID]) {
   queueResetIter(mutexQueue);
   while (queueGetNext(mutexQueue, &data) == 0) {
     if (strcmp(id, data->id) == 0) {
-      printf("llegue aca en todos?\n");
       mutexUnlock(data->mutex);
       return 0;
     }

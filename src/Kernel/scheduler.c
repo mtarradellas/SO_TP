@@ -125,7 +125,7 @@ static tPList * recRem(tPList *list, tProcess *proc, int *procTickets) {
 void removeProcess(tProcess* process) {
 	int procTickets = 0;
 	processList = recRem(processList, process, &procTickets);
-	_interrupt();
+	// _interrupt();
 }
 
 void killProc(unsigned long int pid) {
