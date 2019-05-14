@@ -11,3 +11,4 @@ _mutexAcquire:
 
 	mov rsp, rbp
 	pop rbp
+  ret

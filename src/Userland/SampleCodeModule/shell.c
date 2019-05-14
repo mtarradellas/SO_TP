@@ -29,7 +29,7 @@ typedef enum {
 
 #define MAXLEN 256
 
-void opCode();
+void _opCode();
 
 typedef int (*mainf)();
 typedef unsigned long int (*cmd)();
@@ -88,8 +88,8 @@ cmd command_array[] = {
 
 int sonsVec[50];
 int sonsSize = 0;
-int on;
-int foreground;
+static int on;
+static int foreground;
 void initShell() {
   on = 1;
   printf(
@@ -199,7 +199,7 @@ static unsigned long int zeroDiv() {
   return 0;
 }
 
-static unsigned long int invOpCode() { opCode(); return 0;}
+static unsigned long int invOpCode() { _opCode(); return 0;}
 
 static unsigned long int stackOv() {
   printf("\n        ////////////////////////////////////////////////////////////////////////////////////////////////////////////\n");

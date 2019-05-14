@@ -111,6 +111,27 @@ void scanAndPrint(char * buffer) {
   *p = 0;  
 }
 
+void scan(char* buffer) {
+  char c;
+  char * p = buffer;
+  int idx = 0;
+  while((c = getChar()) != '\n') {
+    if ((c>31 && c<127) || c=='\b' || c=='\n') {
+      if (c == '\b' && idx > 0) {
+        deleteChar();
+        p--;
+        idx--;
+      }
+      else if (c!='\b'){
+        *p = c;
+        p++;
+        idx++;
+      }
+    }
+  }
+  *p = 0; 
+}
+
 void clearBuffer(char* buffer) {
   char* b = buffer;
   while (*b) {

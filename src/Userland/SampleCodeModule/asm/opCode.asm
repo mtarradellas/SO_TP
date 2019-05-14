@@ -1,9 +1,9 @@
 ; Generates Invalid OP Code exception
 
-GLOBAL opCode
+GLOBAL _opCode
 
 section .text
 
-opCode:
+_opCode:
 	rsm
 	ret
