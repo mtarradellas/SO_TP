@@ -13,6 +13,8 @@ typedef struct tProcessData {
   char* priority;
 } tProcessData;
 
+typedef int (*mainf)();
+
 unsigned long int createProcess(char* name, int (*entry)(int, char**), int argc, char** argv, int priority);
 void kill(unsigned long int);
 void getPS(tProcessData*** psVec, int *size);
