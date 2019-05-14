@@ -42,7 +42,7 @@ static int cons_size;
 int shp;
 
 static int on = 1;
-static int value = 0;
+
 char action[50];
 void startProdCon() {
   printInitScreen();
