@@ -21,6 +21,9 @@ char* decToStr(int num, char* buffer);
 // Scans from buffer and prints the contents scanned
 void scanAndPrint(char* buffer);
 
+// Scans from buffer
+void scan(char* buffer);
+
 // Compares two strings
 int strCmp(char* a, char* b);
 

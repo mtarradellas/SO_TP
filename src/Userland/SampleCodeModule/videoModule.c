@@ -30,3 +30,7 @@ void getCursor(int* x, int* y) {
 void setCursor(int x, int y) {
   systemCall((uint64_t)SETCURSOR, (uint64_t)&x, (uint64_t)&y, 0, 0, 0);
 }
+
+void drawChar(char c, int x, int y, Color color) {
+  systemCall((uint64_t)WRITE, (uint64_t)DRAWCHAR, (uint64_t)&c, (uint64_t)&x, (uint64_t)&y, (uint64_t)&color); 
+}
