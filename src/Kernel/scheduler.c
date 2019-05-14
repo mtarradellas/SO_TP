@@ -6,6 +6,7 @@
 #include "timeDriver.h"
 #include "memoryManager.h"
 #include "mutex.h"
+#include "semaphore.h"
 //////////////////////TESTS
 #include "videoDriver.h"
 #include "SYSCDispatcher.h"
@@ -58,6 +59,7 @@ void start(int (*entryPoint)(int, char**)) {
 	initializeMM();
 	initializeProcesses();
 	mutexQueue = NULL;
+	semQueue = NULL;
 	tProcess* shell = newProcess("shell", entryPoint, 0, NULL, HIGHP);
 	if (shell == NULL) {
 		// throw error

@@ -43,7 +43,7 @@ void mutexUnlock(mutex_t mutex) {
     _interrupt();
   } else {
     // is this really necessary?
-    mutex->ownerPID = -1;
+    mutex->ownerPID = 0;
   }
 
   mutex->value = 0;

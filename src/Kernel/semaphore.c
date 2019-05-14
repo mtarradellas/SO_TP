@@ -3,6 +3,9 @@
 #include "include/memoryManager.h"
 #include "include/scheduler.h"
 
+queue_t semQueue;
+void _interrupt();
+
 sem_t semCreate(int startValue) {
   sem_t sem = malloc(sizeof(tSemaphore));
   if (sem == NULL) return NULL;
@@ -41,7 +44,6 @@ void semPost(sem_t sem) {
       queuePoll(sem->lockedQueue, &proc);
       addProcess(proc);
   }
-
   sem->value++;
   mutexUnlock(sem->mutex);
 }
