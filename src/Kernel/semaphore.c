@@ -36,12 +36,10 @@ void semPost(sem_t sem) {
   if (sem == NULL) return;
 
   mutexLock(sem->mutex);
-  if (sem->value == 0) {
-    if (queueSize(sem->lockedQueue) != 0) {
+  if (queueSize(sem->lockedQueue) != 0) {
       tProcess* proc = NULL;
       queuePoll(sem->lockedQueue, &proc);
       addProcess(proc);
-    }
   }
 
   sem->value++;

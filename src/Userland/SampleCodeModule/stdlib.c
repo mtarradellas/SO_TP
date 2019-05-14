@@ -145,6 +145,17 @@ int strLen(char* str) {
   return len;
 }
 
+int atoi(char* str) {
+  int res = 0;  // Initialize result
+
+  // Iterate through all characters of input string and
+  // update result
+  for (int i = 0; str[i] != '\0'; ++i) res = res * 10 + str[i] - '0';
+
+  // return result.
+  return res;
+}
+
 void *memcpy(void *destination, const void *source, uint64_t length) {
   /*
    * memcpy does not support overlapping buffers, so always do it

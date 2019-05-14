@@ -1,8 +1,11 @@
 #include <stdint.h>
+#include <stdarg.h>
+#include "./include/videoDriver.h"
 
 #define A 25214903917
 #define C 11
 #define M 281474976710656
+static Color WHITE = {255, 255, 255};
 
 #define MOD 50
 
@@ -82,6 +85,62 @@ unsigned long int rand() {
   return var;
 }
 
+int strcmp(char* a, char* b) {
+  while (*a && *b) {
+    if (*a > *b) return 1;
+    if (*a < *b) return -1;
+    a++;
+    b++;
+  }
+  if (*a) return 1;
+  if (*b) return -1;
+  return 0;
+}
+
+int strlen(char* str) {
+  int len = 0;
+  while(*str != 0) {
+    len++;
+    str++;
+  }
+  return len;
+}
+
+void printf(char* fmt, ...) {
+  va_list args;
+  va_start(args, fmt);
+
+  int aux;
+  char* str;
+  char aux2;
+  char buf[50];
+  while (*fmt) {
+    if (*fmt != '%') {
+      printChar(*fmt, WHITE);
+    } else {
+      switch (*(fmt + 1)) {
+        case 'd':
+          aux = va_arg(args, int);
+          putStr(decToStr(aux, buf));
+          break;
+        case 's':
+          str = va_arg(args, char*);
+          while (*str) {
+            printChar(*str, WHITE);
+            str++;
+          }
+          break;
+        case 'c':
+          aux2 = va_arg(args, int);
+          printChar(aux2, WHITE);
+          break;
+      }
+      fmt++;
+    }
+    fmt++;
+  }
+  va_end(args);
+}
 /*
 #include <stdio.h>
 #include <stdint.h>
