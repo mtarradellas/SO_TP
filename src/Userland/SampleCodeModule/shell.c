@@ -1,14 +1,14 @@
 #include "include/shell.h"
 #include <stdint.h>
 #include "include/memoryModule.h"
+#include "include/mutexModule.h"
 #include "include/pongModule.h"
 #include "include/processModule.h"
+#include "include/prodCon.h"
 #include "include/soundModule.h"
 #include "include/stdlib.h"
 #include "include/timeModule.h"
 #include "include/videoModule.h"
-#include "include/mutexModule.h"
-#include "include/prodCon.h"
 typedef enum {
   INVCOM,
   HELP,
@@ -27,7 +27,6 @@ typedef enum {
   MUTEX,
   PRODCON
 } Command;
-
 
 #define MAXLEN 256
 
@@ -76,19 +75,11 @@ static void pTest();
 static void test1();
 static void test2();
 
-
-
 cmd command_array[] = {
-  (cmd)invCom,     (cmd)help,
-  (cmd)clear,      (cmd)time,
-  (cmd)pong,       (cmd)zeroDiv,
-  (cmd)invOpCode,  (cmd)lenia,
-  (cmd)exit,       (cmd)pTestWrapper,
-  (cmd)memTest,    (cmd)ps,
-  (cmd)killTest,   (cmd)stackOv,
-  (cmd)mutex,      (cmd)prodCon
-};
-
+    (cmd)invCom,   (cmd)help,         (cmd)clear,     (cmd)time,
+    (cmd)pong,     (cmd)zeroDiv,      (cmd)invOpCode, (cmd)lenia,
+    (cmd)exit,     (cmd)pTestWrapper, (cmd)memTest,   (cmd)ps,
+    (cmd)killTest, (cmd)stackOv,      (cmd)mutex,     (cmd)prodCon};
 
 int sonsVec[50];
 int sonsSize = 0;
@@ -143,8 +134,8 @@ static void checkForeground(char* command) {
   if (len < 3) return;
   if (strCmp(" &", command + len - 2) == 0) {
     foreground = 0;
-    command[len-2] = 0;
-    command[len-1] = 0;
+    command[len - 2] = 0;
+    command[len - 1] = 0;
   }
 }
 
@@ -159,23 +150,15 @@ static unsigned long int help() {
   printf("  * time      :       Displays current time\n");
   printf("  * prodcon   :       Launches ProdCon application\n");
   printf("  * memtest   :       Shows functioning Memory Management\n");
-  printf(
-      "  * ptest     :       Runs multiple processes to show functionality\n");
-  printf(
-      "  * killtest  :       Kills all processes created from ptest command\n");
-  printf(
-      "  * ps        :       Displays process table with, name, pid, status, "
-      "foreground, memory, priority\n");
-  printf(
-      "  * pong      :       Iniciates pong when user presses 'enter' which "
-      "will run until\n");
-  printf(
-      "                      end of game or until user presses 'backspace' to "
-      "leave\n");
+  printf("  * ptest     :       Runs multiple processes to show functionality\n");
+  printf("  * killtest  :       Kills all processes created from ptest command\n");
+  printf("  * mutex     :       Runs the mutex test\n");
 
+  printf("  * ps        :       Displays process table with, name, pid, status, foreground, memory, priority\n");
+  printf("  * pong      :       Iniciates pong when user presses 'enter' which will run until\n");
+  printf("                      end of game or until user presses 'backspace' to leave\n");
   printf("\n  Any other command will be taken as invalid\n");
-  printf("  Commands may be executed on background by typing ' &' at the end\n");
-  printf(" * mutex   : manu puto");
+  printf("Commands may be executed on background by typing ' &' at the end\n");
   return 0;
 }
 
@@ -205,16 +188,36 @@ static unsigned long int zeroDiv() {
   return 0;
 }
 
-static unsigned long int invOpCode() { _opCode(); return 0;}
+static unsigned long int invOpCode() {
+  _opCode();
+  return 0;
+}
 
 static unsigned long int stackOv() {
-  printf("\n        ////////////////////////////////////////////////////////////////////////////////////////////////////////////\n");
-  printf("        //////////////////////////////////////////  ///////  ///////////////////////////////////////////////////////\n");
-  printf("        //////////////////////////////////////////  ///////  ///////////////////////////////////////////////////////\n");
-  printf("        ////////////////////////////////////////////////////////////////////////////////////////////////////////////\n");
-  printf("        /////////////////////////////////////////              //////////////////////////////////////////////////////\n");
-  printf("        ///////////////////////////////////////  /////////////  ////////////////////////////////////////////////////\n");
-  printf("        ////////////////////////////////////////////////////////////////////////////////////////////////////////////\n");
+  printf(
+      "\n        "
+      "////////////////////////////////////////////////////////////////////////"
+      "////////////////////////////////////\n");
+  printf(
+      "        //////////////////////////////////////////  ///////  "
+      "///////////////////////////////////////////////////////\n");
+  printf(
+      "        //////////////////////////////////////////  ///////  "
+      "///////////////////////////////////////////////////////\n");
+  printf(
+      "        "
+      "////////////////////////////////////////////////////////////////////////"
+      "////////////////////////////////////\n");
+  printf(
+      "        /////////////////////////////////////////              "
+      "//////////////////////////////////////////////////////\n");
+  printf(
+      "        ///////////////////////////////////////  /////////////  "
+      "////////////////////////////////////////////////////\n");
+  printf(
+      "        "
+      "////////////////////////////////////////////////////////////////////////"
+      "////////////////////////////////////\n");
   stackOv();
   return 0;
 }
@@ -226,8 +229,8 @@ static unsigned long int lenia() {
   return 0;
 }
 
-static unsigned long int exit() { 
-  on = 0; 
+static unsigned long int exit() {
+  on = 0;
   return 0;
 }
 
@@ -236,7 +239,6 @@ static unsigned long int invCom() {
   return 0;
 }
 
-
 static unsigned long int ps() {
   tProcessData** psVec;
   int size;
@@ -244,8 +246,9 @@ static unsigned long int ps() {
 
   printf("\nPID     Status     Memory    Priority     Name\n");
   for (int i = 0; i < size; i++) {
-    printf("%d       %s    %d      %s       %s\n", psVec[i]->pid, psVec[i]->status, 
-                                psVec[i]->memory, psVec[i]->priority, psVec[i]->name);
+    printf("%d       %s    %d      %s       %s\n", psVec[i]->pid,
+           psVec[i]->status, psVec[i]->memory, psVec[i]->priority,
+           psVec[i]->name);
     free(psVec[i]);
   }
   free(psVec);
@@ -256,11 +259,11 @@ static unsigned long int prodCon() {
   return createProcess("ProdCon", (mainf)startProdCon, 0, NULL, HIGHP);
 }
 
-static unsigned long int memTest(){
-
-  char * mem = malloc(25);
-  printf("\n Memory has been allocated correctly (and string has been inserted). Showing memory block:");
-
+static unsigned long int memTest() {
+  char* mem = malloc(25);
+  printf(
+      "\n Memory has been allocated correctly (and string has been inserted). "
+      "Showing memory block:");
 
   char copy[25] = "Penguins have knees";
   memcpy(mem, copy, sizeof(copy));
@@ -287,16 +290,32 @@ static unsigned long int memTest(){
   free(mem2);
   printf("Memory has been freed.\n");
 
-
-  printf("\n        ////////////////////////////////////////////////////////////////////////////////////////////////////////////\n");
-  printf("        //////////////////////////////////////////  ///////  ///////////////////////////////////////////////////////\n");
-  printf("        //////////////////////////////////////////  ///////  ///////////////////////////////////////////////////////\n");
-  printf("        ////////////////////////////////////////////////////////////////////////////////////////////////////////////\n");
-  printf("        ///////////////////////////////////////  ////////////  /////////////////////////////////////////////////////\n");
-  printf("        ////////////////////////////////////////             ///////////////////////////////////////////////////////\n");
-  printf("        ////////////////////////////////////////////////////////////////////////////////////////////////////////////\n");
+  printf(
+      "\n        "
+      "////////////////////////////////////////////////////////////////////////"
+      "////////////////////////////////////\n");
+  printf(
+      "        //////////////////////////////////////////  ///////  "
+      "///////////////////////////////////////////////////////\n");
+  printf(
+      "        //////////////////////////////////////////  ///////  "
+      "///////////////////////////////////////////////////////\n");
+  printf(
+      "        "
+      "////////////////////////////////////////////////////////////////////////"
+      "////////////////////////////////////\n");
+  printf(
+      "        ///////////////////////////////////////  ////////////  "
+      "/////////////////////////////////////////////////////\n");
+  printf(
+      "        ////////////////////////////////////////             "
+      "///////////////////////////////////////////////////////\n");
+  printf(
+      "        "
+      "////////////////////////////////////////////////////////////////////////"
+      "////////////////////////////////////\n");
   return 0;
-}  
+}
 
 static unsigned long int pTestWrapper() {
   return createProcess("procWrapp", (mainf)pTest, 0, NULL, MIDP);
@@ -313,9 +332,7 @@ static void addUp(void) {
     mutexUnlock("pepe");
   } while (global < 100);
 }
-static void addDown(int* a) {
-  (*a)--;
-}
+static void addDown(int* a) { (*a)--; }
 
 static void doSomething() {
   mutexLock("pepe");
@@ -326,7 +343,6 @@ static void doSomething() {
   printf("\n Job %d finished\n", global);
   mutexUnlock("pepe");
 }
-
 
 static unsigned long int mutex() {
   int amount = 3;
@@ -341,22 +357,26 @@ static unsigned long int mutex() {
   for (int i = 0; i < amount; i++) {
     waitpid(procs[i]);
   }
- 
+
   mutexClose("pepe");
   return 0;
 }
 
 static void pTest() {
   if (sonsSize > 48) {
-    printf("Maximun processes created, please wait for some to end or kill all with 'killtest' command\n");
+    printf(
+        "Maximun processes created, please wait for some to end or kill all "
+        "with 'killtest' command\n");
     return;
   }
   printf("\nCreating two processes that will end after a couple of seconds\n");
   printf("Process 1 has high priority, process 2 has low priority\n");
 
-  printf("If on background, you may kill all test processes at anytime with 'killtest' command\n");
-  int pid1 = createProcess("test1", (mainf)test1, 0, NULL, HIGHP);  
-  int pid2 = createProcess("test2", (mainf)test2, 0, NULL, LOWP);  
+  printf(
+      "If on background, you may kill all test processes at anytime with "
+      "'killtest' command\n");
+  int pid1 = createProcess("test1", (mainf)test1, 0, NULL, HIGHP);
+  int pid2 = createProcess("test2", (mainf)test2, 0, NULL, LOWP);
   sonsVec[sonsSize++] = pid1;
   sonsVec[sonsSize++] = pid2;
   waitpid(pid1);
@@ -374,7 +394,7 @@ static unsigned long int killTest() {
 
 static void test1() {
   int i = 0;
-  while(i < 4) {
+  while (i < 4) {
     printf("  1  ");
     wait(30);
     i++;
@@ -385,7 +405,7 @@ static void test1() {
 
 static void test2() {
   int i = 0;
-  while(i < 4) {
+  while (i < 4) {
     printf("  2  ");
     wait(30);
     i++;
