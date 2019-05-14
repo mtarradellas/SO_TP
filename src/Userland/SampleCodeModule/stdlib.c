@@ -3,6 +3,12 @@
 #include "include/SYSCall.h"
 #include "include/stdlib.h"
 
+#define A 25214903917
+#define C 11
+#define M 281474976710656
+
+#define MOD 50
+
 char buffer[BUFFER_SIZE] = {0};
 
 
@@ -180,4 +186,22 @@ void *memcpy(void *destination, const void *source, uint64_t length) {
   }
 
   return destination;
+}
+
+unsigned long int var = 1;
+
+void srand(unsigned long int seed);
+void lcg(unsigned long int *x, unsigned long int a, int c,
+         unsigned long int m);
+
+void srand(unsigned long int seed) { var = seed; }
+
+void lcg(unsigned long int *x, unsigned long int a, int c,
+         unsigned long int m) {
+  *x = (a * (*x) + c) % m;
+}
+
+unsigned long int rand() {
+  lcg(&var, A, C, M);
+  return var;
 }

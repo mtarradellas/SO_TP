@@ -16,6 +16,9 @@
 #define UP -45
 #define DOWN 45
 
+#define PAUSE '\n'
+#define RAINBOW 'r'
+
 typedef struct player {
   int points;
   int pos;
@@ -62,15 +65,28 @@ static int onPlayer(Ball ball, Player p1, Player p2);
 static void scoreGoal(int goal, Ball ball, Player p1, Player p2);
 // Recives an action from the player to move and executes it
 static void act(char com, Player p1, Player p2);
+// Prints pause symbol when paused
+static void printPause();
+// Erases pause symbol
+static void delPause();
 
 static int xResolution;
 static int yResolution;
 
 static Color white = {255, 255, 255};
 static Color black = {0, 0, 0};
+static Color grey = {128, 128, 128};
+static Color red = {255, 0, 0};
+static Color green = {0, 255, 0};
+static Color blue = {0, 0, 255};
+
+Color* rainbowColors;
+int rainbow;
 
 void startPong() {
   getSize(&xResolution, &yResolution);
+  Color aux[] = {red, green, blue};
+  rainbowColors = aux;
 
   PlayerStruct p1S = {0, yResolution / 2, 0};
   PlayerStruct p2S = {0, yResolution / 2, 1};
@@ -83,16 +99,16 @@ void startPong() {
   printInitScreen(ball, p1, p2);
 
   char* str =
-      "\n          ~~~WELCOME TO LENIAS PONG, PRESS ENTER TO PLAY OR PRESS "
-      "BACKSPACE TO QUIT. YOU MAY QUIT ANYTIME DURING GAME~~~";
+      "\n       ~~WELCOME TO LENIAS PONG, PRESS ENTER OR R TO PLAY OR PRESS "
+      "BACKSPACE TO QUIT. YOU MAY QUIT ANYTIME DURING GAME~~";
   putStr(str);
 
   char c;
-  while ((c = getChar()) != '\b' && c != '\n') {}
+  while ((c = getChar()) != '\b' && c != '\n' && c != 'r') {}
   if (c == '\b') {
     return;
   }
-
+  rainbow = (c == 'r'? 1 : 0);
   drawRectangle(black, xResolution / 2, 20, (xResolution / 2) - 60, 10);
 
   int exitStatus = play(ball, p1, p2);
@@ -145,6 +161,18 @@ static void act(char command, Player p1, Player p2) {
     case P2DOWN:
       movePlayer(p2, DOWN);
       break;
+    case PAUSE:
+      printPause();
+      while(getChar()!= '\n') {}
+      delPause();
+    case RAINBOW:
+      rainbow = !rainbow;
+    default:
+      if (rainbow==1) {
+        printPlayer(rainbowColors[rand()%3], p1);
+        printPlayer(rainbowColors[rand()%3], p2);
+        }
+      break;
   }
 }
 
@@ -157,9 +185,19 @@ static int moveBall(Ball ball, Player p1, Player p2) {
   goal = onGoal(ball);
   if (onPlayer(ball, p1, p2)) {
     ball->dirX = -ball->dirX;
+    if (ball->dirX > 0) {
+      ball->dirX += 2;
+    }
+    else { 
+      ball->dirX -= 2;
+    }
   }
   ball->posX += ball->dirX;
   ball->posY += ball->dirY;
+  if (rainbow==1) {
+    printBall(rainbowColors[rand()%3], ball);
+    return goal;
+  }
   printBall(white, ball);
   return goal;
 }
@@ -215,7 +253,7 @@ static void scoreGoal(int goal, Ball ball, Player p1, Player p2) {
 }
 
 static void printGoalScreen(int goal, Ball ball, Player p1, Player p2) {
-  char* str = "G O O O O O O O O O O O A A A A A L ! ! !";
+  char* str = "       G O O O O O O O O O O O A A A A A L ! ! !";
   setCursor((xResolution / 2) - 300, yResolution / 2);
   putStr(str);
   doBeep();
@@ -245,6 +283,11 @@ static void movePlayer(Player p, int step) {
   drawRectangle(black, xPos, yPos, 4, abs(step / 2));
   yPos = step > 0 ? (p->pos + 70) - abs(step / 2) + step
                   : (p->pos - 70) + abs(step / 2) + step;
+  if (rainbow==1) {
+    drawRectangle(rainbowColors[rand()%3], xPos, yPos, 4, abs(step / 2));
+    p->pos = p->pos + step;
+    return;
+  }                
   drawRectangle(white, xPos, yPos, 4, abs(step / 2));
   p->pos = p->pos + step;
 }
@@ -293,4 +336,14 @@ static void printPoints(Player p1, Player p2) {
   setCursor(xResolution - 100, 30);
   decToStr(p2->points, points);
   putStr(points);
+}
+
+static void printPause() {
+  drawRectangle(grey, (xResolution / 2) - 20, yResolution / 2, 6, 50);
+  drawRectangle(grey, (xResolution / 2) + 20, yResolution / 2, 6, 50);
+}
+
+static void delPause() {
+  drawRectangle(black, (xResolution / 2) - 20, yResolution / 2, 6, 50);
+  drawRectangle(black, (xResolution / 2) + 20, yResolution / 2, 6, 50);
 }
