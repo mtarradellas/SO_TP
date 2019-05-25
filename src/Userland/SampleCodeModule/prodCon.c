@@ -54,7 +54,7 @@ void startProdCon() {
   wait(20);
   setCursor(250, 100);
   mutexOpen("producer");
-  semOpen("consumer", 0);
+  semOpen("consumer", 1);
   createShowProc();
   createInitProd();
   createInitCons();

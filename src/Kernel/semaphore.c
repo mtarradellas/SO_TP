@@ -29,6 +29,7 @@ void semWait(sem_t sem) {
     queueOffer(sem->lockedQueue, &running);
     removeProcess(running);
     mutexUnlock(sem->mutex);
+    _interrupt();
   } else {
     sem->value--;
     mutexUnlock(sem->mutex);
