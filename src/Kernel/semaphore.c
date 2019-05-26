@@ -38,10 +38,9 @@ void semWait(sem_t sem) {
 
 void semPost(sem_t sem) {
   if (sem == NULL) return;
-
   mutexLock(sem->mutex);
   if (queueSize(sem->lockedQueue) != 0) {
-      tProcess* proc = NULL;
+      tProcess* proc;
       queuePoll(sem->lockedQueue, &proc);
       addProcess(proc);
   }

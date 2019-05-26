@@ -6,7 +6,7 @@
 #include "lib.h"
 
 #define MEM_SIZE (1<<20)
-#define MAX_NUM_NODES 500000
+#define MAX_NUM_NODES 5000000
 
 typedef struct listNode {
 	size_t freed;

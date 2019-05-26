@@ -3,7 +3,7 @@
 
 #include "./mutex.h"
 #include "./queue.h"
-#define MAX_SEM_ID 15
+#define MAX_SEM_ID 30
 typedef struct {
   int value;
   queue_t lockedQueue;

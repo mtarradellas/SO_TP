@@ -31,7 +31,8 @@ typedef enum {
   SEMOPEN,
   SEMCLOSE,
   SEMWAIT,
-  SEMPOST
+  SEMPOST,
+  ERASESCREEN
 } Syscall;
 
 // WRITE

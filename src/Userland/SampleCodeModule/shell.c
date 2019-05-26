@@ -255,7 +255,9 @@ static unsigned long int ps() {
 }
 
 static unsigned long int prodCon() {
-  return createProcess("ProdCon", (mainf)startProdCon, 0, NULL, HIGHP);
+  //return createProcess("ProdCon", (mainf)startProdCon, 0, NULL, HIGHP);
+  startProdCon();
+  return 0;
 }
 
 static unsigned long int memTest() {

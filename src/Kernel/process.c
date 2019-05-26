@@ -26,7 +26,6 @@ tProcess *newProcess(char *name, int (*entry)(int, char **), int argc,
   tProcess *newP = malloc(sizeof(tProcess));
   if (newP == NULL) {
   	// throw error
-  	putStr("newP NULL");
   	return NULL;
   }
   newP->pid = id++;
@@ -37,7 +36,6 @@ tProcess *newProcess(char *name, int (*entry)(int, char **), int argc,
   newP->stackBase = (uint64_t)malloc(DEFAULT_PROC_MEM) + DEFAULT_PROC_MEM - 1;
   if ((void*) newP->stackBase == NULL) {
   	// throw error
-  	putStr("stack NULL");
   	return NULL;
   }
   newP->stackTop = newP->stackBase - DEFAULT_PROC_MEM + 1;
@@ -72,7 +70,10 @@ void initializeProcesses() {
 }
 
 void freeProcess(tProcess* process) {
+  if (process == NULL) return;
+  _cli();
   list = removeP(list, process);
+  _sti();
   free((tProcess*) process->stackTop);
   free(process);
 }
@@ -107,11 +108,14 @@ void ps(tProcessData*** psVec, int* size) {
 
 tProcess* getProcess(unsigned long int pid) {
   tPList* aux = list;
+  _cli();
   while(aux != NULL) {
     if (aux->process->pid == pid) {
+      _sti();
       return aux->process;
     }
     aux = aux->next;
   }
+  _sti();
   return NULL;
 }

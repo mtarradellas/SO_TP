@@ -10,7 +10,7 @@ void _interrupt();
 mutex_t mutexCreate() {
   mutex_t m = malloc(sizeof(tMutex));
   m->value = 0;
-  m->ownerPID = 1;
+  m->ownerPID = 1;    // why? 0?
   m->lockedQueue = queueCreate(sizeof(tProcess*));
   return m;
 }
@@ -40,7 +40,6 @@ void mutexUnlock(mutex_t mutex) {
     queuePoll(mutex->lockedQueue, &proc);
     mutex->ownerPID = proc->pid;
     addProcess(proc);
-    _interrupt();
   } else {
     // is this really necessary?
     mutex->ownerPID = 0;
@@ -48,4 +47,3 @@ void mutexUnlock(mutex_t mutex) {
 
   mutex->value = 0;
 }
-

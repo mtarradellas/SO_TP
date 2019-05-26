@@ -100,4 +100,6 @@ void drawRectangle(Color color, int b, int h, int x, int y);
 // more space
 void scrollUp();
 
+void eraseScreen(int x1, int y1, int x2, int y2);
+
 #endif
