@@ -159,7 +159,7 @@ void showProc() {
     /*getCursor(&x1, &y1);
     ps();
     getCursor(&x2, &y2);
-    wait(30);
+    wait(10);
     eraseScreen(x1, y1, x2, y2);*/
   }
 }
@@ -174,6 +174,7 @@ void showProc() {
     printf("%d       %s    %d      %s       %s\n", psVec[i]->pid,
            psVec[i]->status, psVec[i]->memory, psVec[i]->priority,
            psVec[i]->name);
+    free(psVec[i]->name);
     free(psVec[i]);
   }
   free(psVec);

@@ -185,7 +185,9 @@ static void _kill(unsigned long int pid) {
 }
 
 static void _ps(tProcessData ***psVec, int *size) { 
+  _cli();
   ps(psVec, size); 
+  _sti();
 }
 
 static void _waitpid(unsigned long int pid) {

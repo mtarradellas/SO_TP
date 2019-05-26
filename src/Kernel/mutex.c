@@ -2,6 +2,7 @@
 #include "include/mutex.h"
 #include "include/lib.h"
 #include "include/scheduler.h"
+#include "include/process.h"
 
 int _mutexAcquire(int *mutexValue);
 queue_t mutexQueue;
@@ -28,6 +29,7 @@ void mutexLock(mutex_t mutex) {
   } else {
     queueOffer(mutex->lockedQueue, &running);
     removeProcess(running);
+    running->status = BLOCKED;
     _interrupt();
   }
 }
@@ -39,6 +41,7 @@ void mutexUnlock(mutex_t mutex) {
     tProcess* proc = NULL;
     queuePoll(mutex->lockedQueue, &proc);
     mutex->ownerPID = proc->pid;
+    proc->status = READY;
     addProcess(proc);
   } else {
     // is this really necessary?
