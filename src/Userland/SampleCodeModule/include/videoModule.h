@@ -24,5 +24,6 @@ void getSize(int* x, int* y);
 void getCursor(int* x, int* y);
 void setCursor(int x, int y);
 void drawChar(char c, int x, int y, Color color);
+void eraseScreen(int x1, int y1, int x2, int y2);
 
 #endif

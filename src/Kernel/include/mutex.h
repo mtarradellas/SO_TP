@@ -4,7 +4,7 @@
 #include "./queue.h"
 #include "./process.h"
 
-#define MAX_MUTEX_ID 15
+#define MAX_MUTEX_ID 30
 
 typedef struct tMutex {
   int value;

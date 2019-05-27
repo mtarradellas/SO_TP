@@ -26,7 +26,6 @@ tProcess *newProcess(char *name, int (*entry)(int, char **), int argc,
   tProcess *newP = malloc(sizeof(tProcess));
   if (newP == NULL) {
   	// throw error
-  	putStr("newP NULL");
   	return NULL;
   }
   newP->pid = id++;
@@ -37,7 +36,6 @@ tProcess *newProcess(char *name, int (*entry)(int, char **), int argc,
   newP->stackBase = (uint64_t)malloc(DEFAULT_PROC_MEM) + DEFAULT_PROC_MEM - 1;
   if ((void*) newP->stackBase == NULL) {
   	// throw error
-  	putStr("stack NULL");
   	return NULL;
   }
   newP->stackTop = newP->stackBase - DEFAULT_PROC_MEM + 1;
@@ -72,29 +70,42 @@ void initializeProcesses() {
 }
 
 void freeProcess(tProcess* process) {
+  if (process == NULL) return;
+  _cli();
   list = removeP(list, process);
+  _sti();
   free((tProcess*) process->stackTop);
   free(process);
 }
 
 void getProcessData(tProcess* process, tProcessData* data) {
-  data->name = process->name;
+  data->name = malloc(strlen(process->name) + 1);
+  memcpy(data->name, process->name, strlen(process->name) + 1);
   data->memory = process->stackBase - process->stackTop;
   data->pid = process->pid;
-  if (process->status == BLOCKED) {data->status = "Blocked";}
-  else {data->status = "Ready  ";}
-  if (process->priority == HIGHP) {data->priority = "High  ";}
-  else if (process->priority == MIDP) {data->priority = "Medium";}
-  else {data->priority = "Low   ";}
+  if (process->status == BLOCKED) {
+    data->status = "Blocked";
+  }
+  else {
+    data->status = "Ready  ";
+  }
+  if (process->priority == HIGHP) {
+    data->priority = "High  ";
+  }
+  else if (process->priority == MIDP) {
+    data->priority = "Medium";
+  }
+  else {
+    data->priority = "Low   ";
+  }
 }
 
 void ps(tProcessData*** psVec, int* size) {
-  _cli();
   tPList* auxList = list;
   tProcessData** auxVec = NULL;
   int s = 0;
   while(auxList != NULL) {
-    auxVec = realloc(auxVec, (s+1)*sizeof(*auxVec));
+    auxVec = realloc(auxVec, (s+1)*sizeof(tProcessData*));
     auxVec[s] = malloc(sizeof(tProcessData));
     getProcessData(auxList->process, auxVec[s]);
     s++;
@@ -102,16 +113,18 @@ void ps(tProcessData*** psVec, int* size) {
   }
   (*psVec) = auxVec;
   (*size) = s;
-  _sti();
 }
 
 tProcess* getProcess(unsigned long int pid) {
   tPList* aux = list;
+  _cli();
   while(aux != NULL) {
     if (aux->process->pid == pid) {
+      _sti();
       return aux->process;
     }
     aux = aux->next;
   }
+  _sti();
   return NULL;
 }

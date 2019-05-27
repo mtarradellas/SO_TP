@@ -175,3 +175,11 @@ void drawRectangle(Color color, int b, int h, int x, int y) {
     }
   }
 }
+
+void eraseScreen(int x1, int y1, int x2, int y2) {
+  for (int y = y1; y <= y2; y++) {
+    for (int x = 0; x <= videoStruct->XResolution; x++) {
+      plotPixel(x, y, black);
+    }
+  }
+}

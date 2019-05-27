@@ -248,6 +248,7 @@ static unsigned long int ps() {
     printf("%d       %s    %d      %s       %s\n", psVec[i]->pid,
            psVec[i]->status, psVec[i]->memory, psVec[i]->priority,
            psVec[i]->name);
+    free(psVec[i]->name);
     free(psVec[i]);
   }
   free(psVec);
@@ -255,7 +256,9 @@ static unsigned long int ps() {
 }
 
 static unsigned long int prodCon() {
-  return createProcess("ProdCon", (mainf)startProdCon, 0, NULL, HIGHP);
+  //return createProcess("ProdCon", (mainf)startProdCon, 0, NULL, HIGHP);
+  startProdCon();
+  return 0;
 }
 
 static unsigned long int memTest() {
@@ -328,6 +331,7 @@ static void doSomething() {
   global += 1;
   printf("\n Job %d started\n", global);
   wait(15);
+  ps();
   printf("\n Job %d finished\n", global);
   mutexUnlock("pepe");
 }
@@ -382,7 +386,7 @@ static unsigned long int killTest() {
 
 static void test1() {
   int i = 0;
-  while (i < 4) {
+  while (i < 7) {
     printf("  1  ");
     wait(30);
     i++;
@@ -393,7 +397,7 @@ static void test1() {
 
 static void test2() {
   int i = 0;
-  while (i < 4) {
+  while (i < 7) {
     printf("  2  ");
     wait(30);
     i++;

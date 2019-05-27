@@ -19,10 +19,13 @@ typedef enum {
   INVCOM
 }prodconcom;
 
+void _cli();
+void _sti();
+
 void createShowProc();
-void shProc();
-void createInitProd();
-void createInitCons();
+void showProc();
+void createInitProd(int n);
+void createInitCons(int n);
 void createProd();
 void createCons();
 void deleteProd();
@@ -31,33 +34,34 @@ void producer();
 void consumer();
 void printInitScreen();
 int getcmd(char* cmd);
-
+//static unsigned long int ps();
 
 static int products[10] = {0};
-static int prod[2] = {0};
-static int cons[2] = {0};
+static int prod[5] = {0};
+static int cons[5] = {0};
 static int products_size;
 static int prod_size;
 static int cons_size;
-int shp;
+static int showProcPid;
 
 static int on = 1;
 
 char action[50];
 void startProdCon() {
+  on = 1;
+  for (int i = 0; i < 10; i++) {
+    products[i] = 0;
+  }
+  products_size = 0;
+  prod_size = 0;
+  cons_size = 0;
   printInitScreen();
-  printf("Type addp to add producer\n");
-  printf("Type delp to delete producer\n");
-  printf("Type addc to add consumer\n");
-  printf("Type delp to delete consumer\n");
-  printf("Press backspapce to exit\n");
-  wait(20);
   setCursor(250, 100);
-  mutexOpen("producer");
-  semOpen("consumer", 1);
+  mutexOpen("prodConBuff");
+  semOpen("prodConItems", 0);
   createShowProc();
-  createInitProd();
-  createInitCons();
+  createInitProd(INITPROD);
+  createInitCons(INITCONS);
   while(on) {
     clearBuffer(action);
     scan(action);
@@ -68,12 +72,12 @@ void startProdCon() {
           break;
       case ADDPROD:
           if (prod_size < 5) {
-            createProd();
+            createInitProd(1);
           }
           break;
       case ADDCONS:
           if (cons_size < 5) {
-            createCons();
+            createInitCons(1);
           }
           break;
       case DELPROD:
@@ -90,15 +94,15 @@ void startProdCon() {
           break;
     }
   }
-  kill(shp);
+  kill(showProcPid);
   for(int i = 0; i < prod_size; i++) {
     kill(prod[i]);
   }
   for(int i = 0; i < cons_size; i++) {
     kill(cons[i]);
   }
-  mutexClose("producer");
-  semClose("consumer");
+  mutexClose("prodConBuff");
+  semClose("prodConItems");
   clearScreen();
 }
 
@@ -113,47 +117,77 @@ int getcmd(char* command) {
 
 void printInitScreen() {
   clearScreen();
+  printf("Type addp to add producer\n");
+  printf("Type delp to delete producer\n");
+  printf("Type addc to add consumer\n");
+  printf("Type delc to delete consumer\n");
+  printf("Type q to exit\n");
 }
 
-void createInitProd() {
-  for(int i = 0; i < INITPROD; i++) {
+void createInitProd(int n) {
+  for(int i = 0; i < n; i++) {
     createProd();
   }
 }
 
-void createInitCons() {
-  for(int i = 0; i < INITPROD; i++) {
+void createInitCons(int n) {
+  for(int i = 0; i < n; i++) {
     createCons();
   }
 }
 
 void createShowProc() {
-  shp = createProcess("shp", (mainf)shProc, 0, NULL, HIGHP);
+  showProcPid = createProcess("showProc", (mainf)showProc, 0, NULL, HIGHP);
 }
 
-void shProc() {
+void showProc() {
   printf("PRODUCTS ARRAY:\n");
-  int x;
-  int y;
+  int x, y;
+  //int x1, y1;
+  //int x2, y2;
   getCursor(&x, &y);
   x += 200;
   y += 50;
   while(1) {
     setCursor(x, y);
+    //mutexLock("prodConBuff");
     for (int i = 0; i < 10; i++) {
       printf(" %d ", products[i]);
     }
+    //mutexUnlock("prodConBuff");
     printf("\n\nProducers: %d | Consumers: %d\n",prod_size, cons_size);
+    /*getCursor(&x1, &y1);
+    ps();
+    getCursor(&x2, &y2);
+    wait(10);
+    eraseScreen(x1, y1, x2, y2);*/
   }
 }
 
+/*static unsigned long int ps() {
+  tProcessData** psVec;
+  int size;
+  getPS(&psVec, &size);
+
+  printf("\nPID     Status     Memory    Priority     Name\n");
+  for (int i = 0; i < size; i++) {
+    printf("%d       %s    %d      %s       %s\n", psVec[i]->pid,
+           psVec[i]->status, psVec[i]->memory, psVec[i]->priority,
+           psVec[i]->name);
+    free(psVec[i]->name);
+    free(psVec[i]);
+  }
+  free(psVec);
+  return 0;
+}*/
+
 void createProd() {
-  prod[prod_size] = createProcess("prod", (mainf)producer, prod_size, NULL, MIDP);
+  prod[prod_size] = createProcess("prod", (mainf)producer, 0, NULL, MIDP);
   prod_size++;
 }
 
 void createCons() {
-  cons[cons_size] = createProcess("cons", (mainf)consumer, cons_size, NULL, MIDP);
+  cons[cons_size] = createProcess("cons", (mainf)consumer, 0, NULL, MIDP);
   cons_size++;
 }
 
@@ -168,28 +202,28 @@ void deleteCons() {
   cons_size--;
 }
 
-void producer(int id) {
+void producer() {
   while(1) {
-    mutexLock("producer");
+    mutexLock("prodConBuff");
     if (products_size < 10) {
       products[products_size]++;
       products_size++;
-      semPost("consumer");
+      semPost("prodConItems");
     }
-    mutexUnlock("producer");
+    mutexUnlock("prodConBuff");
     wait(30);
   }
 }
 
-void consumer(int id) {
+void consumer() {
   while(1) {
-    mutexLock("producer");
-    semWait("consumer");
+    semWait("prodConItems");
+    mutexLock("prodConBuff");
     if (products_size > 0) {
       products[products_size-1]--;
       products_size--;
     }
-    mutexUnlock("producer");
+    mutexUnlock("prodConBuff");
     wait(30);
   }
 }

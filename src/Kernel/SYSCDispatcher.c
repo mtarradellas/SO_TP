@@ -38,7 +38,8 @@ typedef enum {
   SEMOPEN,
   SEMCLOSE,
   SEMWAIT,
-  SEMPOST
+  SEMPOST,
+  ERASESCREEN
 } Syscall;
 
 typedef enum { CHARACTER, DRAWCHAR, CLEAR, STRING } Write;
@@ -82,18 +83,7 @@ static int _semOpen(char id[MAX_SEM_ID], int start);
 static int _semClose(char id[MAX_SEM_ID]);
 static int _semWait(char id[MAX_SEM_ID]);
 static int _semPost(char id[MAX_SEM_ID]);
-
-typedef struct tProcList {
-  tProcess *process;
-  struct procList *next;
-} tProcList;
-
-typedef struct tReadMutex {
-  int keys;
-  tProcList *readQueue;
-} tReadMutex;
-
-tReadMutex readMutex;
+static void _eraseScreen(int x1, int y1, int x2, int y2);
 
 typedef uint64_t (*SystemCall)();
 
@@ -111,16 +101,12 @@ SystemCall syscall_array[] = {
     (SystemCall)_mutexClose,    (SystemCall)_mutexLock,
     (SystemCall)_mutexUnlock,   (SystemCall)_semOpen,
     (SystemCall)_semClose,      (SystemCall)_semWait,
-    (SystemCall)_semPost};
+    (SystemCall)_semPost,       (SystemCall)_eraseScreen};
+
 void syscallDispatcher(uint64_t syscall, uint64_t p1, uint64_t p2, uint64_t p3,
                        uint64_t p4, uint64_t p5) {
   syscall_array[syscall](p1, p2, p3, p4, p5);
 }
-
-/*void signalAddedKey() {
-  readMutex.keys++;
-
-}*/
 
 static void _read(char *c) { *c = getKey(); }
 
@@ -193,9 +179,16 @@ static unsigned long int _createProc(char *name, int (*entry)(int, char **),
 
 static void _printNode(void *src) { printNode(src); }
 
-static void _kill(unsigned long int pid) { killProc(pid); }
+static void _kill(unsigned long int pid) { 
+  killProc(pid);
+  freeProcess(getProcess(pid)); 
+}
 
-static void _ps(tProcessData ***psVec, int *size) { ps(psVec, size); }
+static void _ps(tProcessData ***psVec, int *size) { 
+  _cli();
+  ps(psVec, size); 
+  _sti();
+}
 
 static void _waitpid(unsigned long int pid) {
   _sti();
@@ -205,8 +198,8 @@ static void _waitpid(unsigned long int pid) {
 }
 
 static int mutexCmp(void *a, void *b) {
-  char *left = ((MutexData *)a)->id;
-  char *right = ((MutexData *)b)->id;
+  char *left = (*((MutexData **)a))->id;
+  char *right = (*((MutexData **)b))->id;
 
   return strcmp(left, right);
 }
@@ -214,15 +207,15 @@ static int _mutexOpen(char id[MAX_MUTEX_ID]) {
   if (mutexQueue == NULL) {
     mutexQueue = queueCreate(sizeof(MutexData *));
   }
-  MutexData *data = malloc(sizeof(MutexData));
-  memcpy(data->id, id, strlen(id));
-  data->mutex = NULL;
+  MutexData *data;
   queueResetIter(mutexQueue);
   while (queueGetNext(mutexQueue, &data) == 0) {
     if (strcmp(id, data->id) == 0) {
       return 1;  // mutex already open
     }
   }
+  data = malloc(sizeof(MutexData));
+  memcpy(data->id, id, strlen(id) + 1);
   data->mutex = mutexCreate();
   queueOffer(mutexQueue, &data);
   return 0;
@@ -231,14 +224,12 @@ static int _mutexOpen(char id[MAX_MUTEX_ID]) {
 static int _mutexClose(char id[MAX_MUTEX_ID]) {
   if (mutexQueue == NULL) return 1;
   MutexData *data;
-  memcpy(data->id, id, strlen(id));
-  data->mutex = NULL;
-
   queueResetIter(mutexQueue);
   while (queueGetNext(mutexQueue, &data) == 0) {
     if (strcmp(id, data->id) == 0) {
       mutexDelete(data->mutex);
-      queueRemove(mutexQueue, &mutexCmp, &data);
+      queueRemove(mutexQueue, &mutexCmp, &data);    // &cmp?? o cmp??
+      free(data);
     }
   }
   return 2;
@@ -269,8 +260,8 @@ static int _mutexUnlock(char id[MAX_MUTEX_ID]) {
 }
 
 static int semCmp(void *a, void *b) {
-  char *left = ((SemData *)a)->id;
-  char *right = ((SemData *)b)->id;
+  char *left = (*((SemData **)a))->id;
+  char *right = (*((SemData **)b))->id;
 
   return strcmp(left, right);
 }
@@ -279,15 +270,15 @@ static int _semOpen(char id[MAX_SEM_ID], int start) {
   if (semQueue == NULL) {
     semQueue = queueCreate(sizeof(SemData *));
   }
-  SemData *data = malloc(sizeof(SemData));
-  memcpy(data->id, id, strlen(id));
-  data->sem = NULL;
+  SemData *data;
   queueResetIter(semQueue);
   while (queueGetNext(semQueue, &data) == 0) {
     if (strcmp(id, data->id) == 0) {
       return 1;  // sem already open
     }
   }
+  data = malloc(sizeof(SemData));
+  memcpy(data->id, id, strlen(id) + 1);
   data->sem = semCreate(start);
   queueOffer(semQueue, &data);
   return 0;
@@ -296,14 +287,12 @@ static int _semOpen(char id[MAX_SEM_ID], int start) {
 static int _semClose(char id[MAX_SEM_ID]) {
   if (semQueue == NULL) return 1;
   SemData *data;
-  memcpy(data->id, id, strlen(id));
-  data->sem = NULL;
-
   queueResetIter(semQueue);
   while (queueGetNext(semQueue, &data) == 0) {
     if (strcmp(id, data->id) == 0) {
       semDelete(data->sem);
       queueRemove(semQueue, &semCmp, &data);
+      free(data);
     }
   }
   return 2;
@@ -331,4 +320,8 @@ static int _semPost(char id[MAX_SEM_ID]) {
     }
   }
   return 2;
+}
+
+static void _eraseScreen(int x1, int y1, int x2, int y2) {
+  eraseScreen(x1, y1, x2, y2);
 }

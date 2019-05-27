@@ -34,3 +34,7 @@ void setCursor(int x, int y) {
 void drawChar(char c, int x, int y, Color color) {
   systemCall((uint64_t)WRITE, (uint64_t)DRAWCHAR, (uint64_t)&c, (uint64_t)&x, (uint64_t)&y, (uint64_t)&color); 
 }
+
+void eraseScreen(int x1, int y1, int x2, int y2) {
+  systemCall((uint64_t)ERASESCREEN, (uint64_t)x1, (uint64_t)y1, (uint64_t)x2, (uint64_t)y2, 0);
+}
