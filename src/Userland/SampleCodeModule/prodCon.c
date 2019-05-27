@@ -34,7 +34,7 @@ void producer();
 void consumer();
 void printInitScreen();
 int getcmd(char* cmd);
-//static unsigned long int ps();
+static unsigned long int ps();
 
 static int products[10] = {0};
 static int prod[5] = {0};
@@ -143,8 +143,8 @@ void createShowProc() {
 void showProc() {
   printf("PRODUCTS ARRAY:\n");
   int x, y;
-  //int x1, y1;
-  //int x2, y2;
+  int x1, y1;
+  int x2, y2;
   getCursor(&x, &y);
   x += 200;
   y += 50;
@@ -156,15 +156,15 @@ void showProc() {
     }
     //mutexUnlock("prodConBuff");
     printf("\n\nProducers: %d | Consumers: %d\n",prod_size, cons_size);
-    /*getCursor(&x1, &y1);
-    ps();
+    getCursor(&x1, &y1);
+    //ps();
     getCursor(&x2, &y2);
     wait(10);
-    eraseScreen(x1, y1, x2, y2);*/
+    eraseScreen(x1, y1, x2, y2);
   }
 }
 
-/*static unsigned long int ps() {
+static unsigned long int ps() {
   tProcessData** psVec;
   int size;
   getPS(&psVec, &size);
@@ -179,7 +179,7 @@ void showProc() {
   }
   free(psVec);
   return 0;
-}*/
+}
 
 void createProd() {
   prod[prod_size] = createProcess("prod", (mainf)producer, 0, NULL, MIDP);
