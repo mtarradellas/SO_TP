@@ -84,9 +84,6 @@ void newLine();
 // Corrects invalid cursor movements
 void accomodateScreen();
 
-// Clears screen, moves cursor to the begining
-void clear();
-
 // Getter of the screen measures
 void getScreenSize(int* x, int* y);
 
@@ -100,6 +97,8 @@ void drawRectangle(Color color, int b, int h, int x, int y);
 // more space
 void scrollUp();
 
-void eraseScreen(int x1, int y1, int x2, int y2);
+void eraseScreen(int y1, int y2);
+
+void resetCursor();
 
 #endif

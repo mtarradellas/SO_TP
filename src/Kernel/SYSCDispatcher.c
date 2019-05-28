@@ -39,10 +39,11 @@ typedef enum {
   SEMCLOSE,
   SEMWAIT,
   SEMPOST,
-  ERASESCREEN
+  ERASESCREEN, 
+  RESETCURSOR
 } Syscall;
 
-typedef enum { CHARACTER, DRAWCHAR, CLEAR, STRING } Write;
+typedef enum { CHARACTER, DRAWCHAR, CLEAR, STRING } Write;  // BORRAR
 
 typedef enum { HOUR, MINUTE, SECOND } Time;
 
@@ -53,8 +54,7 @@ void _cli();
 void _sti();
 
 static void _read(char *c);
-static void _write(uint64_t mode, uint64_t p1, uint64_t p2, uint64_t p3,
-                   uint64_t p4);
+static void _write(char *buff, int size);
 static void _getTime(unsigned int *dest, uint64_t time);
 static void _wait(int *sec);
 static void _getScreenSize(int *x, int *y);
@@ -83,7 +83,8 @@ static int _semOpen(char id[MAX_SEM_ID], int start);
 static int _semClose(char id[MAX_SEM_ID]);
 static int _semWait(char id[MAX_SEM_ID]);
 static int _semPost(char id[MAX_SEM_ID]);
-static void _eraseScreen(int x1, int y1, int x2, int y2);
+static void _eraseScreen(int y1, int y2);
+static void _resetCursor();
 
 typedef uint64_t (*SystemCall)();
 
@@ -101,7 +102,8 @@ SystemCall syscall_array[] = {
     (SystemCall)_mutexClose,    (SystemCall)_mutexLock,
     (SystemCall)_mutexUnlock,   (SystemCall)_semOpen,
     (SystemCall)_semClose,      (SystemCall)_semWait,
-    (SystemCall)_semPost,       (SystemCall)_eraseScreen};
+    (SystemCall)_semPost,       (SystemCall)_eraseScreen,
+    (SystemCall)_resetCursor};
 
 void syscallDispatcher(uint64_t syscall, uint64_t p1, uint64_t p2, uint64_t p3,
                        uint64_t p4, uint64_t p5) {
@@ -110,21 +112,8 @@ void syscallDispatcher(uint64_t syscall, uint64_t p1, uint64_t p2, uint64_t p3,
 
 static void _read(char *c) { *c = getKey(); }
 
-static void _write(uint64_t mode, uint64_t p1, uint64_t p2, uint64_t p3,
-                   uint64_t p4) {
-  switch (mode) {
-    case CHARACTER:
-      printChar(*((char *)p1), *((Color *)p2));
-      break;
-    case DRAWCHAR:
-      drawChar(*((char *)p1), *((int *)p3), *((int *)p4), *((Color *)p2));
-    case CLEAR:
-      clear();
-      break;
-    case STRING:
-      putStr((char *)p1);
-      break;
-  }
+static void _write(char* buff, int size) {
+  write(buff, size);
 }
 
 static void _wait(int *sec) { wait(*sec); }
@@ -322,6 +311,10 @@ static int _semPost(char id[MAX_SEM_ID]) {
   return 2;
 }
 
-static void _eraseScreen(int x1, int y1, int x2, int y2) {
-  eraseScreen(x1, y1, x2, y2);
+static void _eraseScreen(int y1, int y2) {
+  eraseScreen(y1, y2);
+}
+
+static void _resetCursor() {
+  resetCursor();
 }
