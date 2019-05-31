@@ -9,6 +9,7 @@
 #include "include/stdlib.h"
 #include "include/timeModule.h"
 #include "include/videoModule.h"
+#include "include/philosophers.h"
 typedef enum {
   INVCOM,
   HELP,
@@ -25,7 +26,8 @@ typedef enum {
   KILLTEST,
   STACKOV,
   MUTEX,
-  PRODCON
+  PRODCON,
+  PHILOSOPHERS
 } Command;
 
 #define MAXLEN 256
@@ -68,6 +70,8 @@ static unsigned long int memTest();
 static unsigned long int pTestWrapper();
 // Kills all processes from test
 static unsigned long int killTest();
+// Launches eating philosophers application
+static unsigned long int philosophers();
 
 static unsigned long int mutex();
 static void pTest();
@@ -78,7 +82,8 @@ cmd command_array[] = {
     (cmd)invCom,   (cmd)help,         (cmd)clear,     (cmd)time,
     (cmd)pong,     (cmd)zeroDiv,      (cmd)invOpCode, (cmd)lenia,
     (cmd)exit,     (cmd)pTestWrapper, (cmd)memTest,   (cmd)ps,
-    (cmd)killTest, (cmd)stackOv,      (cmd)mutex,     (cmd)prodCon};
+    (cmd)killTest, (cmd)stackOv,      (cmd)mutex,     (cmd)prodCon,
+    (cmd)philosophers};
 
 int sonsVec[50];
 int sonsSize = 0;
@@ -125,6 +130,7 @@ static int getCommand(char* command) {
   if (!strCmp("ps", command)) return PS;
   if (!strCmp("mutex", command)) return MUTEX;
   if (!strCmp("prodcon", command)) return PRODCON;
+  if(!strCmp("philosophers", command)) return PHILOSOPHERS;
   return INVCOM;
 }
 
@@ -140,22 +146,22 @@ static void checkForeground(char* command) {
 
 static unsigned long int help() {
   printf("\n\n********  Help Menu  ********\n\n");
-  printf("  * clear     :       Clears screen\n");
-  printf("  * invopcode :       Executes Invalid OP Code Interruption\n");
-  printf("  * zerodiv   :       Executes Zero Division Interruption\n");
-  printf("  * stackov   :       Executes Stack Overflow Exception via recursive function\n");
-  printf("  * exit      :       Exits shell\n");
-  printf("  * lenia     :       Beep\n");
-  printf("  * time      :       Displays current time\n");
-  printf("  * prodcon   :       Launches ProdCon application\n");
-  printf("  * memtest   :       Shows functioning Memory Management\n");
-  printf("  * ptest     :       Runs multiple processes to show functionality\n");
-  printf("  * killtest  :       Kills all processes created from ptest command\n");
-  printf("  * mutex     :       Runs the mutex test\n");
-
-  printf("  * ps        :       Displays process table with, name, pid, status, foreground, memory, priority\n");
-  printf("  * pong      :       Iniciates pong when user presses 'enter' which will run until\n");
-  printf("                      end of game or until user presses 'backspace' to leave\n");
+  printf("  * clear        :       Clears screen\n");
+  printf("  * invopcode    :       Executes Invalid OP Code Interruption\n");
+  printf("  * zerodiv      :       Executes Zero Division Interruption\n");
+  printf("  * stackov      :       Executes Stack Overflow Exception via recursive function\n");
+  printf("  * exit         :       Exits shell\n");
+  printf("  * lenia        :       Beep\n");
+  printf("  * time         :       Displays current time\n");
+  printf("  * prodcon      :       Launches ProdCon application\n");
+  printf("  * memtest      :       Shows functioning Memory Management\n");
+  printf("  * ptest        :       Runs multiple processes to show functionality\n");
+  printf("  * killtest     :       Kills all processes created from ptest command\n");
+  printf("  * mutex        :       Runs the mutex test\n");
+  printf("  * philosophers :       Runs the eating philosophers application\n");
+  printf("  * ps           :       Displays process table with, name, pid, status, foreground, memory, priority\n");
+  printf("  * pong         :       Iniciates pong when user presses 'enter' which will run until\n");
+  printf("                         end of game or until user presses 'backspace' to leave\n");
   printf("\n  Any other command will be taken as invalid\n");
   printf("Commands may be executed on background by typing ' &' at the end\n");
   return 0;
@@ -261,6 +267,10 @@ static unsigned long int prodCon() {
   return 0;
 }
 
+static unsigned long int philosophers() {
+  philosophersRun();
+  return 0;
+}
 static unsigned long int memTest() {
   char* mem = malloc(25);
   printf(
