@@ -26,7 +26,7 @@ void semWait(sem_t sem) {
   //printf("sem value: %d\n", sem->value);
   if (sem == NULL) return;
   mutexLock(sem->mutex);
-  tProcess* running = getCurrrentProcess();
+  tProcess* running = getCurrentProcess();
   //printf("running: %s\n", running->name);
   if (sem->value == 0) {
     queueOffer(sem->lockedQueue, &running);

@@ -67,15 +67,14 @@ void start(int (*entryPoint)(int, char**)) {
 	mutexQueue = NULL;
 	semQueue = NULL;
 	readSem = semCreate(0);
+	tProcess* sys_idle = newProcess("sysIdle", (entryFnc)idle, 0, NULL, IDLE);
 	tProcess* shell = newProcess("shell", entryPoint, 0, NULL, HIGHP);
 	if (shell == NULL) {
 		// throw error
 		return;
 	}
-	tProcess* sys_idle = newProcess("sysIdle", (entryFnc)idle, 0, NULL, IDLE);
 	if (sys_idle == NULL) {
 		// throw error
-		printf("WATFFFFF\n");
 		return;
 	}
 	initStack(shell);
@@ -162,7 +161,6 @@ void lottery(uint64_t rsp) {
 		_exceptionStackOverflowHandler();
 	}
 	if (processList == NULL) {
-		printf("NEVER EVER EVER\n");
 		return;
 	}
 	if (quantum != 0) {
@@ -200,7 +198,7 @@ static int runTicket(int ticket, uint64_t rsp) {
 	return 0;
 }
 
-tProcess* getCurrrentProcess() {
+tProcess* getCurrentProcess() {
 	return running;
 }
 

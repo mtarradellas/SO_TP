@@ -43,8 +43,6 @@ typedef enum {
   RESETCURSOR
 } Syscall;
 
-typedef enum { CHARACTER, DRAWCHAR, CLEAR, STRING } Write;  // BORRAR
-
 typedef enum { HOUR, MINUTE, SECOND } Time;
 
 void beepon();

@@ -11,8 +11,13 @@
 #define READY 0
 #define BLOCKED 1
 
+#define MAX_FD 30
+
 typedef struct tProcess {
   unsigned long int pid;
+  unsigned long int parent;
+  int fileDescriptors[MAX_FD];
+  int maxFD;
   char *name;
   int (*entry)(int, char **argv);
   uint64_t stackBase;
@@ -26,6 +31,7 @@ typedef struct tProcess {
 
 typedef struct tProcessData {
   unsigned long int pid;
+  unsigned long int parent;
   char* name;
   char* status;
   int memory;
@@ -40,5 +46,6 @@ void freeProcess(tProcess* process);
 void getProcessData(tProcess* process, tProcessData* data);
 void ps(tProcessData*** psVec, int* size);
 tProcess* getProcess(unsigned long int pid);
+int addFileDescriptor(tProcess* process, int fileDescriptor);
 
 #endif

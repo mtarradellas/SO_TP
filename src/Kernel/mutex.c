@@ -25,7 +25,7 @@ void mutexDelete(mutex_t mutex) {
 void mutexLock(mutex_t mutex) {
   //printf("locking mutex: %d\n", mutex);
   //printf("mutex value: %d\n", mutex->value);
-  tProcess* running = getCurrrentProcess();
+  tProcess* running = getCurrentProcess();
   //printf("running process: %s\n", running->name);
   if (!_mutexAcquire(&(mutex->value))) {
     //printf("-libre:\n");

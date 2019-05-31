@@ -1,5 +1,6 @@
 #include <stddef.h>
 #include "include/process.h"
+#include "include/scheduler.h"
 #include "include/memoryManager.h"
 
 #include "lib.h"
@@ -18,7 +19,7 @@ static void addP(tProcess* process);
 static tPList* removeP(tPList* node, tProcess* process);
 
 static long int id;
-tPList* list;
+static tPList* list;
 
 tProcess *newProcess(char *name, int (*entry)(int, char **), int argc,
                      char **argv, int priority) {
@@ -29,6 +30,16 @@ tProcess *newProcess(char *name, int (*entry)(int, char **), int argc,
   	return NULL;
   }
   newP->pid = id++;
+  tProcess* running = getCurrentProcess();
+  if (running == NULL) {
+    newP->parent = 0;
+  } else newP->parent = running->pid;
+  newP->fileDescriptors[0] = 0;
+  newP->fileDescriptors[1] = 1;
+  for (int i = 2; i < MAX_FD; i++) {
+    newP->fileDescriptors[i] = -1;
+  }
+  newP->maxFD = 1;
   newP->name = name;
   newP->entry = entry;
   newP->argc = argc;
@@ -83,6 +94,7 @@ void getProcessData(tProcess* process, tProcessData* data) {
   memcpy(data->name, process->name, strlen(process->name) + 1);
   data->memory = process->stackBase - process->stackTop;
   data->pid = process->pid;
+  data->parent = process->parent;
   if (process->status == BLOCKED) {
     data->status = "Blocked";
   }
@@ -96,7 +108,7 @@ void getProcessData(tProcess* process, tProcessData* data) {
     data->priority = "Medium ";
   }
   else if (process->priority == LOWP){
-    data->priority = "Low   ";
+    data->priority = "Low    ";
   }
   else data->priority = "Minimum";
 }
@@ -128,4 +140,14 @@ tProcess* getProcess(unsigned long int pid) {
   }
   //_sti();
   return NULL;
+}
+
+int addFileDescriptor(tProcess* process, int fileDescriptor) {
+  for(int i = 0; i < process->maxFD+1; i++) {
+    if (process->fileDescriptors[i] == -1) {
+      process->fileDescriptors[i] = fileDescriptor;
+      if (i > process->maxFD) process->maxFD = i;
+      return i;
+    }
+  }
 }
