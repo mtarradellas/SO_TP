@@ -3,6 +3,9 @@
 
 #include "./mutex.h"
 #include "./queue.h"
+
+#define MAX_SEM_ID 30
+
 typedef struct {
   int value;
   queue_t lockedQueue;
@@ -10,6 +13,13 @@ typedef struct {
 } tSemaphore;
 
 typedef tSemaphore* sem_t;
+
+typedef struct SemData {
+  char id[MAX_SEM_ID];
+  sem_t sem;
+}SemData;
+
+extern queue_t semQueue;
 
 sem_t semCreate(int startValue);
 void semDelete(sem_t sem);

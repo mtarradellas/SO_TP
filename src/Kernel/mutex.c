@@ -28,6 +28,7 @@ void mutexLock(mutex_t mutex) {
   } else {
     queueOffer(mutex->lockedQueue, &running);
     removeProcess(running);
+    running->status = BLOCKED;
     _interrupt();
   }
 }
@@ -39,6 +40,7 @@ void mutexUnlock(mutex_t mutex) {
     tProcess* proc = NULL;
     queuePoll(mutex->lockedQueue, &proc);
     mutex->ownerPID = proc->pid;
+    proc->status = READY;
     addProcess(proc);
     //_interrupt();
   } else {

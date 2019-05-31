@@ -2,7 +2,7 @@
 #define MUTEX_MODULE_H
 
 #include <stddef.h>
-#define MAX_MUTEX_ID 15
+#define MAX_MUTEX_ID 30
 
 void mutexOpen(char id[MAX_MUTEX_ID]);
 void mutexClose(char id[MAX_MUTEX_ID]);

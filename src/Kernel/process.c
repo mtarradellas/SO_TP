@@ -72,7 +72,10 @@ void initializeProcesses() {
 }
 
 void freeProcess(tProcess* process) {
+  if (process == NULL) return;
+  _cli();
   list = removeP(list, process);
+  _sti();
   free((tProcess*) process->stackTop);
   free(process);
 }
@@ -89,7 +92,6 @@ void getProcessData(tProcess* process, tProcessData* data) {
 }
 
 void ps(tProcessData*** psVec, int* size) {
-  _cli();
   tPList* auxList = list;
   tProcessData** auxVec = NULL;
   int s = 0;
@@ -102,16 +104,18 @@ void ps(tProcessData*** psVec, int* size) {
   }
   (*psVec) = auxVec;
   (*size) = s;
-  _sti();
 }
 
 tProcess* getProcess(unsigned long int pid) {
   tPList* aux = list;
+  //_cli();
   while(aux != NULL) {
     if (aux->process->pid == pid) {
+      //_sti();
       return aux->process;
     }
     aux = aux->next;
   }
+  //_sti();
   return NULL;
 }
