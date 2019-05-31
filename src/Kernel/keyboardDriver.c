@@ -123,7 +123,7 @@ static void addToBuffer(unsigned char ascii) {
   buffer[index % BUFFER_SIZE] = ascii;
   index++;
   if (size < BUFFER_SIZE) size++;
-  //semPost(readSem);
+  semPost(readSem);
 }
 
 static int isNotPressed(unsigned char c) {

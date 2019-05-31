@@ -19,8 +19,6 @@ static const uint64_t PageSize = 0x1000;
 static void* const sampleCodeModuleAddress = (void*)0x400000;
 static void* const sampleDataModuleAddress = (void*)0x500000;
 
-sem_t readSem;
-
 void _cli();
 void _go_to(void* sp);
 
@@ -54,8 +52,6 @@ int main() {
   _cli();
   _go_to(getStackBase());
   loadIDT();
-  readSem = semCreate(0);
   start((EntryPoint)sampleCodeModuleAddress);
-  //schedTestDinamic();
   return 1;
 }

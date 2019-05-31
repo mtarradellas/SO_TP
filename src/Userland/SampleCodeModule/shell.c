@@ -245,7 +245,7 @@ static unsigned long int ps() {
 
   printf("\nPID     Status     Memory    Priority     Name\n");
   for (int i = 0; i < size; i++) {
-    printf("%d       %s    %d      %s       %s\n", psVec[i]->pid,
+    printf("%d       %s    %d      %s      %s\n", psVec[i]->pid,
            psVec[i]->status, psVec[i]->memory, psVec[i]->priority,
            psVec[i]->name);
     free(psVec[i]->name);

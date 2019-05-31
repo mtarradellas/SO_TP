@@ -15,6 +15,10 @@ typedef int (*entryFnc)();
 
 #define QUANTUM 0
 
+sem_t readSem;
+extern queue_t semQueue;
+extern queue_t mutexQueue;
+
 typedef struct tRange {
 	int from;
 	int to;
@@ -30,6 +34,7 @@ void _cli();
 void _sti();
 void _interrupt();
 void _exceptionStackOverflowHandler();
+void _signalEOI();
 
 void _runProcess(uint64_t rsp); //jumps to rsp stack and continues its program execution
 uint64_t _initStack(uint64_t stackBase, int (*entry)(int, char **), int argc, char **argv, uint64_t stackRet);
@@ -41,6 +46,7 @@ static int inRange(tRange *range, int num);
 static void endProcess();
 void run(int (*entry)(int, char**), int argc, char** argv);
 static tProcess* getSchedProcess(unsigned long int pid);
+static void idle();
 
 static tPList *processList;
 static tPList *auxList;
@@ -60,13 +66,22 @@ void start(int (*entryPoint)(int, char**)) {
 	initializeProcesses();
 	mutexQueue = NULL;
 	semQueue = NULL;
+	readSem = semCreate(0);
 	tProcess* shell = newProcess("shell", entryPoint, 0, NULL, HIGHP);
 	if (shell == NULL) {
 		// throw error
 		return;
 	}
+	tProcess* sys_idle = newProcess("sysIdle", (entryFnc)idle, 0, NULL, IDLE);
+	if (sys_idle == NULL) {
+		// throw error
+		printf("WATFFFFF\n");
+		return;
+	}
 	initStack(shell);
+	initStack(sys_idle);
 	addProcess(shell);
+	addProcess(sys_idle);
 	running = shell;
 	_runProcess(running->rsp);
 }
@@ -85,7 +100,6 @@ void endProcess() {
 }
 
 void addProcess(tProcess *proc) {
-	_cli();
 	tPList *new = malloc(sizeof(*new));
 	if (new == NULL) {
 		// throw error
@@ -100,7 +114,6 @@ void addProcess(tProcess *proc) {
 	new->tickRange->to = tickets + proc->priority - 1;
 	tickets += proc->priority;
 	processList = new;
-	_sti();
 }
 
 static void freeNode(tPList *node) {
@@ -128,6 +141,9 @@ void removeProcess(tProcess* process) {
 	_cli();
 	int procTickets = 0;
 	processList = recRem(processList, process, &procTickets);
+	if (processList == NULL) {
+		running = NULL;
+	}
 	_sti();
 }
 
@@ -146,8 +162,7 @@ void lottery(uint64_t rsp) {
 		_exceptionStackOverflowHandler();
 	}
 	if (processList == NULL) {
-		//running = NULL;
-		//idle();
+		printf("NEVER EVER EVER\n");
 		return;
 	}
 	if (quantum != 0) {
@@ -163,12 +178,14 @@ void lottery(uint64_t rsp) {
 		_runProcess(running->rsp);
 	}
 }
-/*
-void idle(void) {
+
+static void idle(void) {
+	_sti();
+	_signalEOI();
 	while(1){
-		printf("hi\n");
+		//printf("hi");
 	}
-}*/
+}
 
 static int runTicket(int ticket, uint64_t rsp) {
 	auxList = processList;

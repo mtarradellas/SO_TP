@@ -1,5 +1,6 @@
 GLOBAL _cli
 GLOBAL _sti
+GLOBAL _signalEOI
 GLOBAL picMasterMask
 GLOBAL picSlaveMask
 GLOBAL haltcpu
@@ -157,6 +158,11 @@ _exceptionInvalidOpcodeHandler:
 ; Stack Overflow Exception
 _exceptionStackOverflowHandler:
 	exceptionHandler 2
+
+_signalEOI:
+	mov al, 20h
+	out 20h, al
+	ret
 
 
 ; System Call

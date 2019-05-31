@@ -6,6 +6,7 @@
 #define HIGHP 250
 #define MIDP 150
 #define LOWP 50
+#define IDLE 1
 
 #define READY 0
 #define BLOCKED 1
