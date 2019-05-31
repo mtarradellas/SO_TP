@@ -113,7 +113,9 @@ void syscallDispatcher(uint64_t syscall, uint64_t p1, uint64_t p2, uint64_t p3,
 }
 
 static void _read(char *c) { 
-  //semWait(readSem);
+  printf("wait..\n");
+  semWait(readSem);
+  printf("..done\n");
   *c = getKey(); 
 }
 

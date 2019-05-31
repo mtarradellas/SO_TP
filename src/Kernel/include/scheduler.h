@@ -7,6 +7,7 @@
 #define READY 0
 #define BLOCKED 1
 
+
 void start(int (*entryPoint)(int, char**));
 void lottery(uint64_t rsp);
 void addProcess(tProcess *proc);

@@ -90,14 +90,15 @@ void getProcessData(tProcess* process, tProcessData* data) {
     data->status = "Ready  ";
   }
   if (process->priority == HIGHP) {
-    data->priority = "High  ";
+    data->priority = "High   ";
   }
   else if (process->priority == MIDP) {
-    data->priority = "Medium";
+    data->priority = "Medium ";
   }
-  else {
+  else if (process->priority == LOWP){
     data->priority = "Low   ";
   }
+  else data->priority = "Minimum";
 }
 
 void ps(tProcessData*** psVec, int* size) {
