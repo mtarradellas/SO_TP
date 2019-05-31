@@ -40,10 +40,10 @@ void mutexUnlock(mutex_t mutex) {
     queuePoll(mutex->lockedQueue, &proc);
     mutex->ownerPID = proc->pid;
     addProcess(proc);
-    _interrupt();
+    //_interrupt();
   } else {
     // is this really necessary?
-    mutex->ownerPID = -1;
+    mutex->ownerPID = 0;
   }
 
   mutex->value = 0;
