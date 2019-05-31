@@ -145,7 +145,10 @@ void lottery(uint64_t rsp) {
 		// stack overflow
 		_exceptionStackOverflowHandler();
 	}
-	if (processList == NULL) {return; }
+	if (processList == NULL) {
+		running = NULL;
+		//idle();
+	}
 	if (quantum != 0) {
 		quantum--;
 		return;
@@ -159,6 +162,12 @@ void lottery(uint64_t rsp) {
 		_runProcess(running->rsp);
 	}
 }
+/*
+void idle(void) {
+	while(1){
+		printf("hi\n");
+	}
+}*/
 
 static int runTicket(int ticket, uint64_t rsp) {
 	auxList = processList;

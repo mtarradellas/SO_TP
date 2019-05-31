@@ -1,5 +1,6 @@
 #include "include/keyboardDriver.h"
 #include "lib.h"
+#include "include/semaphore.h"
 
 #define BUFFER_SIZE 256
 #define LEFT_SHIFT_SC 42
@@ -42,6 +43,8 @@
 #define END 0
 #define REPAG 0
 #define AVPAG 0
+
+extern sem_t readSem;
 
 // Returns code for pressed key
 unsigned int _getKeyPress();
@@ -120,6 +123,7 @@ static void addToBuffer(unsigned char ascii) {
   buffer[index % BUFFER_SIZE] = ascii;
   index++;
   if (size < BUFFER_SIZE) size++;
+  //semPost(readSem);
 }
 
 static int isNotPressed(unsigned char c) {

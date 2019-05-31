@@ -88,6 +88,8 @@ static void _resetCursor();
 
 typedef uint64_t (*SystemCall)();
 
+extern sem_t readSem;
+
 SystemCall syscall_array[] = {
     (SystemCall)_read,          (SystemCall)_write,
     (SystemCall)_wait,          (SystemCall)_getTime,
@@ -110,7 +112,10 @@ void syscallDispatcher(uint64_t syscall, uint64_t p1, uint64_t p2, uint64_t p3,
   syscall_array[syscall](p1, p2, p3, p4, p5);
 }
 
-static void _read(char *c) { *c = getKey(); }
+static void _read(char *c) { 
+  //semWait(readSem);
+  *c = getKey(); 
+}
 
 static void _write(char* buff, int size) {
   write(buff, size);
@@ -219,6 +224,7 @@ static int _mutexClose(char id[MAX_MUTEX_ID]) {
       mutexDelete(data->mutex);
       queueRemove(mutexQueue, &mutexCmp, &data);    // &cmp?? o cmp??
       free(data);
+      return 1;
     }
   }
   return 2;
@@ -282,6 +288,7 @@ static int _semClose(char id[MAX_SEM_ID]) {
       semDelete(data->sem);
       queueRemove(semQueue, &semCmp, &data);
       free(data);
+      return 1;
     }
   }
   return 2;

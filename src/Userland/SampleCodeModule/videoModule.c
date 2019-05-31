@@ -15,7 +15,6 @@ void resetCursor() {
 
 void deleteChar() {
   char d = '\b';
-  //systemCall((uint64_t)WRITE, (uint64_t)CHARACTER, (uint64_t)&d, 0, 0, 0);
   systemCall((uint64_t)WRITE, (uint64_t)&d, 1, 0, 0, 0);
 }
 
