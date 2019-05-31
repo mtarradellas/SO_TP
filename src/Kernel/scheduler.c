@@ -146,8 +146,9 @@ void lottery(uint64_t rsp) {
 		_exceptionStackOverflowHandler();
 	}
 	if (processList == NULL) {
-		running = NULL;
+		//running = NULL;
 		//idle();
+		return;
 	}
 	if (quantum != 0) {
 		quantum--;
