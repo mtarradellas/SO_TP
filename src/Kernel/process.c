@@ -117,14 +117,14 @@ void ps(tProcessData*** psVec, int* size) {
 
 tProcess* getProcess(unsigned long int pid) {
   tPList* aux = list;
-  _cli();
+  //_cli();
   while(aux != NULL) {
     if (aux->process->pid == pid) {
-      _sti();
+      //_sti();
       return aux->process;
     }
     aux = aux->next;
   }
-  _sti();
+  //_sti();
   return NULL;
 }

@@ -160,7 +160,7 @@ void showProc() {
     //ps();
     getCursor(&x2, &y2);
     wait(10);
-    eraseScreen(x1, y1, x2, y2);
+    eraseScreen(y1, y2);
   }
 }
 

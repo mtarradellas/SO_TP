@@ -48,9 +48,7 @@ void printf(char* fmt, ...) {
 }
 
 void putChar(char c) {
-  Color white = {255, 255, 255};
-  systemCall((uint64_t)WRITE, (uint64_t)CHARACTER, (uint64_t)&c,
-             (uint64_t)&white, 0, 0);
+  systemCall((uint64_t)WRITE, (uint64_t)&c, 1, 0, 0, 0);
 }
 
 void putDec(int i) {
@@ -60,7 +58,7 @@ void putDec(int i) {
 }
 
 void putStr(char* str) {
-  systemCall((uint64_t)WRITE, (uint64_t)STRING, (uint64_t)str, 0, 0, 0);
+  systemCall((uint64_t)WRITE, (uint64_t)str, (uint64_t)strLen(str)+1, 0, 0, 0);
 }
 
 char* decToStr(int num, char* buffer) {

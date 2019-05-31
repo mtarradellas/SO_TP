@@ -51,6 +51,12 @@ void *memcpy(void *destination, const void *source, uint64_t length) {
   return destination;
 }
 
+void write(char* buff, int size) {
+  for (int i = 0; i < size; i++) {
+    printChar(buff[i], WHITE);
+  }
+} 
+
 char *decToStr(int num, char *buffer) {
   char const digit[] = "0123456789";
   char *p = buffer;

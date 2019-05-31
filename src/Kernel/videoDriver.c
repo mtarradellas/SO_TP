@@ -143,16 +143,6 @@ void scrollUp() {
   cursor_y = videoStruct->YResolution - MARGIN - 3 * (CHAR_HEIGHT + LINE_SPACE);
 }
 
-void clear() {
-  for (int y = 0; y < videoStruct->YResolution; y++) {
-    for (int x = 0; x < videoStruct->XResolution; x++) {
-      plotPixel(x, y, black);
-    }
-  }
-  cursor_x = MARGIN;
-  cursor_y = MARGIN;
-}
-
 void getScreenSize(int* x, int* y) {
   *x = videoStruct->XResolution;
   *y = videoStruct->YResolution;
@@ -176,10 +166,15 @@ void drawRectangle(Color color, int b, int h, int x, int y) {
   }
 }
 
-void eraseScreen(int x1, int y1, int x2, int y2) {
+void eraseScreen(int y1, int y2) {
   for (int y = y1; y <= y2; y++) {
     for (int x = 0; x <= videoStruct->XResolution; x++) {
       plotPixel(x, y, black);
     }
   }
+}
+
+void resetCursor() {
+  cursor_x = MARGIN;
+  cursor_y = MARGIN;
 }
