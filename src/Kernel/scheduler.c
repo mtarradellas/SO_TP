@@ -226,6 +226,18 @@ static int inRange(tRange *range, int num) {
 	return (num >= range->from) && (num <= range->to);
 }
 
+int procExist(int PID){
+	
+	auxList = processList;
+
+	while(tPList != NULL){
+		if(auxList->process->pid == PID)
+			return 1;
+		auxList = auxList ->next;
+	}
+	return 0;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////  ///////  ///////////////////////////////////////////////////////

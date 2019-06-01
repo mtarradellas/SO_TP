@@ -129,3 +129,32 @@ tProcess* getProcess(unsigned long int pid) {
   //_sti();
   return NULL;
 }
+/*
+
+tProcess getCopyProcess(int PID){
+  tProcess resp;
+  tPList* aux = list;
+  while(aux != NULL){
+    if(aux->process->pid == PID){
+      resp = malloc(sizeof(tProcess));
+      resp.pid = PID;
+      resp.name = malloc(sizeof(char*));
+      resp.name = aux->process->name;
+      resp.entry = malloc(sizeof(int*));
+      resp.entry = aux->process->entry;
+      resp.stackBase = aux->process->stackBase;
+      resp.stackTop = aux->process->stackTop;
+      resp.rsp = aux->process->rsp;
+      resp.priority = aux->process->priority;
+      resp.status = aux->process->status;
+      resp.argc = aux->process->argc;
+      resp.argv = malloc(sizeof(char**));
+      resp.argv = aux->process->argv;
+
+      return resp;
+    }
+    aux = aux->next;
+  }
+  return NULL;
+}
+*/

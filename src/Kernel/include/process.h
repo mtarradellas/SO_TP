@@ -40,5 +40,7 @@ void freeProcess(tProcess* process);
 void getProcessData(tProcess* process, tProcessData* data);
 void ps(tProcessData*** psVec, int* size);
 tProcess* getProcess(unsigned long int pid);
+void changePriority(char* priority);
+//tProcess getCopyProcess(int PID);
 
 #endif
