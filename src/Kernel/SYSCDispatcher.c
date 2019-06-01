@@ -180,7 +180,7 @@ static void _setCursor(int *x, int *y) { setCursor(*x, *y); }
 static void _malloc(void **dest, size_t size) { *dest = malloc(size); }
 
 static void _realloc(void *src, size_t size, void **dest) {
-  *dest = realloc(src, size);
+*dest = realloc(src, size);
 }
 
 static void _free(void *src) { free(src); }
