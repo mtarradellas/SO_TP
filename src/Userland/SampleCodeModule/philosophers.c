@@ -23,7 +23,6 @@ static void philosophersKillAll();
 static void printStatus();
 
 static int philosophersQty;
-// static int philosophersToDie;
 static int killing;
 static int id, indexToDie;
 static philosopher_t philosophers[MAX_PHILOSOPHERS] = {{0}};
@@ -36,7 +35,6 @@ void philosophersRun() {
   philosophersQty = 0;
   semOpen("forks", 0);
   semOpen("inTable", 0);
-  // philosophersToDie = 0;
   killing = 0;
   id = 0;
   indexToDie = 0;
@@ -76,9 +74,16 @@ static void printMenu() {
 static void philosopherCreate() {
   mutexLock("philosophers");
   if (philosophersQty >= MAX_PHILOSOPHERS) {
-    printf("The max capacity for philosophers has been reached.\n\n\n");
+    printf("\nThe max capacity for philosophers has been reached.\n");
     mutexUnlock("philosophers");
     return;
+  }
+  if (killing == 1) {
+    printf(
+        "\nPlease wait for the philosopher to die before creating a new "
+        "one\n\n");
+        mutexUnlock("philosophers");
+        return;
   }
   semPost("forks");
   int index = id++;
@@ -108,7 +113,7 @@ static int philosopher(int argc, char** argv) {
   while (1) {
     wait(1);
     mutexLock("philosophers");
-    if (killing /*philosophersToDie == 0*/ && i == indexToDie) {
+    if (killing && i == indexToDie) {
       mutexUnlock("philosophers");
       philosopherSelfdestruct();
     }
@@ -139,32 +144,23 @@ static int philosopher(int argc, char** argv) {
 static void philosopherKill() {
   mutexLock("philosophers");
   if (philosophersQty == 0) {
-    printf("All philosophers are already dead...\n\n");
+    printf("\nAll philosophers are already dead...\n");
     mutexUnlock("philosophers");
     return;
   }
   if (philosophersQty == 1) {
     printf(
-        "please create at least 2 philosophers before starting "
-        "to kill them\n\n");
+        "\nplease create at least 2 philosophers before starting "
+        "to kill them\n");
     mutexUnlock("philosophers");
     return;
   }
-  // if (philosophersToDie < philosophersQty - 1) {
-  //   philosophersToDie++;
-  //   printf("asked %d philosopher(s) to kindly die :)\n\n",
-  //   philosophersToDie);
-  // } else {
-  //   printf(
-  //       "you sent too many death requests, wait for some philosophers to die
-  //       " "or make some more philosophers before sending more\n");
-  // }
 
   if (killing == 0) {
-    killing = 1;
     printf("\nasked a philosopher to kill himself >:)\n\n");
+    killing = 1;
   } else {
-    printf("\nwait for the philosopher to die before killing another one\n");
+    printf("\nwait for the philosopher to die before killing another one\n\n");
   }
 
   mutexUnlock("philosophers");
@@ -173,18 +169,17 @@ static void philosopherKill() {
 static void philosopherSelfdestruct() {
   mutexLock("philosophers");
   philosophersQty--;
-  killing = 0;
-  // philosophersToDie--;
   indexToDie = (philosophers[philosophersQty - 1]).id;
   philosopher_t philosopherToDie = philosophers[philosophersQty];
   mutexUnlock("philosophers");
   semWait("inTable");
   semWait("forks");
   mutexLock("eating");
-  queueRemove(thinkingList, &cmp, &(philosophers[philosophersQty]).id);
-  queueRemove(eatingList, &cmp, &(philosophers[philosophersQty]).id);
+  queueRemove(thinkingList, &cmp, &(philosopherToDie.id));
+  queueRemove(eatingList, &cmp, &(philosopherToDie.id));
   mutexUnlock("eating");
-  printf("philosopher %d has died :(\n\n", philosopherToDie.id);
+  printf("\nphilosopher %d has died :(\n\n", philosopherToDie.id);
+  killing = 0;
   kill(philosopherToDie.pid);
 }
 
