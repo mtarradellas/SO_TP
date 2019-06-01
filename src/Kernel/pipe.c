@@ -4,67 +4,83 @@
 #include "include/queue.h"
 #include "include/scheduler.h"
 #include "include/lib.h"
+#include "include/semaphore.h"
 
 #define PIPE_MEM 4096 // 4k
 
 static queue_t pipeQueue;
 static int pipeID;
 
-static void copyToPipe(char* base, long writePos, char* buffer, int size);
 static pipe_t getPipe(int id);
 
 void initializePipes() {
-  pipeID = 0;
+  pipeID = 2;
   //free pipe queue
 }
 
 int pipe(int fileDescriptors[2]) {
   if (pipeQueue == NULL) {
-    printf("  creating pipe queue\n");
-    pipeQueue = queueCreate(sizeof(tPipe));
+    pipeQueue = queueCreate(sizeof(sem_t));
   }
   pipe_t newPipe = malloc(sizeof(tPipe));
-  printf("  creating pipe, ID: %d\n", pipeID);
   newPipe->id = pipeID++;
   newPipe->base = malloc(PIPE_MEM);
   newPipe->readPos = newPipe->writePos = 0;
+  newPipe->dataSem = semCreate(0);
+  newPipe->dataMutex = mutexCreate();
+  newPipe->dataAmount = 0;
   tProcess* process = getCurrentProcess();
   fileDescriptors[0] = addFileDescriptor(process, newPipe->id);
   fileDescriptors[1] = addFileDescriptor(process, newPipe->id);
-  printf("  adding pipe %d to queue\n", newPipe->id);
-  queueOffer(pipeQueue, newPipe);
-  return newPipe->id;
+  queueOffer(pipeQueue, &newPipe);
+  return 0;
 }
 
-int writeToPipe(int id, char *buff, int size) {
+int readFromPipe(int id, char* buffer, int bytes) {
   pipe_t pipe = getPipe(id);
+  semWait(pipe->dataSem);
+  mutexLock(pipe->dataMutex);
+  if (pipe == NULL) {
+    //error*/
+    mutexUnlock(pipe->dataMutex);
+    return 0;
+  }
+  int i;
+  for (i = 0; i < bytes && pipe->dataAmount > 0; i++) {
+    pipe->readPos = pipe->readPos % PIPE_MEM;
+    buffer[i] = pipe->base[pipe->readPos++];
+    pipe->dataAmount--;
+  }
+  mutexUnlock(pipe->dataMutex);
+  return i;
+}
+
+int writeToPipe(int id, char *buffer, int bytes) {
+  pipe_t pipe = getPipe(id);
+  mutexLock(pipe->dataMutex);
   if (pipe == NULL) {
     //error
-    return 1;
+    mutexUnlock(pipe->dataMutex);
+    return 0;
   }
-  copyToPipe(pipe->base, pipe->writePos, buff, size);
-  return 0;
+  int i;
+  for (i = 0; i < bytes; i++) {
+    pipe->writePos = pipe->writePos % PIPE_MEM;
+    pipe->base[pipe->writePos++] = buffer[i];
+    pipe->dataAmount++;
+  }
+  if (bytes > 0 && semGetValue(pipe->dataSem)==0) semPost(pipe->dataSem);
+  mutexUnlock(pipe->dataMutex);
+  return i;
 }
 
 static pipe_t getPipe(int id) {
   pipe_t pipe;
   queueResetIter(pipeQueue);
-  printf("  searching for pipe..\n");
   while (queueGetNext(pipeQueue, &pipe) == 0) {
-    printf("  is this pipe?\n");
     if (id == pipe->id) {
-      printf("  pipe found!\n");
       return pipe;
     }
   }
-  printf("  pipe not found\n");
   return NULL;
-}
-
-static void copyToPipe(char* base, long writePos, char* buffer, int size) {
-  for (int i = 0; i < size; i++) {
-    printf("    cpy %c\n", buffer[i]);
-    writePos = writePos % PIPE_MEM;
-    base[writePos++] = buffer[i];
-  }
 }

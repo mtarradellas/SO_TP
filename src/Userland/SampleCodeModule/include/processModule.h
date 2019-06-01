@@ -5,6 +5,9 @@
 #define MIDP 150
 #define LOWP 50
 
+#define STD_IN 0
+#define STD_OUT 1
+
 typedef struct tProcessData {
   unsigned long int pid;
   unsigned long int parent;

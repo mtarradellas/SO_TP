@@ -143,7 +143,7 @@ tProcess* getProcess(unsigned long int pid) {
 }
 
 int addFileDescriptor(tProcess* process, int fileDescriptor) {
-  for(int i = 0; i < process->maxFD+1; i++) {
+  for(int i = 0; i <= (process->maxFD)+1; i++) {
     if (process->fileDescriptors[i] == -1) {
       process->fileDescriptors[i] = fileDescriptor;
       if (i > process->maxFD) process->maxFD = i;
@@ -151,4 +151,10 @@ int addFileDescriptor(tProcess* process, int fileDescriptor) {
     }
   }
   return -1;
+}
+
+void dup(tProcess* process, int fd, int pos) {
+  tProcess* running = getCurrentProcess();
+  process->fileDescriptors[pos] = running->fileDescriptors[fd];
+  if (pos > process->maxFD) process-> maxFD = pos;
 }

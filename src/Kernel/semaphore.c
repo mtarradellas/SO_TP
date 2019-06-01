@@ -15,6 +15,10 @@ sem_t semCreate(int startValue) {
   return sem;
 }
 
+int semGetValue(sem_t sem) {
+  return sem->value;
+}
+
 void semDelete(sem_t sem) {
   mutexDelete(sem->mutex);
   queueFree(sem->lockedQueue);

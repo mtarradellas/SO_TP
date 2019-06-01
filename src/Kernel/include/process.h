@@ -12,6 +12,9 @@
 #define BLOCKED 1
 
 #define MAX_FD 30
+#define STD_IN 0
+#define STD_OUT 1
+
 
 typedef struct tProcess {
   unsigned long int pid;
@@ -47,5 +50,6 @@ void getProcessData(tProcess* process, tProcessData* data);
 void ps(tProcessData*** psVec, int* size);
 tProcess* getProcess(unsigned long int pid);
 int addFileDescriptor(tProcess* process, int fileDescriptor);
+void dup(tProcess* process, int fd, int pos);
 
 #endif

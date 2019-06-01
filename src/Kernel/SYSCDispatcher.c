@@ -51,8 +51,8 @@ void beepoff();
 void _cli();
 void _sti();
 
-static void _read(char *c);
-static void _write(char *buff, int size);
+static void _read(int fd, char* buffer, int size);
+static void _write(int fd, char* buffer, int size);
 static void _getTime(unsigned int *dest, uint64_t time);
 static void _wait(int *sec);
 static void _getScreenSize(int *x, int *y);
@@ -86,7 +86,6 @@ static void _resetCursor();
 
 typedef uint64_t (*SystemCall)();
 
-extern sem_t readSem;
 
 SystemCall syscall_array[] = {
     (SystemCall)_read,          (SystemCall)_write,
@@ -110,13 +109,12 @@ void syscallDispatcher(uint64_t syscall, uint64_t p1, uint64_t p2, uint64_t p3,
   syscall_array[syscall](p1, p2, p3, p4, p5);
 }
 
-static void _read(char *c) { 
-  semWait(readSem);
-  *c = getKey(); 
+static void _read(int fd, char* buff, int size) { 
+  read(fd, buff, size); 
 }
 
-static void _write(char* buff, int size) {
-  write(buff, size);
+static void _write(int fd, char* buff, int size) {
+  write(fd, buff, size);
 }
 
 static void _wait(int *sec) { wait(*sec); }
@@ -182,6 +180,7 @@ static void _ps(tProcessData ***psVec, int *size) {
   _sti();
 }
 
+// agregar mutex
 static void _waitpid(unsigned long int pid) {
   _sti();
   while (getProcess(pid) != NULL) {
@@ -220,7 +219,7 @@ static int _mutexClose(char id[MAX_MUTEX_ID]) {
   while (queueGetNext(mutexQueue, &data) == 0) {
     if (strcmp(id, data->id) == 0) {
       mutexDelete(data->mutex);
-      queueRemove(mutexQueue, &mutexCmp, &data);    // &cmp?? o cmp??
+      queueRemove(mutexQueue, &mutexCmp, &data);
       free(data);
       return 1;
     }

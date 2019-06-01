@@ -12,6 +12,7 @@
 #include "SYSCDispatcher.h"
 #include "EXCDispatcher.h"
 #include "include/pipe.h"
+#include "include/lib.h"
 
 typedef int (*entryFnc)();
 
@@ -245,6 +246,7 @@ void printProcList() {
 }
 
 void pipeTest();
+void sonTest();
 
 void startTest(int (*entryPoint)(int, char**)) {
 	processList = NULL;
@@ -266,19 +268,57 @@ void startTest(int (*entryPoint)(int, char**)) {
 	initStack(pipeTestProc);
 	addProcess(pipeTestProc);
 	////////////////////////
-	running = sys_idle;
+	running = pipeTestProc;
 	_runProcess(running->rsp);
 }
 
 void pipeTest() {
-	printf("Starting Pipe Test...\n");
+	printf("\n~~~~T E S T 1~~~~\n");
+	printf("Starting Pipe Test\n");
 	int fd[2];
-	int pipeID;
-	if ((pipeID = pipe(fd)) < 0 ) {
+	if (pipe(fd) < 0 ) {
 		printf("Pipe creation error\n");
 	}
-	printf("Pipe %d created!\n", pipeID);
-	printf("Writing to pipe %d...\n", pipeID);
-	writeToPipe(pipeID, "\n~lenia~\n", 10);
+	printf("Pipe created!\n");
+	printf("File descriptors: %d - %d\n", fd[0], fd[1]);
+	printf("Writing to pipe\n");
+	write(fd[1], "~lenia~", 8);
 	printf("Writing done!\n");
+
+	char buffer[100] = {0};
+	printf("Reading pipe\n");
+	int readB = read(fd[0], buffer, 10);
+	printf("Reading done!\n");
+	printf("S T R I N G: %s.\ntotal bytes read: %d\n", buffer, readB);
+	///////////////////////////////////////////////////////////////////
+	wait(10);
+  printf("\n\n~~~~T E S T 2~~~~\n");
+  
+	tProcess* son = newProcess("son", (entryFnc)sonTest, 0, NULL, HIGHP);
+	initStack(son);
+	dup(son, fd[1], 0);
+	dup(son, fd[0], 1);
+	addProcess(son);
+	wait(5);
+
+	printf("(F) writing to pipe\n");
+	write(fd[1], "Lenia", 6);
+	wait(10);
+
+	printf("(F) reading from pipe\n");
+	char buff[50] = {0};
+	read(fd[0], buff, 20);
+	printf("(F) string: %s.\n", buff);
+	return;
+}
+
+void sonTest() {
+	char buff[50] = {0};
+	printf("(S) reading from std_in (now pipe)\n");
+	read(0, buff, 10);
+	printf("(S) string %s.\n", buff);
+
+	printf("(S) writing to std_out (now pipe)\n");
+	write(1, "franco", 7);
+	return;
 }
