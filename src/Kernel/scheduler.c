@@ -11,6 +11,8 @@
 #include "videoDriver.h"
 #include "SYSCDispatcher.h"
 #include "EXCDispatcher.h"
+#include "include/pipe.h"
+
 typedef int (*entryFnc)();
 
 #define QUANTUM 0
@@ -64,6 +66,7 @@ void start(int (*entryPoint)(int, char**)) {
 	running = NULL;
 	initializeMM();
 	initializeProcesses();
+	initializePipes();
 	mutexQueue = NULL;
 	semQueue = NULL;
 	readSem = semCreate(0);
@@ -232,67 +235,7 @@ static int inRange(tRange *range, int num) {
 //////////////////////////////////////////           ///////////////////////////////////////////////////////
 ///////////////////////////////////////  /////////////  ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-void fncOne(int argc, char *argv[]) {
-	while(1) {
-		putStr(argv[0]);
-		for (int i = 0; i < 300000000; i++) {
-			;
-		}
-		//_interrupt();
-	}
-}
 
-void fncTwo(int argc, char *argv[]) {
-	while(1) {
-		putStr(argv[0]);
-		for (int i = 0; i < 300000000; i++) {
-			;
-		}
-		//_interrupt();
-	}
-}
-
-void test1() {
-  while(1) {
-    putStr(" 1 ");
-    wait(10);
-  }
-  return;
-}
-
-void test2() {
-  while(1) {
-    putStr(" 2 ");
-    wait(10);
-  }
-}
-
-// con mallocs
-void schedTestDinamic() {
-
-	processList = NULL;
-	tickets = 0;
-	quantum = QUANTUM;
-	initializeMM();
-	initPids();
-
-	tProcess* one = newProcess("one", test1, 0, NULL);
-  addProcess(one, 10);
-
-  tProcess* two = newProcess("two", test2, 0, NULL);
-  addProcess(two, 10);
-
-  running = two;
-	putStr("start:\n");
-	_sti();
-	_runProcess(running->rsp);
-	printProcList();
-	while(1){
-
-	}
-}
-*/
 void printProcList() {
 	auxList = processList;
 	while(auxList != NULL) {
@@ -300,75 +243,42 @@ void printProcList() {
 		auxList = auxList->next;
 	}
 }
-/*
-// sin mallocs
-void schedTestStatic(uint64_t initAdress) {
-	putStr("welcome\n");
-	char *str1 = "1 ~ ";
-	char *vec1[1];
-	vec1[0] = str1;
-	uint64_t memAd = initAdress + 1000000;
-	tProcess tOne;
-	tProcess *one = &tOne;
-	one->pid = 1;
-	one->entry = (entryFnc)fncOne;
-	one->argc = 1;
-	one->argv = vec1;
-	one->stackBase = memAd;
-	one->stackTop = memAd - 4000;
-	one->status = READY;
-	//one->rsp = _initProcess(one->stackBase, one->entry, one->argc, one->argv);
 
-	tRange tRangeOne;
-	tRange *rangeOne = &tRangeOne;
-	rangeOne->from = 0;
-	rangeOne->to = 0;
+void pipeTest();
 
-	tPList tlistOne;
-	tPList *listOne = &tlistOne;
-	listOne->process = one;
-	listOne->tickRange = rangeOne;
-	listOne->priority = 1;
-	///////////////////////////////////////////////////////////////////////////////////////
-	char *str2 = "2 ~ ";
-	char *vec2[1];
-	vec2[0] = str2;
-	tProcess tTwo;
-	tProcess *two = &tTwo;
-	two->pid = 2;
-	two->entry = (entryFnc)fncTwo;
-	two->argc = 1;
-	two->argv = vec2;
-	two->stackBase = memAd - 8000 ;
-	two->stackTop = memAd - 11999;
-	two->status = READY;
-	//two->rsp = _initProcess(two->stackBase, two->entry, two->argc, two->argv);
-
-	tRange tRangeTwo;
-	tRange *rangeTwo = &tRangeTwo;
-	rangeTwo->from = 1;
-	rangeTwo->to = 1;
-
-	tPList tlistTwo;
-	tPList *listTwo = &tlistTwo;
-	listTwo->process = two;
-	listTwo->tickRange = rangeTwo;
-	listTwo->priority = 1;	
-	//////////////////////////////////
-	listOne->next = NULL;
-	listTwo->next = listOne;
-	processList = listTwo;
-	running = one; 
-	tickets = 2;
-	//////////////////////////////////
-	putStr("run:\n");
+void startTest(int (*entryPoint)(int, char**)) {
+	processList = NULL;
+	tickets = 0;
+	quantum = QUANTUM;
+	running = NULL;
+	initializeMM();
+	initializeProcesses();
+	initializePipes();
+	mutexQueue = NULL;
+	semQueue = NULL;
+	readSem = semCreate(0);
+	////////////////////////
+	tProcess* sys_idle = newProcess("sysIdle", (entryFnc)idle, 0, NULL, IDLE);
+	initStack(sys_idle);
+	addProcess(sys_idle);
+  ////////////////////////
+	tProcess* pipeTestProc = newProcess("pipeTest", (entryFnc)pipeTest, 0, NULL, HIGHP);
+	initStack(pipeTestProc);
+	addProcess(pipeTestProc);
+	////////////////////////
+	running = sys_idle;
 	_runProcess(running->rsp);
-	while(1) {
+}
+
+void pipeTest() {
+	printf("Starting Pipe Test...\n");
+	int fd[2];
+	int pipeID;
+	if ((pipeID = pipe(fd)) < 0 ) {
+		printf("Pipe creation error\n");
 	}
+	printf("Pipe %d created!\n", pipeID);
+	printf("Writing to pipe %d...\n", pipeID);
+	writeToPipe(pipeID, "\n~lenia~\n", 10);
+	printf("Writing done!\n");
 }
-int random = 0;
-int testrand() {
-	random++;
-	return random;
-}
-*/

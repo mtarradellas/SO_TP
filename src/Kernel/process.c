@@ -150,4 +150,5 @@ int addFileDescriptor(tProcess* process, int fileDescriptor) {
       return i;
     }
   }
+  return -1;
 }

@@ -19,5 +19,6 @@ void killProc(unsigned long int pid);
 void printProcList();
 void schedTestDinamic();
 void schedTestStatic(uint64_t initStack);
+void startTest(int (*entryPoint)(int, char**));
 
 #endif
