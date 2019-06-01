@@ -1,7 +1,7 @@
 #include <stddef.h>
 #include "include/scheduler.h"
-#include "include/nice.h"
 #include "include/process.h"
+#include "include/nice.h"
 
 
 void nice(int priority , unsigned long int PID){

@@ -8,6 +8,8 @@
 #include "include/semaphore.h"
 #include "include/timeDriver.h"
 #include "include/videoDriver.h"
+#include "include/nice.h"
+
 
 #include "include/lib.h"
 
@@ -68,7 +70,7 @@ static void _beepoff();
 static void _malloc(void **dest, size_t size);
 static void _realloc(void *src, size_t size, void **dest);
 static void _free(void *src);
-static void _nice(char* priority , tProcess proc);
+static void _nice(int priority , unsigned long int PID);
 static void _printNode(void *src);
 static unsigned long int _createProc(char *name, int (*entry)(int, char **),
                                      int argc, char **argv, int priority);
@@ -85,7 +87,7 @@ static int _semOpen(char id[MAX_SEM_ID], int start);
 static int _semClose(char id[MAX_SEM_ID]);
 static int _semWait(char id[MAX_SEM_ID]);
 static int _semPost(char id[MAX_SEM_ID]);
-static void _eraseScreen(int x1, int y1, int x2, int y2);
+static void _eraseScreen(int y1, int y2);
 
 typedef uint64_t (*SystemCall)();
 
@@ -103,7 +105,7 @@ SystemCall syscall_array[] = {
     (SystemCall)_mutexClose,    (SystemCall)_mutexLock,
     (SystemCall)_mutexUnlock,   (SystemCall)_semOpen,
     (SystemCall)_semClose,      (SystemCall)_semWait,
-    (SystemCall)_semPost,       (SystemCall)_eraseScreen
+    (SystemCall)_semPost,       (SystemCall)_eraseScreen,
     (SystemCall)_nice};
 
 void syscallDispatcher(uint64_t syscall, uint64_t p1, uint64_t p2, uint64_t p3,
@@ -172,7 +174,7 @@ static void _realloc(void *src, size_t size, void **dest) {
 
 static void _free(void *src) { free(src); }
 
-static void _nice(char* priority , tProcess proc) { nice(char* priority , tProcess proc);}
+static void _nice(int priority , unsigned long int PID) { nice(priority , PID);}
 
 static unsigned long int _createProc(char *name, int (*entry)(int, char **),
                                      int argc, char **argv, int priority) {
@@ -327,6 +329,6 @@ static int _semPost(char id[MAX_SEM_ID]) {
   return 2;
 }
 
-static void _eraseScreen(int x1, int y1, int x2, int y2) {
-  eraseScreen(x1, y1, x2, y2);
+static void _eraseScreen(int y1, int y2) {
+  eraseScreen( y1, y2);
 }

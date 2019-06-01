@@ -1,0 +1,1 @@
+void nice(int priority, unsigned long int PID);
