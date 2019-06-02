@@ -50,5 +50,6 @@ void ps(tProcessData*** psVec, int* size);
 tProcess* getProcess(unsigned long int pid);
 int addFileDescriptor(tProcess* process, int fileDescriptor);
 void dup(tProcess* process, int fd, int pos);
+void setMaxFD(tProcess* process);
 
 #endif

@@ -12,6 +12,8 @@ static queue_t pipeQueue;
 static int pipeID;
 
 static pipe_t getPipe(int id);
+static void freePipe(pipe_t pipe);
+static int cmp(void* a, void* b);
 
 void initializePipes() {
   pipeID = 2;
@@ -29,6 +31,7 @@ int pipe(int fileDescriptors[2]) {
   newPipe->dataSem = semCreate(0);
   newPipe->dataMutex = mutexCreate();
   newPipe->dataAmount = 0;
+  newPipe->users = 2;
   tProcess* process = getCurrentProcess();
   fileDescriptors[0] = addFileDescriptor(process, newPipe->id);
   fileDescriptors[1] = addFileDescriptor(process, newPipe->id);
@@ -83,4 +86,28 @@ static pipe_t getPipe(int id) {
     }
   }
   return NULL;
+}
+
+void closeFD(tProcess* process, int fd) {
+  int pipeID = process->fileDescriptors[fd];
+  if (pipeID == -1) return;
+  process->fileDescriptors[fd] = -1;
+  pipe_t pipe = getPipe(pipeID);
+  pipe->users--;
+  if (fd == process->maxFD) setMaxFD(process);
+  if (pipe->users == 0) freePipe(pipe);
+}
+
+static void freePipe(pipe_t pipe) {
+  queueRemove(pipeQueue, cmp, &pipe);
+  free(pipe->base);
+  semDelete(pipe->dataSem);
+  mutexDelete(pipe->dataMutex);
+  free(pipe);
+}
+
+static int cmp(void* a, void*b) {
+  pipe_t p1 = *((pipe_t*)a);
+  pipe_t p2 = *((pipe_t*)b);
+  return p1->id - p2->id;
 }

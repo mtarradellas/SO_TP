@@ -362,5 +362,6 @@ static unsigned long int _setProcess(char *name, int (*entry)(int, char **),
 }
 
 static void _closeFD(int fd) {
-  
+  tProcess* process = getCurrentProcess();
+  closeFD(process, fd);
 }
