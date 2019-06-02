@@ -1,14 +1,14 @@
-#include <stdint.h>
 #include "include/SYSCDispatcher.h"
+#include <stdint.h>
 #include "include/keyboardDriver.h"
 #include "include/memoryManager.h"
 #include "include/mutex.h"
+#include "include/nice.h"
 #include "include/process.h"
 #include "include/scheduler.h"
 #include "include/semaphore.h"
 #include "include/timeDriver.h"
 #include "include/videoDriver.h"
-#include "include/nice.h"
 
 #include "include/lib.h"
 
@@ -40,7 +40,7 @@ typedef enum {
   SEMCLOSE,
   SEMWAIT,
   SEMPOST,
-  ERASESCREEN, 
+  ERASESCREEN,
   RESETCURSOR,
   NICE
 } Syscall;
@@ -108,21 +108,19 @@ SystemCall syscall_array[] = {
     (SystemCall)_mutexUnlock,   (SystemCall)_semOpen,
     (SystemCall)_semClose,      (SystemCall)_semWait,
     (SystemCall)_semPost,       (SystemCall)_eraseScreen,
-    (SystemCall)_resetCursor, (SystemCall)_nice};
+    (SystemCall)_resetCursor,   (SystemCall)_nice};
 
 void syscallDispatcher(uint64_t syscall, uint64_t p1, uint64_t p2, uint64_t p3,
                        uint64_t p4, uint64_t p5) {
   syscall_array[syscall](p1, p2, p3, p4, p5);
 }
 
-static void _read(char *c) { 
+static void _read(char *c) {
   semWait(readSem);
-  *c = getKey(); 
+  *c = getKey();
 }
 
-static void _write(char* buff, int size) {
-  write(buff, size);
-}
+static void _write(char *buff, int size) { write(buff, size); }
 
 static void _wait(int *sec) { wait(*sec); }
 
@@ -176,22 +174,20 @@ static unsigned long int _createProc(char *name, int (*entry)(int, char **),
 
 static void _printNode(void *src) { printNode(src); }
 
-static void _kill(unsigned long int pid) { 
+static void _kill(unsigned long int pid) {
   killProc(pid);
-  freeProcess(getProcess(pid)); 
+  freeProcess(getProcess(pid));
 }
 
-static void _ps(tProcessData ***psVec, int *size) { 
+static void _ps(tProcessData ***psVec, int *size) {
   _cli();
-  ps(psVec, size); 
+  ps(psVec, size);
   _sti();
 }
 
 static void _waitpid(unsigned long int pid) {
   _sti();
-  while (getProcess(pid) != NULL) {
-    ;
-  }
+  while (getProcess(pid) != NULL) { }
 }
 
 static int mutexCmp(void *a, void *b) {
@@ -225,7 +221,7 @@ static int _mutexClose(char id[MAX_MUTEX_ID]) {
   while (queueGetNext(mutexQueue, &data) == 0) {
     if (strcmp(id, data->id) == 0) {
       mutexDelete(data->mutex);
-      queueRemove(mutexQueue, &mutexCmp, &data);    // &cmp?? o cmp??
+      queueRemove(mutexQueue, &mutexCmp, &data);  // &cmp?? o cmp??
       free(data);
       return 1;
     }
@@ -321,16 +317,12 @@ static int _semPost(char id[MAX_SEM_ID]) {
   return 2;
 }
 
-static void _eraseScreen(int y1, int y2) {
-  eraseScreen(y1, y2);
-}
+static void _eraseScreen(int y1, int y2) { eraseScreen(y1, y2); }
 
-static void _resetCursor() {
-  resetCursor();
-}
+static void _resetCursor() { resetCursor(); }
 
 static void _nice(unsigned long int pid, int priority) {
-  // if (pid >= 1) return;
+  if (pid >= 1) return;
   if (priority == HIGHP || priority == MIDP || priority == LOWP) {
     nice(pid, priority);
   }

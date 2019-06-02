@@ -2,15 +2,14 @@
 #define SCHEDULER_H
 
 #include <stdint.h>
-#include "process.h"
+#include "./process.h"
 
 #define READY 0
 #define BLOCKED 1
 
-
 void start(int (*entryPoint)(int, char**));
 void lottery(uint64_t rsp);
-void addProcess(tProcess *proc);
+void addProcess(tProcess* proc);
 void removeProcess(tProcess* process);
 tProcess* getCurrrentProcess();
 void initStack(tProcess* proc);

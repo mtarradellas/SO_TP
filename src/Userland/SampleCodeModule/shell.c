@@ -76,7 +76,7 @@ static unsigned long int killTest();
 static unsigned long int philosophers();
 // Changes a process's priority
 static unsigned long int nice();
-// Spaws a dummy process with the given name 
+// Spaws a dummy process with the given name
 // and runs for a certain time with given priority
 static unsigned long int dummy();
 static unsigned long int mutex();
@@ -84,13 +84,12 @@ static void pTest();
 static void test1();
 static void test2();
 
-cmd command_array[] = {(cmd)invCom,       (cmd)help,         (cmd)clear,
-                       (cmd)time,         (cmd)pong,         (cmd)zeroDiv,
-                       (cmd)invOpCode,    (cmd)lenia,        (cmd)exit,
-                       (cmd)pTestWrapper, (cmd)memTest,      (cmd)ps,
-                       (cmd)killTest,     (cmd)stackOv,      (cmd)mutex,
-                       (cmd)prodCon,      (cmd)philosophers, (cmd)nice,
-                       (cmd)dummy};
+cmd command_array[] = {
+    (cmd)invCom,       (cmd)help,         (cmd)clear,     (cmd)time,
+    (cmd)pong,         (cmd)zeroDiv,      (cmd)invOpCode, (cmd)lenia,
+    (cmd)exit,         (cmd)pTestWrapper, (cmd)memTest,   (cmd)ps,
+    (cmd)killTest,     (cmd)stackOv,      (cmd)mutex,     (cmd)prodCon,
+    (cmd)philosophers, (cmd)nice,         (cmd)dummy};
 
 int sonsVec[50];
 int sonsSize = 0;
@@ -194,7 +193,9 @@ static unsigned long int help() {
   printf(
       "  * ps           :       Displays process table with, name, pid, "
       "status, foreground, memory, priority\n");
-  printf("  * dummy        :       Recieves a name and a priority and a time and creates a dumy process that runs for that time\n");
+  printf(
+      "  * dummy        :       Recieves a name and a priority and a time and "
+      "creates a dumy process that runs for that time\n");
   printf(
       "  * pong         :       Iniciates pong when user presses 'enter' which "
       "will run until\n");
@@ -465,9 +466,7 @@ static int getPriority(char* val) {
   return priority;
 }
 
-static void doNothing(int argc) {
-  wait(argc);
-}
+static void doNothing(int argc) { wait(argc); }
 
 static unsigned long int dummy() {
   char* name = argv[1];
@@ -482,7 +481,7 @@ static unsigned long int dummy() {
 static unsigned long int nice() {
   int pid = atoi(argv[1]);
   int priority = getPriority(argv[2]);
-  
+
   niceCall(pid, priority);
   return 0;
 }

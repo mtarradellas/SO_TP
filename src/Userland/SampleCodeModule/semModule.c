@@ -1,7 +1,7 @@
 #include "include/semModule.h"
 #include "include/SYSCall.h"
-//test
-#include "stdlib.h"
+// test
+#include "include/stdlib.h"
 
 void semOpen(char id[MAX_SEM_ID], int start) {
   systemCall((uint64_t)SEMOPEN, (uint64_t)id, (uint64_t)start, 0, 0, 0);

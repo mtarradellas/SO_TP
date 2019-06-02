@@ -29,7 +29,8 @@ queue_t queueCreate(size_t bytes) {
 int queueOffer(queue_t queue, void* elem) {
   if (queue == NULL) return 1;
   Node* newNode = malloc(sizeof(Node));
-  void* newData = malloc(sizeof(queue->bytes));  // Node * los dos??? este es la data, no node
+  void* newData = malloc(
+      sizeof(queue->bytes));  // Node * los dos??? este es la data, no node
   if (newNode == NULL || newData == NULL) return 2;
 
   memcpy(newData, elem, queue->bytes);

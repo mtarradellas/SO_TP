@@ -2,10 +2,10 @@
 #include "include/videoModule.h"
 #include "include/SYSCall.h"
 
-void clearScreen() { 
+void clearScreen() {
   int x, y;
   getSize(&x, &y);
-  systemCall((uint64_t)ERASESCREEN, 0, (uint64_t)y, 0, 0, 0); 
+  systemCall((uint64_t)ERASESCREEN, 0, (uint64_t)y, 0, 0, 0);
   resetCursor();
 }
 
