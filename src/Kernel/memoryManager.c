@@ -22,6 +22,8 @@ static listNode * getNextAvailableBlock(listNode * node);
 static void mergeNodes(listNode * node);
 static void deleteNode(listNode * node);
 
+void printNode2(listNode * node);
+
 
 void * malloc(size_t space) {
 
@@ -37,7 +39,10 @@ void * malloc(size_t space) {
   if (bestFit == NULL){
       return NULL;
   }
+
   bestFit->available = 0;
+  //putStr("best fit:\n");
+  //printNode2(bestFit);//
   return bestFit->address; 
 }
 
@@ -90,35 +95,33 @@ void initializeMM() {
   node->prev = NULL;
 
   levelArr[BIGGEST_SIZE_LEVEL] = node;
-  putStr("created node");
-  newLine();
-  printNode(node->address);
+  // putStr("created node");
+  // newLine();
+  // printNode2(node);
 }
 
 static listNode * getBestFitNode(size_t space) {
 
   int opLevel = optimalLevel(space);
-  char buff[10];
-  putStr(decToStr((int)opLevel, buff));
-  newLine();
+  // char buff[10];
+  // putStr(decToStr((int)opLevel, buff));
+  // newLine();
   int level = opLevel;
 
   while((!levelHasAvailable(level)) && (level > BIGGEST_SIZE_LEVEL)) { 
     level--;
-  
   }
 
   if((level = BIGGEST_SIZE_LEVEL) && (!levelArr[level]->available)){
-    
-    putStr("not here\n");
     return NULL;
   }
   while(opLevel > level){
-    printNode(levelArr[level]); 
+    splitBlock(level);
     level++;
 
   }
-
+  //putStr("best fit:\n");
+  //printNode2(getNextAvailableBlock(levelArr[opLevel]));
   return getNextAvailableBlock(levelArr[opLevel]);
 }
 
@@ -139,8 +142,29 @@ static int levelHasAvailable(int level) {
 
 // given an address returns the node corresponding to that address if it exists
 listNode * getBlockNode(uint8_t * address) {
-  
-  if ((address == NULL) || (address < baseAddress) || (address > (baseAddress + MEM_SIZE))){  //nulll para freed?
+  char buffFASD[10];
+      putStr("ADDRESS PRE IF: \n");
+      putStr(decToStr((size_t)address,buffFASD));
+      newLine();
+  if ((address == NULL) || (address < baseAddress) || (address > (baseAddress + MEM_SIZE))){
+    //nulll para freed?
+    putStr("bitch got here\n");
+    if((address == NULL)){
+    putStr("1111111111111\n");
+    }
+    if((address < baseAddress)){
+      putStr("22222222222\n");
+      putStr("base address: \n");
+      char buff[10];
+  putStr(decToStr((size_t)baseAddress,buff));
+  newLine();
+      putStr("address lenia: \n");
+      putStr(decToStr((size_t)address,buff));
+      newLine();
+    }
+    if(address > (baseAddress + MEM_SIZE)){
+      putStr("333333333333\n");
+    }
     return NULL;        
   }
 
@@ -151,14 +175,16 @@ listNode * getBlockNode(uint8_t * address) {
         
     if (aux->address == address){
         ret = aux;
-        if(ret == NULL){
-          putStr("null\n");
-        }
     }
     aux = aux->next;
   }
-  putStr("null2\n");
-  return ret;
+  //putStr("found matching node: \n");
+  //printNode2(ret);
+char buff[10];
+      putStr("ADDRESS: \n");
+      putStr(decToStr((size_t)address,buff));
+      newLine();
+      return ret;
 }
 
 static int optimalLevel(size_t space){
@@ -173,8 +199,10 @@ static int optimalLevel(size_t space){
 
 
 static void splitBlock(int level) {
-  //check    
+ 
   listNode * node = getNextAvailableBlock(levelArr[level]);
+  //putStr("nodo a partir:\n");
+  ////printNode2(node);
   node->available = 0;
 
   listNode * nodeLeft = getNextNodeAddress();
@@ -199,6 +227,11 @@ static void splitBlock(int level) {
   nodeRight->next = levelArr[level + 1];
   char buff[10];
 
+  // putStr("hijo izq:\n");
+  // printNode2(nodeLeft);
+  // putStr("hijo der:\n");
+  // printNode2(nodeRight);
+
   levelArr[level + 1] = nodeLeft;
 }
 
@@ -212,7 +245,6 @@ static listNode * getNextAvailableBlock(listNode * node) {
        }
        node = node->next;
     }
-
     return node;
 }
 
@@ -271,8 +303,56 @@ static listNode * getNextNodeAddress(){
 }
 
 void printNode(uint8_t * address) {
-
+  char buff[10];
+  putStr("address FDSKF: ");
+    putStr(decToStr((size_t)address,buff));
+  newLine();
   listNode * node = getBlockNode(address);
+  wait(5);
+  putStr("addressAA: ");
+    putStr(decToStr((size_t)address,buff));
+  newLine();
+  if(node == NULL){
+    putStr("Invalid node: this node does not exist or has been freed \n");
+    putStr("----");
+    newLine();
+    return;
+  }
+  putStr("\n----\n");
+  putStr("content: ");
+  putStr((char *)node->address);
+  newLine();
+
+  putStr("address ");
+  
+  putStr(decToStr((size_t)node->address,buff));
+  newLine();
+
+  putStr("level: ");
+  char buffer[10];
+  putStr(decToStr((size_t)node->level,buffer));
+  newLine();
+
+  putStr("available: ");
+  if(node->available == 0){
+    putStr("NO");
+  }
+  else{
+    putStr("YES");
+  }
+  newLine();
+  
+  putStr("----");
+  newLine();
+  putStr("address: ");
+    putStr(decToStr((size_t)address,buff));
+  newLine();
+
+}
+
+
+void printNode2(listNode * node) {
+
   if(node == NULL){
     putStr("Invalid node: this node does not exist or has been freed \n");
     putStr("----");

@@ -1,4 +1,4 @@
-#include <lib.h>
+#include "include/lib.h"
 #include <moduleLoader.h>
 #include <naiveConsole.h>
 #include <stdint.h>
@@ -18,7 +18,7 @@ static const uint64_t PageSize = 0x1000;
 static void* const sampleCodeModuleAddress = (void*)0x400000;
 static void* const sampleDataModuleAddress = (void*)0x500000;
 
-void printf(char* fmt, ...);
+// void printf(char* fmt, ...);
 void _cli();
 void _go_to(void* sp);
 
@@ -58,8 +58,19 @@ int main() {
 
   printf("welcome goma\n");
 
- char * lenia = malloc(128);
-  // printNode(lenia);
- // printNode(lenia);
+  char * lenia = malloc(128);
+  //printf("lenia: \n");
+
+  printf("LEnia kernel: %d\n", lenia);
+  printNode(lenia);
+  printf("leniakernel2: %d\n", lenia);
+  printNode(lenia);
+  // *(lenia) = 'l';
+  // *(lenia + 1) = '\0';
+
+  // //memcpy(lenia, "hello", sizeof("hello"));
+  // printf("well damn\n" );
+  //9
+  //printNode(17301616);
   return 1;
 }
