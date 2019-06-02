@@ -23,5 +23,6 @@ unsigned long int createProcess(char* name, int (*entry)(int, char**), int argc,
 void kill(unsigned long int);
 void getPS(tProcessData*** psVec, int *size);
 void waitpid(unsigned long int pid);
+void runProcess(unsigned long int pid);
 
 #endif

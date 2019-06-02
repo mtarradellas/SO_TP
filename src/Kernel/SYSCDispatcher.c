@@ -8,6 +8,7 @@
 #include "include/semaphore.h"
 #include "include/timeDriver.h"
 #include "include/videoDriver.h"
+#include "include/pipe.h"
 
 #include "include/lib.h"
 
@@ -40,7 +41,11 @@ typedef enum {
   SEMWAIT,
   SEMPOST,
   ERASESCREEN, 
-  RESETCURSOR
+  RESETCURSOR,
+  PIPE,
+  DUP,
+  RUNPROCESS
+  //SETPROCESS
 } Syscall;
 
 typedef enum { HOUR, MINUTE, SECOND } Time;
@@ -81,8 +86,12 @@ static int _semOpen(char id[MAX_SEM_ID], int start);
 static int _semClose(char id[MAX_SEM_ID]);
 static int _semWait(char id[MAX_SEM_ID]);
 static int _semPost(char id[MAX_SEM_ID]);
+
 static void _eraseScreen(int y1, int y2);
 static void _resetCursor();
+static void _pipe(int fd[2]);
+static void _dup(int pid, int fd, int pos);
+static void _runProcess(int pid);
 
 typedef uint64_t (*SystemCall)();
 
@@ -102,7 +111,8 @@ SystemCall syscall_array[] = {
     (SystemCall)_mutexUnlock,   (SystemCall)_semOpen,
     (SystemCall)_semClose,      (SystemCall)_semWait,
     (SystemCall)_semPost,       (SystemCall)_eraseScreen,
-    (SystemCall)_resetCursor};
+    (SystemCall)_resetCursor,   (SystemCall)_pipe,
+    (SystemCall)_dup,           (SystemCall)_runProcess};
 
 void syscallDispatcher(uint64_t syscall, uint64_t p1, uint64_t p2, uint64_t p3,
                        uint64_t p4, uint64_t p5) {
@@ -321,4 +331,21 @@ static void _eraseScreen(int y1, int y2) {
 
 static void _resetCursor() {
   resetCursor();
+}
+
+static void _pipe(int fd[2]) {
+  pipe(fd);
+}
+
+static void _dup(int pid, int fd, int pos) {
+  tProcess* process = getProcess(pid);
+  if (process == NULL) return;
+  dup(process, fd, pos);
+}
+
+static void _runProcess(int pid) {
+  tProcess* process = getProcess(pid);
+  if (process == NULL) return;
+  initStack(process);
+  addProcess(process);
 }

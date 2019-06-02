@@ -20,3 +20,7 @@ void getPS(tProcessData*** psVec, int *size) {
 void waitpid(unsigned long int pid) {
   systemCall((uint64_t)WAITPID, (uint64_t)pid, 0, 0, 0, 0);
 }
+
+void runProcess(unsigned long int pid) {
+  systemCall((uint64_t)RUNPROCESS, (uint64_t)pid, 0, 0, 0, 0);
+}

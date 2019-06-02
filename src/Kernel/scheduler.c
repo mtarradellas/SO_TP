@@ -185,7 +185,6 @@ static void idle(void) {
 	_sti();
 	_signalEOI();
 	while(1){
-		//printf("hi");
 	}
 }
 

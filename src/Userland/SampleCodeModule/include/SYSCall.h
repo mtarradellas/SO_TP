@@ -33,7 +33,10 @@ typedef enum {
   SEMWAIT,
   SEMPOST,
   ERASESCREEN,
-  RESETCURSOR
+  RESETCURSOR,
+  PIPE,
+  DUP,
+  RUNPROCESS
 } Syscall;
 
 // WRITE
