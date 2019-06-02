@@ -154,3 +154,12 @@ void dup(tProcess* process, int fd, int pos) {
   process->fileDescriptors[pos] = running->fileDescriptors[fd];
   if (pos > process->maxFD) process-> maxFD = pos;
 }
+
+void setMaxFD(tProcess* process) {
+  for (int i = process->maxFD; i >= 0; i--) {
+    if (process->fileDescriptors[i] != -1) {
+      process->maxFD = i;
+      return;
+    }
+  }
+}

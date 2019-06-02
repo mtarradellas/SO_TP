@@ -38,3 +38,7 @@ void pipe(int fd[2]) {
 void dup(int pid, int fd, int pos) {
   systemCall((uint64_t)DUP, (uint64_t)pid, (uint64_t)fd, (uint64_t)pos, 0, 0);
 }
+
+void closeFD(int fd) {
+  systemCall((uint64_t)FDCLOSE, (uint64_t)fd, 0, 0, 0, 0);
+}
