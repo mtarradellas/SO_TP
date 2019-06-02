@@ -1,5 +1,5 @@
-#include "include/EXCDispatcher.h"
 #include <stdint.h>
+#include "include/EXCDispatcher.h"
 #include "include/lib.h"
 #include "include/videoDriver.h"
 

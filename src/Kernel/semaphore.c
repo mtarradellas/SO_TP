@@ -1,5 +1,5 @@
-#include "include/semaphore.h"
 #include "include/lib.h"
+#include "include/semaphore.h"
 #include "include/memoryManager.h"
 #include "include/scheduler.h"
 

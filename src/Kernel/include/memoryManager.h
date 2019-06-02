@@ -3,7 +3,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "include/lib.h"
+#include "./lib.h"
 
 #define MEM_SIZE (1 << 20)
 #define MAX_NUM_NODES 5000000

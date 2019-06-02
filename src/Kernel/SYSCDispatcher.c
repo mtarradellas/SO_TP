@@ -1,5 +1,5 @@
-#include "include/SYSCDispatcher.h"
 #include <stdint.h>
+#include "include/SYSCDispatcher.h"
 #include "include/keyboardDriver.h"
 #include "include/memoryManager.h"
 #include "include/mutex.h"
