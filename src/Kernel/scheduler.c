@@ -75,7 +75,7 @@ void start(int (*entryPoint)(int, char**)) {
 	tProcess* sys_idle = newProcess("sysIdle", (entryFnc)idle, 0, NULL, IDLE);
 	if (sys_idle == NULL) {
 		// throw error
-		printf("WATFFFFF\n");
+		// printf("WATFFFFF\n");
 		return;
 	}
 	initStack(shell);
@@ -162,7 +162,7 @@ void lottery(uint64_t rsp) {
 		_exceptionStackOverflowHandler();
 	}
 	if (processList == NULL) {
-		printf("NEVER EVER EVER\n");
+		// printf("NEVER EVER EVER\n");
 		return;
 	}
 	if (quantum != 0) {

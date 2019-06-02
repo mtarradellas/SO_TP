@@ -2,6 +2,7 @@
 #define STDLIB_H
 
 #include <stdint.h>
+#include "./shell.h"
 
 // Prints string with formats
 void printf(char* fmt, ...);
@@ -45,5 +46,8 @@ unsigned long int rand();
 
 
 void *memcpy(void *destination, const void *source, uint64_t length);
+
+
+void splitString(char* buffer, char output[MAX_ARGUMENTS][MAXLEN], int argc);
 
 #endif

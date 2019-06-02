@@ -34,7 +34,7 @@ void producer();
 void consumer();
 void printInitScreen();
 int getcmd(char* cmd);
-static unsigned long int ps();
+// static unsigned long int ps();
 
 static int products[10] = {0};
 static int prod[5] = {0};
@@ -150,7 +150,6 @@ void showProc() {
   y += 50;
   while(1) {
     setCursor(x, y);
-    //mutexLock("prodConBuff");
     for (int i = 0; i < 10; i++) {
       printf(" %d ", products[i]);
     }
@@ -164,22 +163,22 @@ void showProc() {
   }
 }
 
-static unsigned long int ps() {
-  tProcessData** psVec;
-  int size;
-  getPS(&psVec, &size);
+// static unsigned long int ps() {
+//   tProcessData** psVec;
+//   int size;
+//   getPS(&psVec, &size);
 
-  printf("\nPID     Status     Memory    Priority     Name\n");
-  for (int i = 0; i < size; i++) {
-    printf("%d       %s    %d      %s       %s\n", psVec[i]->pid,
-           psVec[i]->status, psVec[i]->memory, psVec[i]->priority,
-           psVec[i]->name);
-    free(psVec[i]->name);
-    free(psVec[i]);
-  }
-  free(psVec);
-  return 0;
-}
+//   printf("\nPID     Status     Memory    Priority     Name\n");
+//   for (int i = 0; i < size; i++) {
+//     printf("%d       %s    %d      %s       %s\n", psVec[i]->pid,
+//            psVec[i]->status, psVec[i]->memory, psVec[i]->priority,
+//            psVec[i]->name);
+//     free(psVec[i]->name);
+//     free(psVec[i]);
+//   }
+//   free(psVec);
+//   return 0;
+// }
 
 void createProd() {
   prod[prod_size] = createProcess("prod", (mainf)producer, 0, NULL, MIDP);
