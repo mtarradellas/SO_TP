@@ -1,11 +1,11 @@
-#include <lib.h>
 #include <moduleLoader.h>
 #include <naiveConsole.h>
 #include <stdint.h>
-#include "IDTLoader.h"
-#include "scheduler.h"
-#include "videoDriver.h"
-#include "semaphore.h"
+#include "include/IDTLoader.h"
+#include "include/lib.h"
+#include "include/memoryManager.h"
+#include "include/scheduler.h"
+#include "include/videoDriver.h"
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -24,9 +24,7 @@ void _go_to(void* sp);
 
 typedef int (*EntryPoint)();
 
-void* getEntryPoint() {
-  return sampleCodeModuleAddress;
-}
+void* getEntryPoint() { return sampleCodeModuleAddress; }
 
 void clearBSS(void* bssAddress, uint64_t bssSize) {
   memset(bssAddress, 0, bssSize);
@@ -49,9 +47,34 @@ void* initializeKernelBinary() {
 }
 
 int main() {
+  // _cli();
+  // _go_to(getStackBase());
+  // loadIDT();
+  // start((EntryPoint)sampleCodeModuleAddress);
+  // return 1;
+
   _cli();
-  _go_to(getStackBase());
+
+  // _go_to(getStackBase());
   loadIDT();
-  start((EntryPoint)sampleCodeModuleAddress);
+  // start((EntryPoint)sampleCodeModuleAddress);
+  // schedTestDinamic();
+
+  printf("welcome goma\n");
+
+  char* lenia = malloc(128);
+  // printf("lenia: \n");
+
+  printf("LEnia kernel: %d\n", lenia);
+  printNode((uint8_t*)lenia);
+  printf("leniakernel2: %d\n", lenia);
+  printNode((uint8_t*)lenia);
+  // *(lenia) = 'l';
+  // *(lenia + 1) = '\0';
+
+  // //memcpy(lenia, "hello", sizeof("hello"));
+  // printf("well damn\n" );
+  // 9
+  // printNode(17301616);
   return 1;
 }

@@ -14,4 +14,7 @@ unsigned long int rand();
 void write(char *buff, int size);
 char *cpuVendor(char *result);
 
+void printf(char* fmt, ...);
+
+
 #endif
