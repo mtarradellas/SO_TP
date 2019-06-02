@@ -2,6 +2,8 @@
 #include <stdint.h>
 #include "include/memoryModule.h"
 #include "include/mutexModule.h"
+#include "include/niceModule.h"
+#include "include/philosophers.h"
 #include "include/pongModule.h"
 #include "include/processModule.h"
 #include "include/prodCon.h"
@@ -9,7 +11,7 @@
 #include "include/stdlib.h"
 #include "include/timeModule.h"
 #include "include/videoModule.h"
-#include "include/philosophers.h"
+
 typedef enum {
   INVCOM,
   HELP,
@@ -27,7 +29,8 @@ typedef enum {
   STACKOV,
   MUTEX,
   PRODCON,
-  PHILOSOPHERS
+  PHILOSOPHERS,
+  NICE
 } Command;
 
 #define MAXLEN 256
@@ -72,23 +75,31 @@ static unsigned long int pTestWrapper();
 static unsigned long int killTest();
 // Launches eating philosophers application
 static unsigned long int philosophers();
-
+// Changes a process's priority
+static unsigned long int niceWrapper();
+static unsigned long int nice(unsigned long int pid, int priority);
 static unsigned long int mutex();
 static void pTest();
 static void test1();
 static void test2();
 
-cmd command_array[] = {
-    (cmd)invCom,   (cmd)help,         (cmd)clear,     (cmd)time,
-    (cmd)pong,     (cmd)zeroDiv,      (cmd)invOpCode, (cmd)lenia,
-    (cmd)exit,     (cmd)pTestWrapper, (cmd)memTest,   (cmd)ps,
-    (cmd)killTest, (cmd)stackOv,      (cmd)mutex,     (cmd)prodCon,
-    (cmd)philosophers};
+cmd command_array[] = {(cmd)invCom,       (cmd)help,         (cmd)clear,
+                       (cmd)time,         (cmd)pong,         (cmd)zeroDiv,
+                       (cmd)invOpCode,    (cmd)lenia,        (cmd)exit,
+                       (cmd)pTestWrapper, (cmd)memTest,      (cmd)ps,
+                       (cmd)killTest,     (cmd)stackOv,      (cmd)mutex,
+                       (cmd)prodCon,      (cmd)philosophers, (cmd)niceWrapper};
 
 int sonsVec[50];
 int sonsSize = 0;
 static int on;
 static int foreground;
+
+// FIXME
+char arg1[MAXLEN];
+char arg2[MAXLEN];
+char arg3[MAXLEN];
+char* argv[] = {arg1, arg2, arg3};
 void initShell() {
   on = 1;
   printf(
@@ -115,6 +126,9 @@ void initShell() {
 
 static int getCommand(char* command) {
   checkForeground(command);
+  // ugly implementation, fix later
+  splitString(command, argv, 3);
+  
   if (!strCmp("help", command)) return HELP;
   if (!strCmp("clear", command)) return CLEAR;
   if (!strCmp("time", command)) return TIME;
@@ -130,7 +144,8 @@ static int getCommand(char* command) {
   if (!strCmp("ps", command)) return PS;
   if (!strCmp("mutex", command)) return MUTEX;
   if (!strCmp("prodcon", command)) return PRODCON;
-  if(!strCmp("philosophers", command)) return PHILOSOPHERS;
+  if (!strCmp("philosophers", command)) return PHILOSOPHERS;
+  if (!strCmp("nice", argv[0])) return NICE;
   return INVCOM;
 }
 
@@ -149,19 +164,34 @@ static unsigned long int help() {
   printf("  * clear        :       Clears screen\n");
   printf("  * invopcode    :       Executes Invalid OP Code Interruption\n");
   printf("  * zerodiv      :       Executes Zero Division Interruption\n");
-  printf("  * stackov      :       Executes Stack Overflow Exception via recursive function\n");
+  printf(
+      "  * stackov      :       Executes Stack Overflow Exception via "
+      "recursive function\n");
   printf("  * exit         :       Exits shell\n");
   printf("  * lenia        :       Beep\n");
   printf("  * time         :       Displays current time\n");
   printf("  * prodcon      :       Launches ProdCon application\n");
   printf("  * memtest      :       Shows functioning Memory Management\n");
-  printf("  * ptest        :       Runs multiple processes to show functionality\n");
-  printf("  * killtest     :       Kills all processes created from ptest command\n");
+  printf(
+      "  * ptest        :       Runs multiple processes to show "
+      "functionality\n");
+  printf(
+      "  * killtest     :       Kills all processes created from ptest "
+      "command\n");
   printf("  * mutex        :       Runs the mutex test\n");
   printf("  * philosophers :       Runs the eating philosophers application\n");
-  printf("  * ps           :       Displays process table with, name, pid, status, foreground, memory, priority\n");
-  printf("  * pong         :       Iniciates pong when user presses 'enter' which will run until\n");
-  printf("                         end of game or until user presses 'backspace' to leave\n");
+  printf(
+      "  * nice         :       Recieves pid and priority and changes that "
+      "process's priority\n");
+  printf(
+      "  * ps           :       Displays process table with, name, pid, "
+      "status, foreground, memory, priority\n");
+  printf(
+      "  * pong         :       Iniciates pong when user presses 'enter' which "
+      "will run until\n");
+  printf(
+      "                         end of game or until user presses 'backspace' "
+      "to leave\n");
   printf("\n  Any other command will be taken as invalid\n");
   printf("Commands may be executed on background by typing ' &' at the end\n");
   return 0;
@@ -262,7 +292,7 @@ static unsigned long int ps() {
 }
 
 static unsigned long int prodCon() {
-  //return createProcess("ProdCon", (mainf)startProdCon, 0, NULL, HIGHP);
+  // return createProcess("ProdCon", (mainf)startProdCon, 0, NULL, HIGHP);
   startProdCon();
   return 0;
 }
@@ -335,7 +365,6 @@ static unsigned long int pTestWrapper() {
 
 int global = 0;
 
-
 static void doSomething() {
   mutexLock("pepe");
   global += 1;
@@ -347,16 +376,16 @@ static void doSomething() {
 }
 
 static unsigned long int mutex() {
-  int amount = 3;
+  int kAmount = 3;
   mutexOpen("pepe");
   global = 0;
   char** argv = NULL;
-  int procs[amount];
-  for (int i = 0; i < amount; i++) {
+  int procs[kAmount];
+  for (int i = 0; i < kAmount; i++) {
     procs[i] = createProcess("mutexTest", (mainf)doSomething, 0, argv, HIGHP);
   }
 
-  for (int i = 0; i < amount; i++) {
+  for (int i = 0; i < kAmount; i++) {
     waitpid(procs[i]);
   }
 
@@ -413,4 +442,24 @@ static void test2() {
     i++;
   }
   printf(" test 2 done ");
+}
+
+static unsigned long int niceWrapper() {
+  int pid = atoi(argv[1]);
+  int priority;
+  if (strCmp("HIGHP", argv[2]) == 0) {
+    priority = HIGHP;
+  } else if (strCmp("MIDP", argv[2]) == 0) {
+    priority = MIDP;
+  } else if (strCmp("LOWP", argv[2]) == 0) {
+    priority = LOWP;
+  }
+
+  // printf("pid: %d, priority: %d\n", pid, priority);
+  nice(pid, priority);
+  return 0;
+}
+static unsigned long int nice(unsigned long int pid, int priority) {
+  niceCall(pid, priority);
+  return 0;
 }

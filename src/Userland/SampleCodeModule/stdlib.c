@@ -1,7 +1,7 @@
+#include "include/stdlib.h"
 #include <stdarg.h>
 #include <stdint.h>
 #include "include/SYSCall.h"
-#include "include/stdlib.h"
 
 #define A 25214903917
 #define C 11
@@ -10,7 +10,6 @@
 #define MOD 50
 
 char buffer[BUFFER_SIZE] = {0};
-
 
 void printf(char* fmt, ...) {
   va_list args;
@@ -47,9 +46,7 @@ void printf(char* fmt, ...) {
   va_end(args);
 }
 
-void putChar(char c) {
-  systemCall((uint64_t)WRITE, (uint64_t)&c, 1, 0, 0, 0);
-}
+void putChar(char c) { systemCall((uint64_t)WRITE, (uint64_t)&c, 1, 0, 0, 0); }
 
 void putDec(int i) {
   char buffer[11] = {0};
@@ -58,7 +55,8 @@ void putDec(int i) {
 }
 
 void putStr(char* str) {
-  systemCall((uint64_t)WRITE, (uint64_t)str, (uint64_t)strLen(str)+1, 0, 0, 0);
+  systemCall((uint64_t)WRITE, (uint64_t)str, (uint64_t)strLen(str) + 1, 0, 0,
+             0);
 }
 
 char* decToStr(int num, char* buffer) {
@@ -87,18 +85,17 @@ char getChar() {
   return c;
 }
 
-void scanAndPrint(char * buffer) {
+void scanAndPrint(char* buffer) {
   char c;
-  char * p = buffer;
+  char* p = buffer;
   int idx = 0;
-  while((c = getChar()) != '\n') {
-    if ((c>31 && c<127) || c=='\b' || c=='\n') {
+  while ((c = getChar()) != '\n') {
+    if ((c > 31 && c < 127) || c == '\b' || c == '\n') {
       if (c == '\b' && idx > 0) {
         deleteChar();
         p--;
         idx--;
-      }
-      else if (c!='\b'){
+      } else if (c != '\b') {
         putChar(c);
         *p = c;
         p++;
@@ -106,28 +103,27 @@ void scanAndPrint(char * buffer) {
       }
     }
   }
-  *p = 0;  
+  *p = 0;
 }
 
 void scan(char* buffer) {
   char c;
-  char * p = buffer;
+  char* p = buffer;
   int idx = 0;
-  while((c = getChar()) != '\n') {
-    if ((c>31 && c<127) || c=='\b' || c=='\n') {
+  while ((c = getChar()) != '\n') {
+    if ((c > 31 && c < 127) || c == '\b' || c == '\n') {
       if (c == '\b' && idx > 0) {
         deleteChar();
         p--;
         idx--;
-      }
-      else if (c!='\b'){
+      } else if (c != '\b') {
         *p = c;
         p++;
         idx++;
       }
     }
   }
-  *p = 0; 
+  *p = 0;
 }
 
 void clearBuffer(char* buffer) {
@@ -157,7 +153,7 @@ int abs(int n) {
 
 int strLen(char* str) {
   int len = 0;
-  while(*str != 0) {
+  while (*str != 0) {
     len++;
     str++;
   }
@@ -175,7 +171,7 @@ int atoi(char* str) {
   return res;
 }
 
-void *memcpy(void *destination, const void *source, uint64_t length) {
+void* memcpy(void* destination, const void* source, uint64_t length) {
   /*
    * memcpy does not support overlapping buffers, so always do it
    * forwards. (Don't change this without adjusting memmove.)
@@ -193,13 +189,13 @@ void *memcpy(void *destination, const void *source, uint64_t length) {
   if ((uint64_t)destination % sizeof(uint32_t) == 0 &&
       (uint64_t)source % sizeof(uint32_t) == 0 &&
       length % sizeof(uint32_t) == 0) {
-    uint32_t *d = (uint32_t *)destination;
-    const uint32_t *s = (const uint32_t *)source;
+    uint32_t* d = (uint32_t*)destination;
+    const uint32_t* s = (const uint32_t*)source;
 
     for (i = 0; i < length / sizeof(uint32_t); i++) d[i] = s[i];
   } else {
-    uint8_t *d = (uint8_t *)destination;
-    const uint8_t *s = (const uint8_t *)source;
+    uint8_t* d = (uint8_t*)destination;
+    const uint8_t* s = (const uint8_t*)source;
 
     for (i = 0; i < length; i++) d[i] = s[i];
   }
@@ -210,12 +206,11 @@ void *memcpy(void *destination, const void *source, uint64_t length) {
 unsigned long int var = 1;
 
 void srand(unsigned long int seed);
-void lcg(unsigned long int *x, unsigned long int a, int c,
-         unsigned long int m);
+void lcg(unsigned long int* x, unsigned long int a, int c, unsigned long int m);
 
 void srand(unsigned long int seed) { var = seed; }
 
-void lcg(unsigned long int *x, unsigned long int a, int c,
+void lcg(unsigned long int* x, unsigned long int a, int c,
          unsigned long int m) {
   *x = (a * (*x) + c) % m;
 }
@@ -223,4 +218,18 @@ void lcg(unsigned long int *x, unsigned long int a, int c,
 unsigned long int rand() {
   lcg(&var, A, C, M);
   return var;
+}
+
+void splitString(char* buffer, char** output, int argc) {
+  int currentWord = 0;
+  int j = 0;
+  for (int i = 0; i < strLen(buffer) && currentWord < argc; i++) {
+    output[currentWord][j++] = buffer[i];
+    if (buffer[i] == ' ') {
+      output[currentWord][j-1] = 0;
+      currentWord++;
+      j = 0;
+    }
+  }
+  output[currentWord][j] = 0;
 }

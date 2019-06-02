@@ -8,6 +8,7 @@
 #include "include/semaphore.h"
 #include "include/timeDriver.h"
 #include "include/videoDriver.h"
+#include "include/nice.h"
 
 #include "include/lib.h"
 
@@ -40,7 +41,8 @@ typedef enum {
   SEMWAIT,
   SEMPOST,
   ERASESCREEN, 
-  RESETCURSOR
+  RESETCURSOR,
+  NICE
 } Syscall;
 
 typedef enum { CHARACTER, DRAWCHAR, CLEAR, STRING } Write;  // BORRAR
@@ -85,6 +87,7 @@ static int _semWait(char id[MAX_SEM_ID]);
 static int _semPost(char id[MAX_SEM_ID]);
 static void _eraseScreen(int y1, int y2);
 static void _resetCursor();
+static void _nice(unsigned long int pid, int priority);
 
 typedef uint64_t (*SystemCall)();
 
@@ -105,7 +108,7 @@ SystemCall syscall_array[] = {
     (SystemCall)_mutexUnlock,   (SystemCall)_semOpen,
     (SystemCall)_semClose,      (SystemCall)_semWait,
     (SystemCall)_semPost,       (SystemCall)_eraseScreen,
-    (SystemCall)_resetCursor};
+    (SystemCall)_resetCursor, (SystemCall)_nice};
 
 void syscallDispatcher(uint64_t syscall, uint64_t p1, uint64_t p2, uint64_t p3,
                        uint64_t p4, uint64_t p5) {
@@ -324,4 +327,11 @@ static void _eraseScreen(int y1, int y2) {
 
 static void _resetCursor() {
   resetCursor();
+}
+
+static void _nice(unsigned long int pid, int priority) {
+  if (pid >= 1) return;
+  if (priority == HIGHP || priority == MIDP || priority == LOWP) {
+    nice(pid, priority);
+  }
 }

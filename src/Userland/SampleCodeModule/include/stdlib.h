@@ -46,4 +46,7 @@ unsigned long int rand();
 
 void *memcpy(void *destination, const void *source, uint64_t length);
 
+
+void splitString(char* buffer, char** output, int argc);
+
 #endif
