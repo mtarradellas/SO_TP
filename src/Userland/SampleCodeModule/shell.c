@@ -25,7 +25,8 @@ typedef enum {
   KILLTEST,
   STACKOV,
   MUTEX,
-  PRODCON
+  PRODCON,
+  PIPETEST
 } Command;
 
 #define MAXLEN 256
@@ -68,6 +69,8 @@ static unsigned long int memTest();
 static unsigned long int pTestWrapper();
 // Kills all processes from test
 static unsigned long int killTest();
+// Tests pipes
+static unsigned long int pipeTest();
 
 static unsigned long int mutex();
 static void pTest();
@@ -78,7 +81,8 @@ cmd command_array[] = {
     (cmd)invCom,   (cmd)help,         (cmd)clear,     (cmd)time,
     (cmd)pong,     (cmd)zeroDiv,      (cmd)invOpCode, (cmd)lenia,
     (cmd)exit,     (cmd)pTestWrapper, (cmd)memTest,   (cmd)ps,
-    (cmd)killTest, (cmd)stackOv,      (cmd)mutex,     (cmd)prodCon};
+    (cmd)killTest, (cmd)stackOv,      (cmd)mutex,     (cmd)prodCon,
+    (cmd)pipeTest};
 
 int sonsVec[50];
 int sonsSize = 0;
@@ -125,6 +129,7 @@ static int getCommand(char* command) {
   if (!strCmp("ps", command)) return PS;
   if (!strCmp("mutex", command)) return MUTEX;
   if (!strCmp("prodcon", command)) return PRODCON;
+  if (!strCmp("pipetest", command)) return PIPETEST;
   return INVCOM;
 }
 
@@ -150,6 +155,7 @@ static unsigned long int help() {
   printf("  * prodcon   :       Launches ProdCon application\n");
   printf("  * memtest   :       Shows functioning Memory Management\n");
   printf("  * ptest     :       Runs multiple processes to show functionality\n");
+  printf("  * pipetest  :       ~~~~~~~~I HAVE NO IDEAA~~~~~~~~~\n");
   printf("  * killtest  :       Kills all processes created from ptest command\n");
   printf("  * mutex     :       Runs the mutex test\n");
 
@@ -243,10 +249,10 @@ static unsigned long int ps() {
   int size;
   getPS(&psVec, &size);
 
-  printf("\nPID     Parent  Status     Memory    Priority     Name\n");
+  printf("\nPID     Status     Memory    Priority     Name\n");
   for (int i = 0; i < size; i++) {
-    printf("%d       %d       %s    %d      %s      %s\n", psVec[i]->pid,
-            psVec[i]->parent, psVec[i]->status, psVec[i]->memory, psVec[i]->priority,
+    printf("%d        %s    %d      %s      %s\n", psVec[i]->pid,
+            psVec[i]->status, psVec[i]->memory, psVec[i]->priority,
             psVec[i]->name);
     free(psVec[i]->name);
     free(psVec[i]);
@@ -402,4 +408,34 @@ static void test2() {
     i++;
   }
   printf(" test 2 done ");
+}
+
+void sonTest();
+static unsigned long int pipeTest() {
+  printf("\n");
+  int fd[2];
+  pipe(fd);
+  unsigned long int sonPid = setProcess("sonTest", (mainf)sonTest, 0, NULL, HIGHP);
+  dup(sonPid, fd[1], STD_IN);
+  dup(sonPid, fd[0], STD_OUT);
+  runProcess(sonPid);
+  wait(10);
+
+  printf("(F) writing 'Lenia' to pipe\n");
+  write(fd[1], "Lenia", 6);
+  wait(10);
+
+  printf("(F) reading from pipe\n");
+  char buff[50] = {0};
+  read(fd[0], buff, 49);
+  printf("(F) string read: %s.\n", buff);
+  waitpid(sonPid);
+  return 0;
+}
+
+void sonTest() {
+  char buff[50] = {0};
+  read(0, buff, 10);
+  printf("(Son from stdin To stdout) string read: %s", buff);
+  return;
 }

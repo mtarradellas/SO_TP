@@ -62,6 +62,14 @@ void putStr(char* str) {
   systemCall((uint64_t)WRITE, (uint64_t)STD_OUT, (uint64_t)str, (uint64_t)strLen(str)+1, 0, 0);
 }
 
+void read(int fd, char* buff, int bytes) {
+  systemCall((uint64_t)READ, (uint64_t)fd, (uint64_t)buff, bytes, 0, 0);
+}
+
+void write(int fd, char* buff, int bytes) {
+  systemCall((uint64_t)WRITE, (uint64_t)fd, (uint64_t)buff, bytes, 0, 0);
+}
+
 char* decToStr(int num, char* buffer) {
   char const digit[] = "0123456789";
   char* p = buffer;

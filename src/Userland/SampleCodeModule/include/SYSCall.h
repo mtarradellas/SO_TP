@@ -36,7 +36,8 @@ typedef enum {
   RESETCURSOR,
   PIPE,
   DUP,
-  RUNPROCESS
+  RUNPROCESS,
+  SETPROCESS,
 } Syscall;
 
 // WRITE

@@ -34,7 +34,6 @@ typedef struct tProcess {
 
 typedef struct tProcessData {
   unsigned long int pid;
-  unsigned long int parent;
   char* name;
   char* status;
   int memory;

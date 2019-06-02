@@ -94,7 +94,6 @@ void getProcessData(tProcess* process, tProcessData* data) {
   memcpy(data->name, process->name, strlen(process->name) + 1);
   data->memory = process->stackBase - process->stackTop;
   data->pid = process->pid;
-  data->parent = process->parent;
   if (process->status == BLOCKED) {
     data->status = "Blocked";
   }
