@@ -430,6 +430,8 @@ static unsigned long int pipeTest() {
   read(fd[0], buff, 49);
   printf("(F) string read: %s.\n", buff);
   waitpid(sonPid);
+  closeFD(fd[0]);
+  closeFD(fd[1]);
   return 0;
 }
 

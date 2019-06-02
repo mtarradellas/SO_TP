@@ -45,7 +45,8 @@ typedef enum {
   PIPE,
   DUP,
   RUNPROCESS,
-  SETPROCESS
+  SETPROCESS,
+  FDCLOSE
 } Syscall;
 
 typedef enum { HOUR, MINUTE, SECOND } Time;
@@ -94,6 +95,7 @@ static void _dup(int pid, int fd, int pos);
 static void _runProcess(int pid);
 static unsigned long int _setProcess(char *name, int (*entry)(int, char **),
                                      int argc, char **argv, int priority);
+static void _closeFD(int fd);
 
 typedef uint64_t (*SystemCall)();
 
@@ -115,7 +117,7 @@ SystemCall syscall_array[] = {
     (SystemCall)_semPost,       (SystemCall)_eraseScreen,
     (SystemCall)_resetCursor,   (SystemCall)_pipe,
     (SystemCall)_dup,           (SystemCall)_runProcess,
-    (SystemCall)_setProcess};
+    (SystemCall)_setProcess,    (SystemCall)_closeFD};
 
 void syscallDispatcher(uint64_t syscall, uint64_t p1, uint64_t p2, uint64_t p3,
                        uint64_t p4, uint64_t p5) {
@@ -357,4 +359,8 @@ static unsigned long int _setProcess(char *name, int (*entry)(int, char **),
                                      int argc, char **argv, int priority) {
   tProcess *newP = newProcess(name, entry, argc, argv, priority);
   return newP->pid;
+}
+
+static void _closeFD(int fd) {
+  
 }
