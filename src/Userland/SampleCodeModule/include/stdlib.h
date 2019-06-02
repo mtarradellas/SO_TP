@@ -2,6 +2,7 @@
 #define STDLIB_H
 
 #include <stdint.h>
+#include "./shell.h"
 
 void read(int fd, char* buff, int bytes);
 void write(int fd, char* buff, int bytes);
@@ -48,5 +49,8 @@ unsigned long int rand();
 
 
 void *memcpy(void *destination, const void *source, uint64_t length);
+
+
+void splitString(char* buffer, char output[MAX_ARGUMENTS][MAXLEN], int argc);
 
 #endif

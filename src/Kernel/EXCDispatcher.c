@@ -57,7 +57,7 @@ static void printInfo(uint64_t *sp) {
                  "R9 ",  "R10 ", "R11 ", "R12 ", "R13 ", "R14 ", "R15 "};
   int n, i, j;
   char buffer[11] = {0};
-  
+
   for (i = 14, j = 0; i >= 0; i--, j++) {
     putStr(reg[i]);
     n = sp[j];

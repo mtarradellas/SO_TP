@@ -1,10 +1,10 @@
-#include "include/memoryManager.h"
 #include "include/mutex.h"
 #include "include/lib.h"
-#include "include/scheduler.h"
+#include "include/memoryManager.h"
 #include "include/process.h"
+#include "include/scheduler.h"
 
-int _mutexAcquire(int *mutexValue);
+int _mutexAcquire(int* mutexValue);
 queue_t mutexQueue;
 void _interrupt();
 
@@ -15,7 +15,6 @@ mutex_t mutexCreate() {
   m->lockedQueue = queueCreate(sizeof(tProcess*));
   return m;
 }
-
 
 void mutexDelete(mutex_t mutex) {
   queueFree(mutex->lockedQueue);
@@ -35,7 +34,6 @@ void mutexLock(mutex_t mutex) {
 }
 
 void mutexUnlock(mutex_t mutex) {
-  //if (mutex->ownerPID != getCurrrentProcess()->pid) return;
   if (queueSize(mutex->lockedQueue) != 0) {
     tProcess* proc = NULL;
     queuePoll(mutex->lockedQueue, &proc);
@@ -43,7 +41,6 @@ void mutexUnlock(mutex_t mutex) {
     proc->status = READY;
     addProcess(proc);
   } else {
-    // is this really necessary?
     mutex->ownerPID = 0;
   }
   mutex->value = 0;

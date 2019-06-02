@@ -1,8 +1,7 @@
-#include "timeDriver.h"
-#include "timeDriverASM.h"
-
-#include "videoDriver.h"
-#include "lib.h"
+#include "include/timeDriver.h"
+#include "include/timeDriverASM.h"
+#include "include/videoDriver.h"
+#include "include/lib.h"
 
 void _sti();
 

@@ -1,23 +1,16 @@
 #include "include/prodCon.h"
-#include "include/videoModule.h"
+#include "include/memoryModule.h"
+#include "include/mutexModule.h"
+#include "include/processModule.h"
+#include "include/semModule.h"
 #include "include/stdlib.h"
 #include "include/timeModule.h"
-#include "include/processModule.h"
-#include "include/memoryModule.h"
-#include "include/semModule.h"
-#include "include/mutexModule.h"
+#include "include/videoModule.h"
 
 #define INITPROD 2
 #define INITCONS 2
 
-typedef enum {
-  EXIT,
-  ADDPROD,
-  ADDCONS,
-  DELPROD,
-  DELCONS,
-  INVCOM
-}prodconcom;
+typedef enum { EXIT, ADDPROD, ADDCONS, DELPROD, DELCONS, INVCOM } prodconcom;
 
 void _cli();
 void _sti();
@@ -34,7 +27,6 @@ void producer();
 void consumer();
 void printInitScreen();
 int getcmd(char* cmd);
-static unsigned long int ps();
 
 static int products[10] = {0};
 static int prod[5] = {0};
@@ -62,43 +54,43 @@ void startProdCon() {
   createShowProc();
   createInitProd(INITPROD);
   createInitCons(INITCONS);
-  while(on) {
+  while (on) {
     clearBuffer(action);
     scan(action);
     int cmd = getcmd(action);
-    switch(cmd) {
+    switch (cmd) {
       case EXIT:
-          on = 0;
-          break;
+        on = 0;
+        break;
       case ADDPROD:
-          if (prod_size < 5) {
-            createInitProd(1);
-          }
-          break;
+        if (prod_size < 5) {
+          createInitProd(1);
+        }
+        break;
       case ADDCONS:
-          if (cons_size < 5) {
-            createInitCons(1);
-          }
-          break;
+        if (cons_size < 5) {
+          createInitCons(1);
+        }
+        break;
       case DELPROD:
-          if (prod_size > 0) {
-            deleteProd();
-          }
-          break;
+        if (prod_size > 0) {
+          deleteProd();
+        }
+        break;
       case DELCONS:
-          if (cons_size > 0) {
-            deleteCons();
-          }
-          break;
+        if (cons_size > 0) {
+          deleteCons();
+        }
+        break;
       case INVCOM:
-          break;
+        break;
     }
   }
   kill(showProcPid);
-  for(int i = 0; i < prod_size; i++) {
+  for (int i = 0; i < prod_size; i++) {
     kill(prod[i]);
   }
-  for(int i = 0; i < cons_size; i++) {
+  for (int i = 0; i < cons_size; i++) {
     kill(cons[i]);
   }
   mutexClose("prodConBuff");
@@ -125,13 +117,13 @@ void printInitScreen() {
 }
 
 void createInitProd(int n) {
-  for(int i = 0; i < n; i++) {
+  for (int i = 0; i < n; i++) {
     createProd();
   }
 }
 
 void createInitCons(int n) {
-  for(int i = 0; i < n; i++) {
+  for (int i = 0; i < n; i++) {
     createCons();
   }
 }
@@ -148,38 +140,37 @@ void showProc() {
   getCursor(&x, &y);
   x += 200;
   y += 50;
-  while(1) {
+  while (1) {
     setCursor(x, y);
-    //mutexLock("prodConBuff");
     for (int i = 0; i < 10; i++) {
       printf(" %d ", products[i]);
     }
-    //mutexUnlock("prodConBuff");
-    printf("\n\nProducers: %d | Consumers: %d\n",prod_size, cons_size);
+    // mutexUnlock("prodConBuff");
+    printf("\n\nProducers: %d | Consumers: %d\n", prod_size, cons_size);
     getCursor(&x1, &y1);
-    //ps();
+    // ps();
     getCursor(&x2, &y2);
     wait(10);
     eraseScreen(y1, y2);
   }
 }
 
-static unsigned long int ps() {
-  tProcessData** psVec;
-  int size;
-  getPS(&psVec, &size);
+// static unsigned long int ps() {
+//   tProcessData** psVec;
+//   int size;
+//   getPS(&psVec, &size);
 
-  printf("\nPID     Status     Memory    Priority     Name\n");
-  for (int i = 0; i < size; i++) {
-    printf("%d       %s    %d      %s       %s\n", psVec[i]->pid,
-           psVec[i]->status, psVec[i]->memory, psVec[i]->priority,
-           psVec[i]->name);
-    free(psVec[i]->name);
-    free(psVec[i]);
-  }
-  free(psVec);
-  return 0;
-}
+//   printf("\nPID     Status     Memory    Priority     Name\n");
+//   for (int i = 0; i < size; i++) {
+//     printf("%d       %s    %d      %s       %s\n", psVec[i]->pid,
+//            psVec[i]->status, psVec[i]->memory, psVec[i]->priority,
+//            psVec[i]->name);
+//     free(psVec[i]->name);
+//     free(psVec[i]);
+//   }
+//   free(psVec);
+//   return 0;
+// }
 
 void createProd() {
   prod[prod_size] = createProcess("prod", (mainf)producer, 0, NULL, MIDP);
@@ -191,19 +182,18 @@ void createCons() {
   cons_size++;
 }
 
-
 void deleteProd() {
-  kill(prod[prod_size-1]);
+  kill(prod[prod_size - 1]);
   prod_size--;
 }
 
 void deleteCons() {
-  kill(cons[cons_size-1]);
+  kill(cons[cons_size - 1]);
   cons_size--;
 }
 
 void producer() {
-  while(1) {
+  while (1) {
     mutexLock("prodConBuff");
     if (products_size < 10) {
       products[products_size]++;
@@ -216,11 +206,11 @@ void producer() {
 }
 
 void consumer() {
-  while(1) {
+  while (1) {
     semWait("prodConItems");
     mutexLock("prodConBuff");
     if (products_size > 0) {
-      products[products_size-1]--;
+      products[products_size - 1]--;
       products_size--;
     }
     mutexUnlock("prodConBuff");

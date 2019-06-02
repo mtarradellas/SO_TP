@@ -38,7 +38,8 @@ typedef enum {
   DUP,
   RUNPROCESS,
   SETPROCESS,
-  FDCLOSE
+  FDCLOSE,
+  NICE
 } Syscall;
 
 // WRITE

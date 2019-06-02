@@ -1,5 +1,5 @@
-#include "include/semaphore.h"
 #include "include/lib.h"
+#include "include/semaphore.h"
 #include "include/memoryManager.h"
 #include "include/scheduler.h"
 
@@ -26,8 +26,8 @@ void semDelete(sem_t sem) {
 }
 
 void semWait(sem_t sem) {
-  //printf("waiting sem: %d\n", sem);
-  //printf("sem value: %d\n", sem->value);
+  // printf("waiting sem: %d\n", sem);
+  // printf("sem value: %d\n", sem->value);
   if (sem == NULL) return;
   mutexLock(sem->mutex);
   tProcess* running = getCurrentProcess();
@@ -36,7 +36,7 @@ void semWait(sem_t sem) {
     queueOffer(sem->lockedQueue, &running);
     mutexUnlock(sem->mutex);
     removeProcess(running);
-    //printf("_interrupt\n\n");
+    // printf("_interrupt\n\n");
     _interrupt();
   } else {
     sem->value--;
@@ -45,16 +45,14 @@ void semWait(sem_t sem) {
 }
 
 void semPost(sem_t sem) {
-  //printf("posting sem: %d\n", sem);
-  //printf("sem value: %d\n", sem->value);
   if (sem == NULL) return;
   mutexLock(sem->mutex);
-  //printf("~~~AFTER~~~\n");
   if (queueSize(sem->lockedQueue) != 0) {
-      tProcess* proc;
-      queuePoll(sem->lockedQueue, &proc);
-      //printf("%s %d\n", proc->name, proc->pid);
-      addProcess(proc);
-  } else sem->value++;
+    tProcess* proc;
+    queuePoll(sem->lockedQueue, &proc);
+    addProcess(proc);
+  } else {
+    sem->value++;
+  }
   mutexUnlock(sem->mutex);
 }

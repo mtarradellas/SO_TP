@@ -1,11 +1,11 @@
-#include <lib.h>
 #include <moduleLoader.h>
 #include <naiveConsole.h>
 #include <stdint.h>
-#include "IDTLoader.h"
-#include "scheduler.h"
-#include "videoDriver.h"
-#include "semaphore.h"
+#include "include/IDTLoader.h"
+#include "include/scheduler.h"
+#include "include/videoDriver.h"
+#include "include/semaphore.h"
+#include "include/lib.h"
 
 extern uint8_t text;
 extern uint8_t rodata;
