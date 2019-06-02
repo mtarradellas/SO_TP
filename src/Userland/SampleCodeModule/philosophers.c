@@ -27,7 +27,6 @@ static int killing;
 static int id, indexToDie;
 static philosopher_t philosophers[MAX_PHILOSOPHERS] = {{0}};
 static queue_t thinkingList, eatingList;
-static char action[50];
 void philosophersRun() {
   printMenu();
   mutexOpen("philosophers");
