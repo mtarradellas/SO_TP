@@ -220,7 +220,7 @@ unsigned long int rand() {
   return var;
 }
 
-void splitString(char* buffer, char** output, int argc) {
+void splitString(char* buffer, char output[MAX_ARGUMENTS][MAXLEN], int argc) {
   int currentWord = 0;
   int j = 0;
   for (int i = 0; i < strLen(buffer) && currentWord < argc; i++) {
@@ -233,3 +233,4 @@ void splitString(char* buffer, char** output, int argc) {
   }
   output[currentWord][j] = 0;
 }
+

@@ -30,9 +30,9 @@ static queue_t thinkingList, eatingList;
 void philosophersRun() {
   printMenu();
   mutexOpen("philosophers");
-  mutexOpen("eating");
+  mutexOpen("lists");
   philosophersQty = 0;
-  semOpen("forks", 0);
+  semOpen("chopsticks", 0);
   semOpen("inTable", 0);
   killing = 0;
   id = 0;
@@ -55,8 +55,8 @@ void philosophersRun() {
   }
   philosophersKillAll();
   mutexClose("philosophers");
-  mutexClose("eating");
-  semClose("forks");
+  mutexClose("lists");
+  semClose("chopsticks");
   semClose("inTable");
   printf("End of program\n");
 }
@@ -84,7 +84,7 @@ static void philosopherCreate() {
         mutexUnlock("philosophers");
         return;
   }
-  semPost("forks");
+  semPost("chopsticks");
   int index = id++;
   philosopher_t phi = {};
   phi.pid =
@@ -97,9 +97,9 @@ static void philosopherCreate() {
 
   printf("\nphilosopher %d has been created :)\n\n", index);
 
-  mutexLock("eating");
+  mutexLock("lists");
   queueOffer(thinkingList, &index);
-  mutexUnlock("eating");
+  mutexUnlock("lists");
 }
 static int cmp(void* a, void* b) {
   int left = *((int*)a);
@@ -118,24 +118,24 @@ static int philosopher(int argc, char** argv) {
     }
     mutexUnlock("philosophers");
     semWait("inTable");
-    semWait("forks");
-    semWait("forks");
+    semWait("chopsticks");
+    semWait("chopsticks");
 
-    mutexLock("eating");
+    mutexLock("lists");
     queueRemove(thinkingList, &cmp, &i);
     queueOffer(eatingList, &i);
     printStatus();
-    mutexUnlock("eating");
+    mutexUnlock("lists");
 
     wait(30);
-    semPost("forks");
-    semPost("forks");
+    semPost("chopsticks");
+    semPost("chopsticks");
     semPost("inTable");
 
-    mutexLock("eating");
+    mutexLock("lists");
     queueRemove(eatingList, &cmp, &i);
     queueOffer(thinkingList, &i);
-    mutexUnlock("eating");
+    mutexUnlock("lists");
   }
   return 0;
 }
@@ -172,11 +172,11 @@ static void philosopherSelfdestruct() {
   philosopher_t philosopherToDie = philosophers[philosophersQty];
   mutexUnlock("philosophers");
   semWait("inTable");
-  semWait("forks");
-  mutexLock("eating");
+  semWait("chopsticks");
+  mutexLock("lists");
   queueRemove(thinkingList, &cmp, &(philosopherToDie.id));
-  queueRemove(eatingList, &cmp, &(philosopherToDie.id));
-  mutexUnlock("eating");
+  // queueRemove(eatingList, &cmp, &(philosopherToDie.id));
+  mutexUnlock("lists");
   printf("\nphilosopher %d has died :(\n\n", philosopherToDie.id);
   killing = 0;
   kill(philosopherToDie.pid);

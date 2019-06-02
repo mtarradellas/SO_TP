@@ -330,7 +330,7 @@ static void _resetCursor() {
 }
 
 static void _nice(unsigned long int pid, int priority) {
-  if (pid >= 1) return;
+  // if (pid >= 1) return;
   if (priority == HIGHP || priority == MIDP || priority == LOWP) {
     nice(pid, priority);
   }

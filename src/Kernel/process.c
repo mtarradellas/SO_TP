@@ -29,7 +29,8 @@ tProcess *newProcess(char *name, int (*entry)(int, char **), int argc,
   	return NULL;
   }
   newP->pid = id++;
-  newP->name = name;
+  newP->name = malloc(sizeof(strlen(name) + 1));
+  memcpy(newP->name, name, strlen(name)+1);
   newP->entry = entry;
   newP->argc = argc;
   newP->argv = argv;
