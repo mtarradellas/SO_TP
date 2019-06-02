@@ -41,7 +41,7 @@ typedef enum {
   SEMCLOSE,
   SEMWAIT,
   SEMPOST,
-  ERASESCREEN, 
+  ERASESCREEN,
   RESETCURSOR,
   PIPE,
   DUP,
@@ -131,8 +131,8 @@ void syscallDispatcher(uint64_t syscall, uint64_t p1, uint64_t p2, uint64_t p3,
 }
 
 
-static void _read(int fd, char* buff, int size) { 
-  read(fd, buff, size); 
+static void _read(int fd, char* buff, int size) {
+  read(fd, buff, size);
 }
 
 static void _write(int fd, char* buff, int size) {
@@ -370,7 +370,7 @@ static void _closeFD(int fd) {
 }
 
 static void _nice(unsigned long int pid, int priority) {
-  if (pid >= 1) return;
+  if (pid <= 1) return;
   if (priority == HIGHP || priority == MIDP || priority == LOWP) {
     nice(pid, priority);
   }

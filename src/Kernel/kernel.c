@@ -2,10 +2,10 @@
 #include <naiveConsole.h>
 #include <stdint.h>
 #include "include/IDTLoader.h"
-#include "include/scheduler.h"
-#include "include/videoDriver.h"
-#include "include/semaphore.h"
 #include "include/lib.h"
+#include "include/scheduler.h"
+#include "include/semaphore.h"
+#include "include/videoDriver.h"
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -24,9 +24,7 @@ void _go_to(void* sp);
 
 typedef int (*EntryPoint)();
 
-void* getEntryPoint() {
-  return sampleCodeModuleAddress;
-}
+void* getEntryPoint() { return sampleCodeModuleAddress; }
 
 void clearBSS(void* bssAddress, uint64_t bssSize) {
   memset(bssAddress, 0, bssSize);
@@ -53,6 +51,6 @@ int main() {
   _go_to(getStackBase());
   loadIDT();
   start((EntryPoint)sampleCodeModuleAddress);
-  //startTest((EntryPoint)sampleCodeModuleAddress);
+  // startTest((EntryPoint)sampleCodeModuleAddress);
   return 1;
 }

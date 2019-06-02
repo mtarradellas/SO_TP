@@ -89,11 +89,11 @@ static void test1();
 static void test2();
 
 cmd command_array[] = {
-    (cmd)invCom,    (cmd)help,          (cmd)clear,      (cmd)time,
-    (cmd)pong,      (cmd)zeroDiv,       (cmd)invOpCode,  (cmd)lenia,
-    (cmd)exit,      (cmd)pTestWrapper,  (cmd)memTest,    (cmd)ps,
-    (cmd)killTest,  (cmd)stackOv,       (cmd)mutex,      (cmd)prodCon,
-    (cmd)pipeTest,  (cmd)philosophers,  (cmd)nice,       (cmd)dummy};
+    (cmd)invCom,   (cmd)help,         (cmd)clear,     (cmd)time,
+    (cmd)pong,     (cmd)zeroDiv,      (cmd)invOpCode, (cmd)lenia,
+    (cmd)exit,     (cmd)pTestWrapper, (cmd)memTest,   (cmd)ps,
+    (cmd)killTest, (cmd)stackOv,      (cmd)mutex,     (cmd)prodCon,
+    (cmd)pipeTest, (cmd)philosophers, (cmd)nice,      (cmd)dummy};
 
 int sonsVec[50];
 int sonsSize = 0;
@@ -198,7 +198,7 @@ static unsigned long int help() {
       "  * ps           :       Displays process table with, name, pid, "
       "status, foreground, memory, priority\n");
   printf(
-      "  * dummy        :       Recieves a name and a priority and a time and "
+      "  * dummy        :       Recieves a priority and a time and "
       "creates a dumy process that runs for that time\n");
   printf(
       "  * pong         :       Iniciates pong when user presses 'enter' which "
@@ -297,8 +297,8 @@ static unsigned long int ps() {
   printf("\nPID     Status     Memory    Priority     Name\n");
   for (int i = 0; i < size; i++) {
     printf("%d        %s    %d      %s      %s\n", psVec[i]->pid,
-            psVec[i]->status, psVec[i]->memory, psVec[i]->priority,
-            psVec[i]->name);
+           psVec[i]->status, psVec[i]->memory, psVec[i]->priority,
+           psVec[i]->name);
     free(psVec[i]->name);
     free(psVec[i]);
   }
@@ -463,7 +463,8 @@ static unsigned long int pipeTest() {
   printf("\n");
   int fd[2];
   pipe(fd);
-  unsigned long int sonPid = setProcess("sonTest", (mainf)sonTest, 0, NULL, HIGHP);
+  unsigned long int sonPid =
+      setProcess("sonTest", (mainf)sonTest, 0, NULL, HIGHP);
   dup(sonPid, fd[1], STD_IN);
   dup(sonPid, fd[0], STD_OUT);
   runProcess(sonPid);
@@ -492,9 +493,9 @@ void sonTest() {
 
 static int getPriority(char* val) {
   int priority;
-  if (strCmp("HIGHP", argv[2]) == 0) {
+  if (strCmp("HIGHP", val) == 0) {
     priority = HIGHP;
-  } else if (strCmp("MIDP", argv[2]) == 0) {
+  } else if (strCmp("MIDP", val) == 0) {
     priority = MIDP;
   } else {
     priority = LOWP;
@@ -505,19 +506,17 @@ static int getPriority(char* val) {
 static void doNothing(int argc) { wait(argc); }
 
 static unsigned long int dummy() {
-  char* name = argv[1];
   int maxTime = 1000;
-  int priority = getPriority(argv[2]);
-  int time = atoi(argv[3]);
+  int priority = getPriority(argv[1]);
+  int time = atoi(argv[2]);
   if (time > maxTime) time = maxTime;
-  createProcess(name, (mainf)doNothing, time, NULL, priority);
+  createProcess("dummy", (mainf)doNothing, time, NULL, priority);
   return 0;
 }
 
 static unsigned long int nice() {
   int pid = atoi(argv[1]);
   int priority = getPriority(argv[2]);
-
   niceCall(pid, priority);
   return 0;
 }

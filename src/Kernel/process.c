@@ -1,8 +1,8 @@
 #include "include/process.h"
-#include "include/scheduler.h"
 #include <stddef.h>
-#include "include/memoryManager.h"
 #include "include/lib.h"
+#include "include/memoryManager.h"
+#include "include/scheduler.h"
 #include "include/videoDriver.h"
 
 #define DEFAULT_PROC_MEM 4096  // 8k
@@ -31,7 +31,9 @@ tProcess* newProcess(char* name, int (*entry)(int, char**), int argc,
   tProcess* running = getCurrentProcess();
   if (running == NULL) {
     newP->parent = 0;
-  } else newP->parent = running->pid;
+  } else {
+    newP->parent = running->pid;
+  }
   newP->fileDescriptors[0] = 0;
   newP->fileDescriptors[1] = 1;
   for (int i = 2; i < MAX_FD; i++) {
@@ -137,7 +139,7 @@ tProcess* getProcess(unsigned long int pid) {
 }
 
 int addFileDescriptor(tProcess* process, int fileDescriptor) {
-  for(int i = 0; i <= (process->maxFD)+1; i++) {
+  for (int i = 0; i <= (process->maxFD) + 1; i++) {
     if (process->fileDescriptors[i] == -1) {
       process->fileDescriptors[i] = fileDescriptor;
       if (i > process->maxFD) process->maxFD = i;
@@ -150,7 +152,7 @@ int addFileDescriptor(tProcess* process, int fileDescriptor) {
 void dup(tProcess* process, int fd, int pos) {
   tProcess* running = getCurrentProcess();
   process->fileDescriptors[pos] = running->fileDescriptors[fd];
-  if (pos > process->maxFD) process-> maxFD = pos;
+  if (pos > process->maxFD) process->maxFD = pos;
 }
 
 void setMaxFD(tProcess* process) {

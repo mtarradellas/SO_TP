@@ -2,7 +2,6 @@
 #include <stdarg.h>
 #include <stdint.h>
 #include "include/SYSCall.h"
-#include "include/stdlib.h"
 #include "include/processModule.h"
 
 #define A 25214903917
@@ -48,7 +47,9 @@ void printf(char* fmt, ...) {
   va_end(args);
 }
 
-void putChar(char c) { systemCall((uint64_t)WRITE, (uint64_t)STD_OUT, (uint64_t)&c, 1, 0, 0);}
+void putChar(char c) {
+  systemCall((uint64_t)WRITE, (uint64_t)STD_OUT, (uint64_t)&c, 1, 0, 0);
+}
 
 void putDec(int i) {
   char buffer[11] = {0};
@@ -57,7 +58,8 @@ void putDec(int i) {
 }
 
 void putStr(char* str) {
-  systemCall((uint64_t)WRITE, (uint64_t)STD_OUT, (uint64_t)str, (uint64_t)strLen(str)+1, 0, 0);
+  systemCall((uint64_t)WRITE, (uint64_t)STD_OUT, (uint64_t)str,
+             (uint64_t)strLen(str) + 1, 0, 0);
 }
 
 void read(int fd, char* buff, int bytes) {
@@ -235,11 +237,10 @@ void splitString(char* buffer, char output[MAX_ARGUMENTS][MAXLEN], int argc) {
   for (int i = 0; i < strLen(buffer) && currentWord < argc; i++) {
     output[currentWord][j++] = buffer[i];
     if (buffer[i] == ' ') {
-      output[currentWord][j-1] = 0;
+      output[currentWord][j - 1] = 0;
       currentWord++;
       j = 0;
     }
   }
   output[currentWord][j] = 0;
 }
-

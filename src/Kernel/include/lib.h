@@ -15,7 +15,7 @@ int read(int fd, char* buffer, int size);
 int write(int fd, char *buffer, int size);
 char *cpuVendor(char *result);
 
-/////TEST
+// TEST
 void printf(char* fmt, ...);
 
 #endif

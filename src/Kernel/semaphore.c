@@ -1,5 +1,5 @@
-#include "include/lib.h"
 #include "include/semaphore.h"
+#include "include/lib.h"
 #include "include/memoryManager.h"
 #include "include/scheduler.h"
 
@@ -15,9 +15,7 @@ sem_t semCreate(int startValue) {
   return sem;
 }
 
-int semGetValue(sem_t sem) {
-  return sem->value;
-}
+int semGetValue(sem_t sem) { return sem->value; }
 
 void semDelete(sem_t sem) {
   mutexDelete(sem->mutex);
@@ -31,7 +29,7 @@ void semWait(sem_t sem) {
   if (sem == NULL) return;
   mutexLock(sem->mutex);
   tProcess* running = getCurrentProcess();
-  //printf("running: %s\n", running->name);
+  // printf("running: %s\n", running->name);
   if (sem->value == 0) {
     queueOffer(sem->lockedQueue, &running);
     mutexUnlock(sem->mutex);

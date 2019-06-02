@@ -1,7 +1,7 @@
 #include "./include/queue.h"
 #include "./include/lib.h"
 #include "./memoryManager.h"
-////TESTS////////////////////////
+// TESTS
 #include "./include/pipe.h"
 
 typedef struct Node {
@@ -31,8 +31,7 @@ queue_t queueCreate(size_t bytes) {
 int queueOffer(queue_t queue, void* elem) {
   if (queue == NULL) return 1;
   Node* newNode = malloc(sizeof(Node));
-  void* newData = malloc(
-      sizeof(queue->bytes));
+  void* newData = malloc(sizeof(queue->bytes));
   if (newNode == NULL || newData == NULL) return 2;
   memcpy(newData, elem, queue->bytes);
   newNode->next = NULL;

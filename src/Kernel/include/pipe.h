@@ -1,8 +1,8 @@
 #ifndef PIPE_H
 #define PIPE_H
 
-#include "semaphore.h"
-#include "process.h"
+#include "./semaphore.h"
+#include "./process.h"
 
 typedef struct tPipe {
   int id;

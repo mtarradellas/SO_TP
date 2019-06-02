@@ -1,12 +1,12 @@
 #include "include/pipe.h"
+#include "include/lib.h"
 #include "include/memoryManager.h"
 #include "include/process.h"
 #include "include/queue.h"
 #include "include/scheduler.h"
-#include "include/lib.h"
 #include "include/semaphore.h"
 
-#define PIPE_MEM 4096 // 4k
+#define PIPE_MEM 4096  // 4k
 
 static queue_t pipeQueue;
 static int pipeID;
@@ -17,7 +17,7 @@ static int cmp(void* a, void* b);
 
 void initializePipes() {
   pipeID = 2;
-  //free pipe queue
+  // free pipe queue
 }
 
 int pipe(int fileDescriptors[2]) {
@@ -44,7 +44,7 @@ int readFromPipe(int id, char* buffer, int bytes) {
   semWait(pipe->dataSem);
   mutexLock(pipe->dataMutex);
   if (pipe == NULL) {
-    //error*/
+    // error*/
     mutexUnlock(pipe->dataMutex);
     return 0;
   }
@@ -58,11 +58,11 @@ int readFromPipe(int id, char* buffer, int bytes) {
   return i;
 }
 
-int writeToPipe(int id, char *buffer, int bytes) {
+int writeToPipe(int id, char* buffer, int bytes) {
   pipe_t pipe = getPipe(id);
   mutexLock(pipe->dataMutex);
   if (pipe == NULL) {
-    //error
+    // error
     mutexUnlock(pipe->dataMutex);
     return 0;
   }
@@ -72,7 +72,7 @@ int writeToPipe(int id, char *buffer, int bytes) {
     pipe->base[pipe->writePos++] = buffer[i];
     pipe->dataAmount++;
   }
-  if (bytes > 0 && semGetValue(pipe->dataSem)==0) semPost(pipe->dataSem);
+  if (bytes > 0 && semGetValue(pipe->dataSem) == 0) semPost(pipe->dataSem);
   mutexUnlock(pipe->dataMutex);
   return i;
 }
@@ -106,7 +106,7 @@ static void freePipe(pipe_t pipe) {
   free(pipe);
 }
 
-static int cmp(void* a, void*b) {
+static int cmp(void* a, void* b) {
   pipe_t p1 = *((pipe_t*)a);
   pipe_t p2 = *((pipe_t*)b);
   return p1->id - p2->id;
