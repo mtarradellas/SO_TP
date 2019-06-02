@@ -9,6 +9,7 @@
 #include "include/semaphore.h"
 #include "include/timeDriver.h"
 #include "include/videoDriver.h"
+#include "include/pipe.h"
 
 #include "include/lib.h"
 
@@ -40,12 +41,15 @@ typedef enum {
   SEMCLOSE,
   SEMWAIT,
   SEMPOST,
-  ERASESCREEN,
+  ERASESCREEN, 
   RESETCURSOR,
+  PIPE,
+  DUP,
+  RUNPROCESS,
+  SETPROCESS,
+  FDCLOSE,
   NICE
 } Syscall;
-
-typedef enum { CHARACTER, DRAWCHAR, CLEAR, STRING } Write;  // BORRAR
 
 typedef enum { HOUR, MINUTE, SECOND } Time;
 
@@ -55,8 +59,8 @@ void beepoff();
 void _cli();
 void _sti();
 
-static void _read(char *c);
-static void _write(char *buff, int size);
+static void _read(int fd, char* buffer, int size);
+static void _write(int fd, char* buffer, int size);
 static void _getTime(unsigned int *dest, uint64_t time);
 static void _wait(int *sec);
 static void _getScreenSize(int *x, int *y);
@@ -85,13 +89,21 @@ static int _semOpen(char id[MAX_SEM_ID], int start);
 static int _semClose(char id[MAX_SEM_ID]);
 static int _semWait(char id[MAX_SEM_ID]);
 static int _semPost(char id[MAX_SEM_ID]);
+
 static void _eraseScreen(int y1, int y2);
 static void _resetCursor();
+
+static void _pipe(int fd[2]);
+static void _dup(int pid, int fd, int pos);
+static void _runProcess(int pid);
+static unsigned long int _setProcess(char *name, int (*entry)(int, char **),
+                                     int argc, char **argv, int priority);
+static void _closeFD(int fd);
 static void _nice(unsigned long int pid, int priority);
+
 
 typedef uint64_t (*SystemCall)();
 
-extern sem_t readSem;
 
 SystemCall syscall_array[] = {
     (SystemCall)_read,          (SystemCall)_write,
@@ -108,19 +120,24 @@ SystemCall syscall_array[] = {
     (SystemCall)_mutexUnlock,   (SystemCall)_semOpen,
     (SystemCall)_semClose,      (SystemCall)_semWait,
     (SystemCall)_semPost,       (SystemCall)_eraseScreen,
-    (SystemCall)_resetCursor,   (SystemCall)_nice};
+    (SystemCall)_resetCursor,   (SystemCall)_pipe,
+    (SystemCall)_dup,           (SystemCall)_runProcess,
+    (SystemCall)_setProcess,    (SystemCall)_closeFD,
+    (SystemCall)_nice};
 
 void syscallDispatcher(uint64_t syscall, uint64_t p1, uint64_t p2, uint64_t p3,
                        uint64_t p4, uint64_t p5) {
   syscall_array[syscall](p1, p2, p3, p4, p5);
 }
 
-static void _read(char *c) {
-  semWait(readSem);
-  *c = getKey();
+
+static void _read(int fd, char* buff, int size) { 
+  read(fd, buff, size); 
 }
 
-static void _write(char *buff, int size) { write(buff, size); }
+static void _write(int fd, char* buff, int size) {
+  write(fd, buff, size);
+}
 
 static void _wait(int *sec) { wait(*sec); }
 
@@ -185,6 +202,7 @@ static void _ps(tProcessData ***psVec, int *size) {
   _sti();
 }
 
+// agregar mutex
 static void _waitpid(unsigned long int pid) {
   _sti();
   while (getProcess(pid) != NULL) { }
@@ -221,7 +239,7 @@ static int _mutexClose(char id[MAX_MUTEX_ID]) {
   while (queueGetNext(mutexQueue, &data) == 0) {
     if (strcmp(id, data->id) == 0) {
       mutexDelete(data->mutex);
-      queueRemove(mutexQueue, &mutexCmp, &data);  // &cmp?? o cmp??
+      queueRemove(mutexQueue, &mutexCmp, &data);
       free(data);
       return 1;
     }
@@ -319,7 +337,37 @@ static int _semPost(char id[MAX_SEM_ID]) {
 
 static void _eraseScreen(int y1, int y2) { eraseScreen(y1, y2); }
 
-static void _resetCursor() { resetCursor(); }
+static void _resetCursor() {
+  resetCursor();
+}
+
+static void _pipe(int fd[2]) {
+  pipe(fd);
+}
+
+static void _dup(int pid, int fd, int pos) {
+  tProcess* process = getProcess(pid);
+  if (process == NULL) return;
+  dup(process, fd, pos);
+}
+
+static void _runProcess(int pid) {
+  tProcess* process = getProcess(pid);
+  if (process == NULL) return;
+  initStack(process);
+  addProcess(process);
+}
+
+static unsigned long int _setProcess(char *name, int (*entry)(int, char **),
+                                     int argc, char **argv, int priority) {
+  tProcess *newP = newProcess(name, entry, argc, argv, priority);
+  return newP->pid;
+}
+
+static void _closeFD(int fd) {
+  tProcess* process = getCurrentProcess();
+  closeFD(process, fd);
+}
 
 static void _nice(unsigned long int pid, int priority) {
   if (pid >= 1) return;

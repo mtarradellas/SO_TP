@@ -1,6 +1,10 @@
 #include <stdarg.h>
 #include <stdint.h>
 #include "./include/videoDriver.h"
+#include "./include/process.h"
+#include "./include/scheduler.h"
+#include "./include/pipe.h"
+#include "./include/keyboardDriver.h"
 
 #define A 25214903917
 #define C 11
@@ -8,6 +12,7 @@
 static Color WHITE = {255, 255, 255};
 
 #define MOD 50
+extern sem_t readSem;
 
 void *memset(void *destination, int32_t c, uint64_t length) {
   uint8_t chr = (uint8_t)c;
@@ -50,10 +55,32 @@ void *memcpy(void *destination, const void *source, uint64_t length) {
   return destination;
 }
 
-void write(char *buff, int size) {
-  for (int i = 0; i < size; i++) {
-    printChar(buff[i], WHITE);
+
+int write(int fd, char* buffer, int size) {
+  tProcess* process = getCurrentProcess();
+  int pipeID = process->fileDescriptors[fd];
+  if (pipeID == STD_OUT) {
+    int i;
+    for (i = 0; i < size; i++) {
+      printChar(buffer[i], WHITE);
+    }
+    return i;
   }
+  return writeToPipe(pipeID, buffer, size);
+}
+
+int read(int fd, char* buffer, int size) {
+  tProcess* process = getCurrentProcess();
+  int pipeID = process->fileDescriptors[fd];
+  if (pipeID == STD_IN) {
+    int i;
+    for (i = 0; i < size; i++) {
+      semWait(readSem);
+      buffer[i] = getKey();
+    }
+    return i;
+  }
+  return readFromPipe(pipeID, buffer, size);
 }
 
 char *decToStr(int num, char *buffer) {

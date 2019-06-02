@@ -22,7 +22,7 @@ void mutexDelete(mutex_t mutex) {
 }
 
 void mutexLock(mutex_t mutex) {
-  tProcess* running = getCurrrentProcess();
+  tProcess* running = getCurrentProcess();
   if (!_mutexAcquire(&(mutex->value))) {
     mutex->ownerPID = running->pid;
   } else {

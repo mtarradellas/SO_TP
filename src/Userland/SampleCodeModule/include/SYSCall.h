@@ -34,6 +34,11 @@ typedef enum {
   SEMPOST,
   ERASESCREEN,
   RESETCURSOR,
+  PIPE,
+  DUP,
+  RUNPROCESS,
+  SETPROCESS,
+  FDCLOSE,
   NICE
 } Syscall;
 

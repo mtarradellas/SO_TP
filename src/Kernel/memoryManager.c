@@ -102,10 +102,11 @@ void initializeMM() {
   memory->prev = NULL;
 }
 
-listNode *getNextNodeAddress() {
-  listNode *nextNodeAddress = memory;
-  for (int i = 1; i <= numNodes; i++) {
-    if (nextNodeAddress->freed) {
+listNode * getNextNodeAddress(){
+  listNode * nextNodeAddress = memory;
+  for(int i = 1; i <= numNodes; i++){
+    if(nextNodeAddress->freed){
+      nextNodeAddress->freed = 0;
       return nextNodeAddress;
     }
     nextNodeAddress = nextNodeAddress + sizeof(listNode);

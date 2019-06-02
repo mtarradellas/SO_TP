@@ -11,7 +11,11 @@ char *decToStr(int num, char *buffer);
 int strcmp(char* a, char* b);
 int strlen(char* str);
 unsigned long int rand();
-void write(char *buff, int size);
+int read(int fd, char* buffer, int size);
+int write(int fd, char *buffer, int size);
 char *cpuVendor(char *result);
+
+/////TEST
+void printf(char* fmt, ...);
 
 #endif

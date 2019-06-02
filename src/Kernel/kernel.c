@@ -53,5 +53,6 @@ int main() {
   _go_to(getStackBase());
   loadIDT();
   start((EntryPoint)sampleCodeModuleAddress);
+  //startTest((EntryPoint)sampleCodeModuleAddress);
   return 1;
 }

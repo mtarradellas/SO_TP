@@ -15,6 +15,10 @@ sem_t semCreate(int startValue) {
   return sem;
 }
 
+int semGetValue(sem_t sem) {
+  return sem->value;
+}
+
 void semDelete(sem_t sem) {
   mutexDelete(sem->mutex);
   queueFree(sem->lockedQueue);
@@ -26,8 +30,8 @@ void semWait(sem_t sem) {
   // printf("sem value: %d\n", sem->value);
   if (sem == NULL) return;
   mutexLock(sem->mutex);
-  tProcess* running = getCurrrentProcess();
-  // printf("running: %s\n", running->name);
+  tProcess* running = getCurrentProcess();
+  //printf("running: %s\n", running->name);
   if (sem->value == 0) {
     queueOffer(sem->lockedQueue, &running);
     mutexUnlock(sem->mutex);

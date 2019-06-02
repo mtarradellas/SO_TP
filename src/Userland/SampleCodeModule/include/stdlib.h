@@ -4,6 +4,9 @@
 #include <stdint.h>
 #include "./shell.h"
 
+void read(int fd, char* buff, int bytes);
+void write(int fd, char* buff, int bytes);
+
 // Prints string with formats
 void printf(char* fmt, ...);
 

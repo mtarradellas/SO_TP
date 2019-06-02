@@ -2,6 +2,8 @@
 #include <stdarg.h>
 #include <stdint.h>
 #include "include/SYSCall.h"
+#include "include/stdlib.h"
+#include "include/processModule.h"
 
 #define A 25214903917
 #define C 11
@@ -46,7 +48,7 @@ void printf(char* fmt, ...) {
   va_end(args);
 }
 
-void putChar(char c) { systemCall((uint64_t)WRITE, (uint64_t)&c, 1, 0, 0, 0); }
+void putChar(char c) { systemCall((uint64_t)WRITE, (uint64_t)STD_OUT, (uint64_t)&c, 1, 0, 0);}
 
 void putDec(int i) {
   char buffer[11] = {0};
@@ -55,8 +57,15 @@ void putDec(int i) {
 }
 
 void putStr(char* str) {
-  systemCall((uint64_t)WRITE, (uint64_t)str, (uint64_t)strLen(str) + 1, 0, 0,
-             0);
+  systemCall((uint64_t)WRITE, (uint64_t)STD_OUT, (uint64_t)str, (uint64_t)strLen(str)+1, 0, 0);
+}
+
+void read(int fd, char* buff, int bytes) {
+  systemCall((uint64_t)READ, (uint64_t)fd, (uint64_t)buff, bytes, 0, 0);
+}
+
+void write(int fd, char* buff, int bytes) {
+  systemCall((uint64_t)WRITE, (uint64_t)fd, (uint64_t)buff, bytes, 0, 0);
 }
 
 char* decToStr(int num, char* buffer) {
@@ -81,7 +90,7 @@ char* decToStr(int num, char* buffer) {
 
 char getChar() {
   char c;
-  systemCall((uint64_t)READ, (uint64_t)&c, 0, 0, 0, 0);
+  systemCall((uint64_t)READ, (uint64_t)STD_IN, (uint64_t)&c, 1, 0, 0);
   return c;
 }
 

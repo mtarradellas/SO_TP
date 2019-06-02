@@ -1,16 +1,19 @@
 #include "include/scheduler.h"
 #include <stddef.h>
+#include "include/process.h"
+#include "include/scheduler.h"
 #include "include/interruptions.h"
 #include "include/lib.h"
+#include "include/timeDriver.h"
 #include "include/memoryManager.h"
 #include "include/mutex.h"
-#include "include/process.h"
-#include "include/semaphore.h"
-#include "include/timeDriver.h"
-// TESTS
-#include "include/EXCDispatcher.h"
-#include "include/SYSCDispatcher.h"
+#include "includesemaphore.h"
+//////////////////////TESTS
 #include "include/videoDriver.h"
+#include "include/EXCDispatcher.h"
+#include "include/pipe.h"
+#include "include/lib.h"
+
 typedef int (*entryFnc)();
 
 #define QUANTUM 0
@@ -59,32 +62,33 @@ static tProcess *running = NULL;
 
 int testrand();
 
-void start(int (*entryPoint)(int, char **)) {
-  processList = NULL;
-  tickets = 0;
-  quantum = QUANTUM;
-  running = NULL;
-  initializeMM();
-  initializeProcesses();
-  mutexQueue = NULL;
-  semQueue = NULL;
-  readSem = semCreate(0);
-  tProcess *shell = newProcess("shell", entryPoint, 0, NULL, HIGHP);
-  if (shell == NULL) {
-    // throw error
-    return;
-  }
-  tProcess *sys_idle = newProcess("sysIdle", (entryFnc)idle, 0, NULL, IDLE);
-  if (sys_idle == NULL) {
-    // throw error
-    return;
-  }
-  initStack(shell);
-  initStack(sys_idle);
-  addProcess(shell);
-  addProcess(sys_idle);
-  running = shell;
-  _runProcess(running->rsp);
+void start(int (*entryPoint)(int, char**)) {
+	processList = NULL;
+	tickets = 0;
+	quantum = QUANTUM;
+	running = NULL;
+	initializeMM();
+	initializeProcesses();
+	initializePipes();
+	mutexQueue = NULL;
+	semQueue = NULL;
+	readSem = semCreate(0);
+	tProcess* sys_idle = newProcess("sysIdle", (entryFnc)idle, 0, NULL, IDLE);
+	tProcess* shell = newProcess("shell", entryPoint, 0, NULL, HIGHP);
+	if (shell == NULL) {
+		// throw error
+		return;
+	}
+	if (sys_idle == NULL) {
+		// throw error
+		return;
+	}
+	initStack(shell);
+	initStack(sys_idle);
+	addProcess(shell);
+	addProcess(sys_idle);
+	running = shell;
+	_runProcess(running->rsp);
 }
 
 void run(int (*entry)(int, char **), int argc, char **argv) {
@@ -157,31 +161,32 @@ void killProc(unsigned long int pid) {
 }
 
 void lottery(uint64_t rsp) {
-  if (running != NULL && rsp < running->stackTop) {
-    // stack overflow
-    _exceptionStackOverflowHandler();
-  }
-  if (processList == NULL) {
-    return;
-  }
-  if (quantum != 0) {
-    quantum--;
-    return;
-  } else {
-    winner = rand() % tickets;
-    while (runTicket(winner, rsp) != 1) {
-      winner = rand() % tickets;
-    }
-    quantum = QUANTUM;
-    _runProcess(running->rsp);
-  }
+	if (running != NULL && rsp < running->stackTop) {
+		// stack overflow
+		_exceptionStackOverflowHandler();
+	}
+	if (processList == NULL) {
+		return;
+	}
+	if (quantum != 0) {
+		quantum--;
+		return;
+	}
+	else {
+		winner = rand() % tickets;
+		while(runTicket(winner, rsp) != 1) {
+			winner = rand() % tickets;
+		}
+		quantum = QUANTUM;
+		_runProcess(running->rsp);
+	}
 }
 
 static void idle(void) {
-  _sti();
-  _signalEOI();
-  while (1) {
-  }
+	_sti();
+	_signalEOI();
+	while(1){
+	}
 }
 
 static int runTicket(int ticket, uint64_t rsp) {
@@ -197,7 +202,8 @@ static int runTicket(int ticket, uint64_t rsp) {
   return 0;
 }
 
-tProcess *getCurrrentProcess() { return running; }
+
+tProcess *getCurrentProcess() { return running; }
 
 static tProcess *getSchedProcess(unsigned long int pid) {
   _cli();
@@ -233,145 +239,90 @@ static int inRange(tRange *range, int num) {
 ///////////////////////////////////////  /////////////
 ///////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-void fncOne(int argc, char *argv[]) {
-        while(1) {
-                putStr(argv[0]);
-                for (int i = 0; i < 300000000; i++) {
-                        ;
-                }
-                //_interrupt();
-        }
-}
 
-void fncTwo(int argc, char *argv[]) {
-        while(1) {
-                putStr(argv[0]);
-                for (int i = 0; i < 300000000; i++) {
-                        ;
-                }
-                //_interrupt();
-        }
-}
-
-void test1() {
-  while(1) {
-    putStr(" 1 ");
-    wait(10);
-  }
-  return;
-}
-
-void test2() {
-  while(1) {
-    putStr(" 2 ");
-    wait(10);
-  }
-}
-
-// con mallocs
-void schedTestDinamic() {
-
-        processList = NULL;
-        tickets = 0;
-        quantum = QUANTUM;
-        initializeMM();
-        initPids();
-
-        tProcess* one = newProcess("one", test1, 0, NULL);
-  addProcess(one, 10);
-
-  tProcess* two = newProcess("two", test2, 0, NULL);
-  addProcess(two, 10);
-
-  running = two;
-        putStr("start:\n");
-        _sti();
-        _runProcess(running->rsp);
-        printProcList();
-        while(1){
-
-        }
-}
-*/
 void printProcList() {
-  auxList = processList;
-  while (auxList != NULL) {
-    putStr(auxList->process->name);
-    auxList = auxList->next;
-  }
+	auxList = processList;
+	while(auxList != NULL) {
+		putStr(auxList->process->name);
+		auxList = auxList->next;
+	}
+
 }
-/*
-// sin mallocs
-void schedTestStatic(uint64_t initAdress) {
-        putStr("welcome\n");
-        char *str1 = "1 ~ ";
-        char *vec1[1];
-        vec1[0] = str1;
-        uint64_t memAd = initAdress + 1000000;
-        tProcess tOne;
-        tProcess *one = &tOne;
-        one->pid = 1;
-        one->entry = (entryFnc)fncOne;
-        one->argc = 1;
-        one->argv = vec1;
-        one->stackBase = memAd;
-        one->stackTop = memAd - 4000;
-        one->status = READY;
-        //one->rsp = _initProcess(one->stackBase, one->entry, one->argc,
-one->argv);
 
-        tRange tRangeOne;
-        tRange *rangeOne = &tRangeOne;
-        rangeOne->from = 0;
-        rangeOne->to = 0;
+void pipeTest();
+void sonTest();
 
-        tPList tlistOne;
-        tPList *listOne = &tlistOne;
-        listOne->process = one;
-        listOne->tickRange = rangeOne;
-        listOne->priority = 1;
-        ///////////////////////////////////////////////////////////////////////////////////////
-        char *str2 = "2 ~ ";
-        char *vec2[1];
-        vec2[0] = str2;
-        tProcess tTwo;
-        tProcess *two = &tTwo;
-        two->pid = 2;
-        two->entry = (entryFnc)fncTwo;
-        two->argc = 1;
-        two->argv = vec2;
-        two->stackBase = memAd - 8000 ;
-        two->stackTop = memAd - 11999;
-        two->status = READY;
-        //two->rsp = _initProcess(two->stackBase, two->entry, two->argc,
-two->argv);
-
-        tRange tRangeTwo;
-        tRange *rangeTwo = &tRangeTwo;
-        rangeTwo->from = 1;
-        rangeTwo->to = 1;
-
-        tPList tlistTwo;
-        tPList *listTwo = &tlistTwo;
-        listTwo->process = two;
-        listTwo->tickRange = rangeTwo;
-        listTwo->priority = 1;
-        //////////////////////////////////
-        listOne->next = NULL;
-        listTwo->next = listOne;
-        processList = listTwo;
-        running = one;
-        tickets = 2;
-        //////////////////////////////////
-        putStr("run:\n");
-        _runProcess(running->rsp);
-        while(1) {
-        }
+void startTest(int (*entryPoint)(int, char**)) {
+	processList = NULL;
+	tickets = 0;
+	quantum = QUANTUM;
+	running = NULL;
+	initializeMM();
+	initializeProcesses();
+	initializePipes();
+	mutexQueue = NULL;
+	semQueue = NULL;
+	readSem = semCreate(0);
+	////////////////////////
+	tProcess* sys_idle = newProcess("sysIdle", (entryFnc)idle, 0, NULL, IDLE);
+	initStack(sys_idle);
+	addProcess(sys_idle);
+  ////////////////////////
+	tProcess* pipeTestProc = newProcess("pipeTest", (entryFnc)pipeTest, 0, NULL, HIGHP);
+	initStack(pipeTestProc);
+	addProcess(pipeTestProc);
+	////////////////////////
+	running = pipeTestProc;
+	_runProcess(running->rsp);
 }
-int random = 0;
-int testrand() {
-        random++;
-        return random;
+
+void pipeTest() {
+	printf("\n~~~~T E S T 1~~~~\n");
+	printf("Starting Pipe Test\n");
+	int fd[2];
+	if (pipe(fd) < 0 ) {
+		printf("Pipe creation error\n");
+	}
+	printf("Pipe created!\n");
+	printf("File descriptors: %d - %d\n", fd[0], fd[1]);
+	printf("Writing to pipe\n");
+	write(fd[1], "~lenia~", 8);
+	printf("Writing done!\n");
+
+	char buffer[100] = {0};
+	printf("Reading pipe\n");
+	int readB = read(fd[0], buffer, 10);
+	printf("Reading done!\n");
+	printf("S T R I N G: %s.\ntotal bytes read: %d\n", buffer, readB);
+	///////////////////////////////////////////////////////////////////
+	wait(10);
+  printf("\n\n~~~~T E S T 2~~~~\n");
+  
+	tProcess* son = newProcess("son", (entryFnc)sonTest, 0, NULL, HIGHP);
+	initStack(son);
+	dup(son, fd[1], 0);
+	dup(son, fd[0], 1);
+	addProcess(son);
+	wait(5);
+
+	printf("(F) writing to pipe\n");
+	write(fd[1], "Lenia", 6);
+	wait(10);
+
+	printf("(F) reading from pipe\n");
+	char buff[50] = {0};
+	read(fd[0], buff, 20);
+	printf("(F) string: %s.\n", buff);
+	return;
 }
-*/
+
+void sonTest() {
+	char buff[50] = {0};
+	printf("(S) reading from std_in (now pipe)\n");
+	read(0, buff, 10);
+	printf("(S) string %s.\n", buff);
+
+	printf("(S) writing to std_out (now pipe)\n");
+	write(1, "franco", 7);
+	return;
+}
