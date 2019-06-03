@@ -112,7 +112,6 @@ static int toPipe;
 
 static char argv[MAX_ARGUMENTS][MAXLEN];
 
-
 void initShell() {
   on = 1;
   printf(
@@ -125,12 +124,14 @@ void initShell() {
     printf("\n$> ");
     clearBuffer(command);
     scanAndPrint(command);
+    printf("\n");
     int com = getCommand(command);
 
     int pid = command_array[com]();
+    int pid2;
     if (toPipe) {
       memcpy(command, argv[2], strLen(argv[2])+1);
-      int pid2 = command_array[getCommand(command)]();
+      pid2 = command_array[getCommand(command)]();
       int fd[2];
       pipe(fd);
       dup(pid, fd[1], STD_OUT);
@@ -141,7 +142,10 @@ void initShell() {
     }
     if (pid != 0) runProcess(pid);
     if (pid == 0) foreground = 0;
-    if (foreground == 1) waitpid(pid);
+    if (foreground == 1) {
+      waitpid(pid);
+      if (toPipe) waitpid(pid2);
+    }
   }
   printf("\n\n End of program");
 }
@@ -152,7 +156,6 @@ static int getCommand(char* command) {
   for (int i = 0; i < MAX_ARGUMENTS; i++) {
     argv[i][0] = 0;
   }
-  printf("\n");
   splitString(command, argv, MAX_ARGUMENTS);
   if (strCmp(argv[1], "\\") == 0) toPipe = 1;
   // printf("\n");
@@ -195,7 +198,7 @@ static void checkForeground(char* command) {
 }
 
 static unsigned long int help() {
-  printf("\n\n********  Help Menu  ********\n\n");
+  printf("\n********  Help Menu  ********\n\n");
   printf("  * clear        :       Clears screen\n");
   printf("  * invopcode    :       Executes Invalid OP Code Interruption\n");
   printf("  * zerodiv      :       Executes Zero Division Interruption\n");
@@ -239,7 +242,7 @@ static unsigned long int help() {
 
 static unsigned long int clear() {
   clearScreen();
-  printf("\n~~Welcome to Lenia's Shell~~\n\n");
+  printf("~~Welcome to Lenia's Shell~~\n\n");
   return 0;
 }
 
@@ -247,7 +250,7 @@ static unsigned long int time() {
   unsigned int h = getHour();
   unsigned int m = getMinute();
   unsigned int s = getSecond();
-  printf("\nLocal Time: %d:%d:%d", h, m, s);
+  printf("Local Time: %d:%d:%d", h, m, s);
   return 0;
 }
 
@@ -270,7 +273,7 @@ static unsigned long int invOpCode() {
 
 static unsigned long int stackOv() {
   printf(
-      "\n        "
+      "        "
       "////////////////////////////////////////////////////////////////////////"
       "////////////////////////////////////\n");
   printf(
@@ -310,7 +313,7 @@ static unsigned long int exit() {
 }
 
 static unsigned long int invCom() {
-  printf("\nInvalid command");
+  printf("Invalid command");
   return 0;
 }
 
@@ -319,7 +322,7 @@ static unsigned long int ps() {
   int size;
   getPS(&psVec, &size);
 
-  printf("\nPID     Status     Memory    Priority     Name\n");
+  printf("PID     Status     Memory    Priority     Name\n");
   for (int i = 0; i < size; i++) {
     printf("%d        %s    %d      %s      %s\n", psVec[i]->pid,
            psVec[i]->status, psVec[i]->memory, psVec[i]->priority,
@@ -343,7 +346,7 @@ static unsigned long int philosophers() {
 static unsigned long int memTest() {
   char* mem = malloc(25);
   printf(
-      "\n Memory has been allocated correctly (and string has been inserted). "
+      "Memory has been allocated correctly (and string has been inserted). "
       "Showing memory block:");
 
   char copy[25] = "Penguins have knees";
@@ -439,7 +442,7 @@ static void pTest() {
         "with 'killtest' command\n");
     return;
   }
-  printf("\nCreating two processes that will end after a couple of seconds\n");
+  printf("Creating two processes that will end after a couple of seconds\n");
   printf("Process 1 has high priority, process 2 has low priority\n");
 
   printf(
@@ -451,7 +454,6 @@ static void pTest() {
   sonsVec[sonsSize++] = pid2;
   waitpid(pid1);
   waitpid(pid2);
-  printf("\n");
 }
 
 static unsigned long int killTest() {
@@ -485,7 +487,6 @@ static void test2() {
 
 void sonTest();
 static unsigned long int pipeTest() {
-  printf("\n");
   int fd[2];
   pipe(fd);
   unsigned long int sonPid =
@@ -547,14 +548,12 @@ static unsigned long int nice() {
 }
 
 static unsigned long int producer() {
-  printf("\n");
   unsigned long int pid = setProcess("Producer", (mainf)producerProc, 0, NULL, MIDP);
   sonsVec[sonsSize++] = pid;
   return pid;
 }
 
 static unsigned long int consumer() {
-  printf("\n");
   unsigned long int pid = setProcess("Consumer", (mainf)consumerProc, 0, NULL, MIDP);
   sonsVec[sonsSize++] = pid;
   return pid;

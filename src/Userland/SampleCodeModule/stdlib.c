@@ -31,7 +31,7 @@ void printf(char* fmt, ...) {
         parsedStr = realloc(parsedStr, size + MEM_BLOCK);
         size += MEM_BLOCK;
       }
-      parsedStr[idx] = *fmt;
+      parsedStr[idx++] = *fmt;
     } else {
       switch (*(fmt + 1)) {
         case 'd':
@@ -67,6 +67,7 @@ void printf(char* fmt, ...) {
     fmt++;
   }
   va_end(args);
+  parsedStr[idx] = 0;
   putStr(parsedStr);
   free(parsedStr);
 }

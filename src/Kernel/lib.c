@@ -62,7 +62,7 @@ int write(int fd, char* buffer, int size) {
   int pipeID = process->fileDescriptors[fd];
   if (pipeID == STD_OUT) {
     int i;
-    for (i = 0; i < size; i++) {
+    for (i = 0; i < size && buffer[i]!= 0; i++) {
       printChar(buffer[i], WHITE);
     }
     return i;
@@ -136,53 +136,33 @@ int strlen(char *str) {
   return len;
 }
 
-void printf(char* fmt, ...) {
+void printf(char *fmt, ...) {
   va_list args;
   va_start(args, fmt);
 
-  char* parsedStr = malloc(strLen(fmt)+1);
-  int idx = 0;
-  int size = strLen(fmt)+1;
-
-  int num;
-  char* str;
+  int aux;
+  char *str;
   char aux2;
-  char buff[20];
+  char buf[50];
   while (*fmt) {
     if (*fmt != '%') {
-      if (idx == size) {
-        parsedStr = realloc(parsedStr, size + MEM_BLOCK);
-        size += MEM_BLOCK;
-      }
-      parsedStr[idx] = *fmt;
+      printChar(*fmt, WHITE);
     } else {
       switch (*(fmt + 1)) {
         case 'd':
-          num = va_arg(args, int);
-          decToStr(num, buff);
-          if (idx + strLen(buff) >= size) {
-            parsedStr = realloc(parsedStr, size + MEM_BLOCK);
-            size += MEM_BLOCK;
-          }
-          strCpy(parsedStr + idx, buff);
-          idx += strLen(buff);
+          aux = va_arg(args, int);
+          putStr(decToStr(aux, buf));
           break;
         case 's':
-          str = va_arg(args, char*);
-          if (idx + strLen(str) >= size) {
-            parsedStr = realloc(parsedStr, size + MEM_BLOCK);
-            size += MEM_BLOCK;
+          str = va_arg(args, char *);
+          while (*str) {
+            printChar(*str, WHITE);
+            str++;
           }
-          strCpy(parsedStr + idx, str);
-          idx += strLen(str);
           break;
         case 'c':
           aux2 = va_arg(args, int);
-          if (idx + 1 >= size) {
-            parsedStr = realloc(parsedStr, size + MEM_BLOCK);
-            size += MEM_BLOCK;
-          }
-          parsedStr[idx++] = aux2;
+          printChar(aux2, WHITE);
           break;
       }
       fmt++;
@@ -190,8 +170,6 @@ void printf(char* fmt, ...) {
     fmt++;
   }
   va_end(args);
-  putStr(parsedStr);
-  free(parsedStr);
 }
 
 void strCpy(char* dest, char* source) {
