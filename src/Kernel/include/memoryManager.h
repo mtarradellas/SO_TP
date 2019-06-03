@@ -54,21 +54,18 @@ void* malloc(size_t space);
  */
 void* realloc(void* memoryAddress, size_t space);
 
-/*
- * Reserves a block of contiguous memory of size equal to (or the size of first
- * power of 2 bigger than) the argument (there are no controls of incorrect use
- * of memory, it is the responsibility of the user to respect the limits
- * requested). Memory is initialized with zeros. Returns the pointer to said
- * block.
- */
-// void * calloc(size_t space);
-
+//for scheduler only
+// Sets up the memory manager
 void initializeMM();
 
-// not for user
+
 // used for tesing
 
+//given an address, searches the corresponding node and prints it
 void printNode(uint8_t* address);
+//given an address, returns the corresponding node
 listNode* getBlockNode(uint8_t* address);
+// prints the information of a given node
+void printNode2(listNode *node);
 
 #endif
