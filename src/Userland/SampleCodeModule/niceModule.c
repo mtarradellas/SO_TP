@@ -4,7 +4,7 @@
 
 void niceCall(unsigned long int pid, int priority) {
    if (pid >= 1) {
-      printf("Can't change the priority of this process\n");
+      printf("\n Can't change the priority of this process\n");
       return;
   }
   if (priority == HIGHP || priority == MIDP || priority == LOWP) {
