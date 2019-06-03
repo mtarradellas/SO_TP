@@ -65,6 +65,9 @@ void *realloc(void *memoryAddress, size_t space) {
     *((bestFitNode->address)+i) = *((char *)memoryAddress+i);
   }
   free(memoryAddress);
+  bestFitNode->available = 0;
+  //printf("bestFitNode:\n");
+  //printNode2(bestFitNode);
   return bestFitNode->address; 
 }
 
