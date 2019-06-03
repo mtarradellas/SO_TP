@@ -1,6 +1,11 @@
-#include <stdint.h>
 #include <stdarg.h>
+#include <stdint.h>
 #include "./include/videoDriver.h"
+#include "./include/process.h"
+#include "./include/scheduler.h"
+#include "./include/pipe.h"
+#include "./include/keyboardDriver.h"
+#include "./include/memoryManager.h"
 
 #define A 25214903917
 #define C 11
@@ -8,6 +13,7 @@
 static Color WHITE = {255, 255, 255};
 
 #define MOD 50
+extern sem_t readSem;
 
 void *memset(void *destination, int32_t c, uint64_t length) {
   uint8_t chr = (uint8_t)c;
@@ -17,7 +23,6 @@ void *memset(void *destination, int32_t c, uint64_t length) {
 
   return destination;
 }
-
 
 void *memcpy(void *destination, const void *source, uint64_t length) {
   /*
@@ -51,11 +56,30 @@ void *memcpy(void *destination, const void *source, uint64_t length) {
   return destination;
 }
 
-void write(char* buff, int size) {
-  for (int i = 0; i < size; i++) {
-    printChar(buff[i], WHITE);
+
+int write(int fd, char* buffer, int size) {
+  tProcess* process = getCurrentProcess();
+  int pipeID = process->fileDescriptors[fd];
+  if (pipeID == STD_OUT) {
+    int i;
+    for (i = 0; i < size && buffer[i]!= 0; i++) {
+      printChar(buffer[i], WHITE);
+    }
+    return i;
   }
-} 
+  return writeToPipe(pipeID, buffer, size);
+}
+
+int read(int fd, char* buffer, int size) {
+  tProcess* process = getCurrentProcess();
+  int pipeID = process->fileDescriptors[fd];
+  if (pipeID == STD_IN) {
+    semWait(readSem);
+    buffer[0] = getKey();
+    return 1;
+  }
+  return readFromPipe(pipeID, buffer, size);
+}
 
 char *decToStr(int num, char *buffer) {
   char const digit[] = "0123456789";
@@ -91,7 +115,7 @@ unsigned long int rand() {
   return var;
 }
 
-int strcmp(char* a, char* b) {
+int strcmp(char *a, char *b) {
   while (*a && *b) {
     if (*a > *b) return 1;
     if (*a < *b) return -1;
@@ -103,21 +127,21 @@ int strcmp(char* a, char* b) {
   return 0;
 }
 
-int strlen(char* str) {
+int strlen(char *str) {
   int len = 0;
-  while(*str != 0) {
+  while (*str != 0) {
     len++;
     str++;
   }
   return len;
 }
 
-void printf(char* fmt, ...) {
+void printf(char *fmt, ...) {
   va_list args;
   va_start(args, fmt);
 
   int aux;
-  char* str;
+  char *str;
   char aux2;
   char buf[50];
   while (*fmt) {
@@ -130,7 +154,7 @@ void printf(char* fmt, ...) {
           putStr(decToStr(aux, buf));
           break;
         case 's':
-          str = va_arg(args, char*);
+          str = va_arg(args, char *);
           while (*str) {
             printChar(*str, WHITE);
             str++;
@@ -147,9 +171,17 @@ void printf(char* fmt, ...) {
   }
   va_end(args);
 }
+
+void strCpy(char* dest, char* source) {
+  while (*source != 0) {
+    *dest = *source;
+    dest++;
+    source++;
+  }
+}
 /*
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 
 void srand(unsigned long int seed);
 void lcg(unsigned long int *x, unsigned long int a, int c, unsigned long int m);
@@ -165,8 +197,8 @@ void srand(unsigned long int seed) {
   myVar = seed;
 }
 
-void lcg(unsigned long int *x, unsigned long int a, int c, unsigned long int m) {
-  *x = (a*(*x)+c) % m;
+void lcg(unsigned long int *x, unsigned long int a, int c, unsigned long int m)
+{ *x = (a*(*x)+c) % m;
 }
 
 unsigned long int lcgParkMiller(unsigned long int *x) {

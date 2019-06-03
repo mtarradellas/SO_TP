@@ -24,5 +24,6 @@ sem_t semCreate(int startValue);
 void semDelete(sem_t sem);
 void semWait(sem_t sem);
 void semPost(sem_t sem);
+int semGetValue(sem_t sem);
 
 #endif

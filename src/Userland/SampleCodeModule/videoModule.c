@@ -1,11 +1,12 @@
 #include <stdint.h>
 #include "include/videoModule.h"
 #include "include/SYSCall.h"
+#include "include/processModule.h"
 
-void clearScreen() { 
+void clearScreen() {
   int x, y;
   getSize(&x, &y);
-  systemCall((uint64_t)ERASESCREEN, 0, (uint64_t)y, 0, 0, 0); 
+  systemCall((uint64_t)ERASESCREEN, 0, (uint64_t)y, 0, 0, 0);
   resetCursor();
 }
 
@@ -15,7 +16,7 @@ void resetCursor() {
 
 void deleteChar() {
   char d = '\b';
-  systemCall((uint64_t)WRITE, (uint64_t)&d, 1, 0, 0, 0);
+  systemCall((uint64_t)WRITE, (uint64_t)STD_OUT, (uint64_t)&d, 1, 0, 0);
 }
 
 void drawCircle(Color color, int radio, int x, int y) {

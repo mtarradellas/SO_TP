@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+
 #include "lib.h"
 
 #define MEM_SIZE (1 << 20)
@@ -28,7 +29,6 @@ typedef struct listNode {  // WILL I NEED ALL OF THIS SHIT AGAIN??
   struct listNode* rightBuddy;
   struct listNode* parent;
   struct listNode* prev;
-
 } listNode;
 
 /*
@@ -58,6 +58,8 @@ void* realloc(void* memoryAddress, size_t space);
 // Sets up the memory manager
 void initializeMM();
 
+// not for user
+// used for tesing
 
 // used for tesing
 

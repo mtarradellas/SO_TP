@@ -1,7 +1,7 @@
 #include <stdint.h>
-#include "keyboardDriver.h"
-#include "scheduler.h"
-#include "timeDriver.h"
+#include "include/keyboardDriver.h"
+#include "include/scheduler.h"
+#include "include/timeDriver.h"
 
 static void int20(uint64_t rsp);
 static void int21(void);
@@ -23,9 +23,6 @@ static void int20(uint64_t rsp) {
   lottery(rsp);
 }
 
-static void int21() { 
-  //if(keyboardHandler() == 1) {
-  //  signalAddedKey();
-  //}
+static void int21() {
   keyboardHandler();
 }

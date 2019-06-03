@@ -1,6 +1,6 @@
-#include <stdint.h>
-#include <stddef.h>
 #include "include/memoryModule.h"
+#include <stddef.h>
+#include <stdint.h>
 #include "include/SYSCall.h"
 
 void* malloc(size_t size) {
@@ -11,7 +11,8 @@ void* malloc(size_t size) {
 
 void* realloc(void* source, size_t size) {
   void* dest;
-  systemCall((uint64_t)REALLOC, (uint64_t)source, (uint64_t)size, (uint64_t)&dest, 0, 0);
+  systemCall((uint64_t)REALLOC, (uint64_t)source, (uint64_t)size,
+             (uint64_t)&dest, 0, 0);
   return dest;
 }
 

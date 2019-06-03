@@ -2,11 +2,13 @@
 #include <stdarg.h>
 #include <stdint.h>
 #include "include/SYSCall.h"
+#include "include/processModule.h"
+#include "include/memoryModule.h"
 
 #define A 25214903917
 #define C 11
 #define M 281474976710656
-
+#define MEM_BLOCK 50
 #define MOD 50
 
 char buffer[BUFFER_SIZE] = {0};
@@ -15,28 +17,49 @@ void printf(char* fmt, ...) {
   va_list args;
   va_start(args, fmt);
 
-  int aux;
+  char* parsedStr = malloc(strLen(fmt)+1);
+  int idx = 0;
+  int size = strLen(fmt)+1;
+
+  int num;
   char* str;
   char aux2;
+  char buff[20];
   while (*fmt) {
     if (*fmt != '%') {
-      putChar(*fmt);
+      if (idx == size) {
+        parsedStr = realloc(parsedStr, size + MEM_BLOCK);
+        size += MEM_BLOCK;
+      }
+      parsedStr[idx++] = *fmt;
     } else {
       switch (*(fmt + 1)) {
         case 'd':
-          aux = va_arg(args, int);
-          putDec(aux);
+          num = va_arg(args, int);
+          decToStr(num, buff);
+          if (idx + strLen(buff) >= size) {
+            parsedStr = realloc(parsedStr, size + MEM_BLOCK);
+            size += MEM_BLOCK;
+          }
+          strCpy(parsedStr + idx, buff);
+          idx += strLen(buff);
           break;
         case 's':
           str = va_arg(args, char*);
-          while (*str) {
-            putChar(*str);
-            str++;
+          if (idx + strLen(str) >= size) {
+            parsedStr = realloc(parsedStr, size + MEM_BLOCK);
+            size += MEM_BLOCK;
           }
+          strCpy(parsedStr + idx, str);
+          idx += strLen(str);
           break;
         case 'c':
           aux2 = va_arg(args, int);
-          putChar(aux2);
+          if (idx + 1 >= size) {
+            parsedStr = realloc(parsedStr, size + MEM_BLOCK);
+            size += MEM_BLOCK;
+          }
+          parsedStr[idx++] = aux2;
           break;
       }
       fmt++;
@@ -44,9 +67,14 @@ void printf(char* fmt, ...) {
     fmt++;
   }
   va_end(args);
+  parsedStr[idx] = 0;
+  putStr(parsedStr);
+  free(parsedStr);
 }
 
-void putChar(char c) { systemCall((uint64_t)WRITE, (uint64_t)&c, 1, 0, 0, 0); }
+void putChar(char c) {
+  systemCall((uint64_t)WRITE, (uint64_t)STD_OUT, (uint64_t)&c, 1, 0, 0);
+}
 
 void putDec(int i) {
   char buffer[11] = {0};
@@ -55,8 +83,16 @@ void putDec(int i) {
 }
 
 void putStr(char* str) {
-  systemCall((uint64_t)WRITE, (uint64_t)str, (uint64_t)strLen(str) + 1, 0, 0,
-             0);
+  systemCall((uint64_t)WRITE, (uint64_t)STD_OUT, (uint64_t)str,
+             (uint64_t)strLen(str) + 1, 0, 0);
+}
+
+void read(int fd, char* buff, int bytes) {
+  systemCall((uint64_t)READ, (uint64_t)fd, (uint64_t)buff, bytes, 0, 0);
+}
+
+void write(int fd, char* buff, int bytes) {
+  systemCall((uint64_t)WRITE, (uint64_t)fd, (uint64_t)buff, bytes, 0, 0);
 }
 
 char* decToStr(int num, char* buffer) {
@@ -81,7 +117,7 @@ char* decToStr(int num, char* buffer) {
 
 char getChar() {
   char c;
-  systemCall((uint64_t)READ, (uint64_t)&c, 0, 0, 0, 0);
+  systemCall((uint64_t)READ, (uint64_t)STD_IN, (uint64_t)&c, 1, 0, 0);
   return c;
 }
 
@@ -144,6 +180,14 @@ int strCmp(char* a, char* b) {
   if (*a) return 1;
   if (*b) return -1;
   return 0;
+}
+
+void strCpy(char* dest, char* source) {
+  while (*source != 0) {
+    *dest = *source;
+    dest++;
+    source++;
+  }
 }
 
 int abs(int n) {
@@ -226,11 +270,10 @@ void splitString(char* buffer, char output[MAX_ARGUMENTS][MAXLEN], int argc) {
   for (int i = 0; i < strLen(buffer) && currentWord < argc; i++) {
     output[currentWord][j++] = buffer[i];
     if (buffer[i] == ' ') {
-      output[currentWord][j-1] = 0;
+      output[currentWord][j - 1] = 0;
       currentWord++;
       j = 0;
     }
   }
   output[currentWord][j] = 0;
 }
-

@@ -4,6 +4,9 @@
 #include <stdint.h>
 #include "./shell.h"
 
+void read(int fd, char* buff, int bytes);
+void write(int fd, char* buff, int bytes);
+
 // Prints string with formats
 void printf(char* fmt, ...);
 
@@ -39,6 +42,8 @@ int abs(int n);
 
 // Prints string
 void putStr(char* word);
+
+void strCpy(char* dest, char* source);
 
 int atoi(char* str);
 

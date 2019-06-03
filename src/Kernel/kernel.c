@@ -5,6 +5,7 @@
 #include "include/lib.h"
 #include "include/memoryManager.h"
 #include "include/scheduler.h"
+#include "include/semaphore.h"
 #include "include/videoDriver.h"
 
 extern uint8_t text;
@@ -51,8 +52,10 @@ int main() {
   _cli();
   _go_to(getStackBase());
   loadIDT();
-   //start((EntryPoint)sampleCodeModuleAddress);
+  
   testMem();
+  start((EntryPoint)sampleCodeModuleAddress);
+  // startTest((EntryPoint)sampleCodeModuleAddress);
   return 1;
 }
 

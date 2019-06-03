@@ -104,11 +104,12 @@ void startPong() {
   putStr(str);
 
   char c;
-  while ((c = getChar()) != '\b' && c != '\n' && c != 'r') {}
+  while ((c = getChar()) != '\b' && c != '\n' && c != 'r') {
+  }
   if (c == '\b') {
     return;
   }
-  rainbow = (c == 'r'? 1 : 0);
+  rainbow = (c == 'r' ? 1 : 0);
   drawRectangle(black, xResolution / 2, 20, (xResolution / 2) - 60, 10);
 
   int exitStatus = play(ball, p1, p2);
@@ -163,15 +164,16 @@ static void act(char command, Player p1, Player p2) {
       break;
     case PAUSE:
       printPause();
-      while(getChar()!= '\n') {}
+      while (getChar() != '\n') {
+      }
       delPause();
     case RAINBOW:
       rainbow = !rainbow;
     default:
-      if (rainbow==1) {
-        printPlayer(rainbowColors[rand()%3], p1);
-        printPlayer(rainbowColors[rand()%3], p2);
-        }
+      if (rainbow == 1) {
+        printPlayer(rainbowColors[rand() % 3], p1);
+        printPlayer(rainbowColors[rand() % 3], p2);
+      }
       break;
   }
 }
@@ -187,15 +189,14 @@ static int moveBall(Ball ball, Player p1, Player p2) {
     ball->dirX = -ball->dirX;
     if (ball->dirX > 0) {
       ball->dirX += 2;
-    }
-    else { 
+    } else {
       ball->dirX -= 2;
     }
   }
   ball->posX += ball->dirX;
   ball->posY += ball->dirY;
-  if (rainbow==1) {
-    printBall(rainbowColors[rand()%3], ball);
+  if (rainbow == 1) {
+    printBall(rainbowColors[rand() % 3], ball);
     return goal;
   }
   printBall(white, ball);
@@ -283,11 +284,11 @@ static void movePlayer(Player p, int step) {
   drawRectangle(black, xPos, yPos, 4, abs(step / 2));
   yPos = step > 0 ? (p->pos + 70) - abs(step / 2) + step
                   : (p->pos - 70) + abs(step / 2) + step;
-  if (rainbow==1) {
-    drawRectangle(rainbowColors[rand()%3], xPos, yPos, 4, abs(step / 2));
+  if (rainbow == 1) {
+    drawRectangle(rainbowColors[rand() % 3], xPos, yPos, 4, abs(step / 2));
     p->pos = p->pos + step;
     return;
-  }                
+  }
   drawRectangle(white, xPos, yPos, 4, abs(step / 2));
   p->pos = p->pos + step;
 }

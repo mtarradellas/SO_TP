@@ -15,6 +15,8 @@ sem_t semCreate(int startValue) {
   return sem;
 }
 
+int semGetValue(sem_t sem) { return sem->value; }
+
 void semDelete(sem_t sem) {
   mutexDelete(sem->mutex);
   queueFree(sem->lockedQueue);
@@ -22,17 +24,17 @@ void semDelete(sem_t sem) {
 }
 
 void semWait(sem_t sem) {
-  //printf("waiting sem: %d\n", sem);
-  //printf("sem value: %d\n", sem->value);
+  // printf("waiting sem: %d\n", sem);
+  // printf("sem value: %d\n", sem->value);
   if (sem == NULL) return;
   mutexLock(sem->mutex);
-  tProcess* running = getCurrrentProcess();
-  //printf("running: %s\n", running->name);
+  tProcess* running = getCurrentProcess();
+  // printf("running: %s\n", running->name);
   if (sem->value == 0) {
     queueOffer(sem->lockedQueue, &running);
     mutexUnlock(sem->mutex);
     removeProcess(running);
-    //printf("_interrupt\n\n");
+    // printf("_interrupt\n\n");
     _interrupt();
   } else {
     sem->value--;
@@ -41,16 +43,14 @@ void semWait(sem_t sem) {
 }
 
 void semPost(sem_t sem) {
-  //printf("posting sem: %d\n", sem);
-  //printf("sem value: %d\n", sem->value);
   if (sem == NULL) return;
   mutexLock(sem->mutex);
-  //printf("~~~AFTER~~~\n");
   if (queueSize(sem->lockedQueue) != 0) {
-      tProcess* proc;
-      queuePoll(sem->lockedQueue, &proc);
-      //printf("%s %d\n", proc->name, proc->pid);
-      addProcess(proc);
-  } else sem->value++;
+    tProcess* proc;
+    queuePoll(sem->lockedQueue, &proc);
+    addProcess(proc);
+  } else {
+    sem->value++;
+  }
   mutexUnlock(sem->mutex);
 }

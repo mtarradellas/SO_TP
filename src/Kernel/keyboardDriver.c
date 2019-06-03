@@ -1,5 +1,5 @@
 #include "include/keyboardDriver.h"
-#include "lib.h"
+#include "include/lib.h"
 #include "include/semaphore.h"
 
 #define BUFFER_SIZE 256
@@ -134,7 +134,7 @@ unsigned char getKey() {
   if (size <= 0) {
     return 0;
   }
-  unsigned char key = buffer[getIndex%BUFFER_SIZE];
+  unsigned char key = buffer[getIndex % BUFFER_SIZE];
   getIndex++;
   size--;
   return key;
