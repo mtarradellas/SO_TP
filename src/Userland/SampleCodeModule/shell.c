@@ -84,7 +84,7 @@ static unsigned long int nice();
 // Spaws a dummy process with the given name
 // and runs for a certain time with given priority
 static unsigned long int dummy();
-// Spawns a producer process that writes numbers to stdout 
+// Spawns a producer process that writes numbers to stdout
 static unsigned long int producer();
 static void producerProc();
 // Spawns a consumer process that reads lines from stdout
@@ -130,7 +130,7 @@ void initShell() {
     int pid = command_array[com]();
     int pid2;
     if (toPipe) {
-      memcpy(command, argv[2], strLen(argv[2])+1);
+      memcpy(command, argv[2], strLen(argv[2]) + 1);
       pid2 = command_array[getCommand(command)]();
       int fd[2];
       pipe(fd);
@@ -234,7 +234,8 @@ static unsigned long int help() {
       "                         end of game or until user presses 'backspace' "
       "to leave\n");
   printf(
-      "  * pipetest     :       Shows pipe functionality with processes Father and Son communicating\n");
+      "  * pipetest     :       Shows pipe functionality with processes Father "
+      "and Son communicating\n");
   printf("\n  Any other command will be taken as invalid\n");
   printf("Commands may be executed on background by typing ' &' at the end\n");
   return 0;
@@ -543,18 +544,24 @@ static unsigned long int dummy() {
 static unsigned long int nice() {
   int pid = atoi(argv[1]);
   int priority = getPriority(argv[2]);
+  if (pid <= 1) {
+    printf("\n Can't change the priority of this process\n");
+    return;
+  }
   niceCall(pid, priority);
   return 0;
 }
 
 static unsigned long int producer() {
-  unsigned long int pid = setProcess("Producer", (mainf)producerProc, 0, NULL, MIDP);
+  unsigned long int pid =
+      setProcess("Producer", (mainf)producerProc, 0, NULL, MIDP);
   sonsVec[sonsSize++] = pid;
   return pid;
 }
 
 static unsigned long int consumer() {
-  unsigned long int pid = setProcess("Consumer", (mainf)consumerProc, 0, NULL, MIDP);
+  unsigned long int pid =
+      setProcess("Consumer", (mainf)consumerProc, 0, NULL, MIDP);
   sonsVec[sonsSize++] = pid;
   return pid;
 }
