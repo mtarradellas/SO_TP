@@ -32,7 +32,9 @@ typedef enum {
   PIPETEST,
   PHILOSOPHERS,
   NICE,
-  DUMMY
+  DUMMY,
+  PRODUCER,
+  CONSUMER
 } Command;
 
 void _opCode();
@@ -82,25 +84,33 @@ static unsigned long int nice();
 // Spaws a dummy process with the given name
 // and runs for a certain time with given priority
 static unsigned long int dummy();
+// Spawns a producer process that writes numbers to stdout 
+static unsigned long int producer();
+static void producerProc();
+// Spawns a consumer process that reads lines from stdout
+static unsigned long int consumer();
+static void consumerProc();
 
 static unsigned long int mutex();
 static void pTest();
 static void test1();
 static void test2();
 
-cmd command_array[] = {
+static cmd command_array[] = {
     (cmd)invCom,   (cmd)help,         (cmd)clear,     (cmd)time,
     (cmd)pong,     (cmd)zeroDiv,      (cmd)invOpCode, (cmd)lenia,
     (cmd)exit,     (cmd)pTestWrapper, (cmd)memTest,   (cmd)ps,
     (cmd)killTest, (cmd)stackOv,      (cmd)mutex,     (cmd)prodCon,
-    (cmd)pipeTest, (cmd)philosophers, (cmd)nice,      (cmd)dummy};
+    (cmd)pipeTest, (cmd)philosophers, (cmd)nice,      (cmd)dummy,
+    (cmd)producer, (cmd)consumer};
 
-int sonsVec[50];
-int sonsSize = 0;
+static int sonsVec[50];
+static int sonsSize = 0;
 static int on;
 static int foreground;
+static int toPipe;
 
-char argv[MAX_ARGUMENTS][MAXLEN];
+static char argv[MAX_ARGUMENTS][MAXLEN];
 
 void initShell() {
   on = 1;
@@ -110,17 +120,31 @@ void initShell() {
   char command[MAXLEN];
   while (on) {
     foreground = 1;
+    toPipe = 0;
     printf("\n$> ");
     clearBuffer(command);
     scanAndPrint(command);
+    printf("\n");
     int com = getCommand(command);
 
     int pid = command_array[com]();
-    if (pid == 0) {
-      foreground = 0;
+    int pid2;
+    if (toPipe) {
+      memcpy(command, argv[2], strLen(argv[2])+1);
+      pid2 = command_array[getCommand(command)]();
+      int fd[2];
+      pipe(fd);
+      dup(pid, fd[1], STD_OUT);
+      dup(pid2, fd[0], STD_IN);
+      closeFD(fd[0]);
+      closeFD(fd[1]);
+      runProcess(pid2);
     }
+    if (pid != 0) runProcess(pid);
+    if (pid == 0) foreground = 0;
     if (foreground == 1) {
       waitpid(pid);
+      if (toPipe) waitpid(pid2);
     }
   }
   printf("\n\n End of program");
@@ -133,6 +157,7 @@ static int getCommand(char* command) {
     argv[i][0] = 0;
   }
   splitString(command, argv, MAX_ARGUMENTS);
+  if (strCmp(argv[1], "\\") == 0) toPipe = 1;
   // printf("\n");
   // for (int i = 0; i < MAX_ARGUMENTS; i++) {
   //   printf("arg%d: %s, ", i + 1, argv[i]);
@@ -156,7 +181,9 @@ static int getCommand(char* command) {
   if (!strCmp("philosophers", argv[0])) return PHILOSOPHERS;
   if (!strCmp("nice", argv[0])) return NICE;
   if (!strCmp("dummy", argv[0])) return DUMMY;
-  if (!strCmp("pipetest", command)) return PIPETEST;
+  if (!strCmp("pipetest", argv[0])) return PIPETEST;
+  if (!strCmp("producer", argv[0])) return PRODUCER;
+  if (!strCmp("consumer", argv[0])) return CONSUMER;
   return INVCOM;
 }
 
@@ -171,7 +198,7 @@ static void checkForeground(char* command) {
 }
 
 static unsigned long int help() {
-  printf("\n\n********  Help Menu  ********\n\n");
+  printf("\n********  Help Menu  ********\n\n");
   printf("  * clear        :       Clears screen\n");
   printf("  * invopcode    :       Executes Invalid OP Code Interruption\n");
   printf("  * zerodiv      :       Executes Zero Division Interruption\n");
@@ -206,7 +233,8 @@ static unsigned long int help() {
   printf(
       "                         end of game or until user presses 'backspace' "
       "to leave\n");
-  printf("  * pipetest  :       ~~~~~~~~I HAVE NO IDEAA~~~~~~~~~\n");
+  printf(
+      "  * pipetest     :       Shows pipe functionality with processes Father and Son communicating\n");
   printf("\n  Any other command will be taken as invalid\n");
   printf("Commands may be executed on background by typing ' &' at the end\n");
   return 0;
@@ -214,7 +242,7 @@ static unsigned long int help() {
 
 static unsigned long int clear() {
   clearScreen();
-  printf("\n~~Welcome to Lenia's Shell~~\n\n");
+  printf("~~Welcome to Lenia's Shell~~\n\n");
   return 0;
 }
 
@@ -222,7 +250,7 @@ static unsigned long int time() {
   unsigned int h = getHour();
   unsigned int m = getMinute();
   unsigned int s = getSecond();
-  printf("\nLocal Time: %d:%d:%d", h, m, s);
+  printf("Local Time: %d:%d:%d", h, m, s);
   return 0;
 }
 
@@ -245,7 +273,7 @@ static unsigned long int invOpCode() {
 
 static unsigned long int stackOv() {
   printf(
-      "\n        "
+      "        "
       "////////////////////////////////////////////////////////////////////////"
       "////////////////////////////////////\n");
   printf(
@@ -285,7 +313,7 @@ static unsigned long int exit() {
 }
 
 static unsigned long int invCom() {
-  printf("\nInvalid command");
+  printf("Invalid command");
   return 0;
 }
 
@@ -294,7 +322,7 @@ static unsigned long int ps() {
   int size;
   getPS(&psVec, &size);
 
-  printf("\nPID     Status     Memory    Priority     Name\n");
+  printf("PID     Status     Memory    Priority     Name\n");
   for (int i = 0; i < size; i++) {
     printf("%d        %s    %d      %s      %s\n", psVec[i]->pid,
            psVec[i]->status, psVec[i]->memory, psVec[i]->priority,
@@ -318,7 +346,7 @@ static unsigned long int philosophers() {
 static unsigned long int memTest() {
   char* mem = malloc(25);
   printf(
-      "\n Memory has been allocated correctly (and string has been inserted). "
+      "Memory has been allocated correctly (and string has been inserted). "
       "Showing memory block:");
 
   char copy[25] = "Penguins have knees";
@@ -373,10 +401,6 @@ static unsigned long int memTest() {
   return 0;
 }
 
-static unsigned long int pTestWrapper() {
-  return createProcess("procWrapp", (mainf)pTest, 0, NULL, MIDP);
-}
-
 int global = 0;
 
 static void doSomething() {
@@ -407,6 +431,10 @@ static unsigned long int mutex() {
   return 0;
 }
 
+static unsigned long int pTestWrapper() {
+  return setProcess("procWrapp", (mainf)pTest, 0, NULL, MIDP);
+}
+
 static void pTest() {
   if (sonsSize > 48) {
     printf(
@@ -414,7 +442,7 @@ static void pTest() {
         "with 'killtest' command\n");
     return;
   }
-  printf("\nCreating two processes that will end after a couple of seconds\n");
+  printf("Creating two processes that will end after a couple of seconds\n");
   printf("Process 1 has high priority, process 2 has low priority\n");
 
   printf(
@@ -426,7 +454,6 @@ static void pTest() {
   sonsVec[sonsSize++] = pid2;
   waitpid(pid1);
   waitpid(pid2);
-  printf("\n");
 }
 
 static unsigned long int killTest() {
@@ -460,7 +487,6 @@ static void test2() {
 
 void sonTest();
 static unsigned long int pipeTest() {
-  printf("\n");
   int fd[2];
   pipe(fd);
   unsigned long int sonPid =
@@ -519,4 +545,33 @@ static unsigned long int nice() {
   int priority = getPriority(argv[2]);
   niceCall(pid, priority);
   return 0;
+}
+
+static unsigned long int producer() {
+  unsigned long int pid = setProcess("Producer", (mainf)producerProc, 0, NULL, MIDP);
+  sonsVec[sonsSize++] = pid;
+  return pid;
+}
+
+static unsigned long int consumer() {
+  unsigned long int pid = setProcess("Consumer", (mainf)consumerProc, 0, NULL, MIDP);
+  sonsVec[sonsSize++] = pid;
+  return pid;
+}
+
+static void producerProc() {
+  int times = 0;
+  while (times < 10) {
+    wait(15);
+    printf("%d\n", times++);
+  }
+}
+
+static void consumerProc() {
+  int times = 0;
+  char buff[50] = {0};
+  while (times < 10) {
+    read(STD_IN, buff, 49);
+    printf("(%d) string read: %s\n", times++, buff);
+  }
 }

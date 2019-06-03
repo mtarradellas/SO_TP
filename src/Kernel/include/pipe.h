@@ -22,5 +22,6 @@ int pipe(int fileDescriptors[2]);
 int writeToPipe(int id, char* buffer, int bytes);
 int readFromPipe(int id, char* buffer, int bytes);
 void closeFD(tProcess* process, int fd);
+pipe_t getPipe(int id);
 
 #endif

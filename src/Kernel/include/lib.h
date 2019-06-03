@@ -17,5 +17,6 @@ char *cpuVendor(char *result);
 
 // TEST
 void printf(char* fmt, ...);
+void strCpy(char* dest, char* source);
 
 #endif

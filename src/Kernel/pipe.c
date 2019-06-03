@@ -11,7 +11,6 @@
 static queue_t pipeQueue;
 static int pipeID;
 
-static pipe_t getPipe(int id);
 static void freePipe(pipe_t pipe);
 static int cmp(void* a, void* b);
 
@@ -77,7 +76,8 @@ int writeToPipe(int id, char* buffer, int bytes) {
   return i;
 }
 
-static pipe_t getPipe(int id) {
+pipe_t getPipe(int id) {
+  if (id < 2) return NULL;
   pipe_t pipe;
   queueResetIter(pipeQueue);
   while (queueGetNext(pipeQueue, &pipe) == 0) {
@@ -90,7 +90,7 @@ static pipe_t getPipe(int id) {
 
 void closeFD(tProcess* process, int fd) {
   int pipeID = process->fileDescriptors[fd];
-  if (pipeID == -1) return;
+  if (pipeID < 2) return;
   process->fileDescriptors[fd] = -1;
   pipe_t pipe = getPipe(pipeID);
   pipe->users--;

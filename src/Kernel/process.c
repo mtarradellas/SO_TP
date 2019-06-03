@@ -4,6 +4,7 @@
 #include "include/memoryManager.h"
 #include "include/scheduler.h"
 #include "include/videoDriver.h"
+#include "include/pipe.h"
 
 #define DEFAULT_PROC_MEM 4096  // 8k
 
@@ -88,6 +89,9 @@ void freeProcess(tProcess* process) {
   list = removeP(list, process);
   _sti();
   free((tProcess*)process->stackTop);
+  for (int i = 0; i <= process->maxFD; i++) {
+    closeFD(process, i);
+  }
   free(process);
 }
 
@@ -151,7 +155,10 @@ int addFileDescriptor(tProcess* process, int fileDescriptor) {
 
 void dup(tProcess* process, int fd, int pos) {
   tProcess* running = getCurrentProcess();
-  process->fileDescriptors[pos] = running->fileDescriptors[fd];
+  int pipeID = running->fileDescriptors[fd];
+  pipe_t pipe = getPipe(pipeID);
+  if (pipe != NULL) pipe->users++;
+  process->fileDescriptors[pos] = pipeID;
   if (pos > process->maxFD) process->maxFD = pos;
 }
 

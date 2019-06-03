@@ -5,6 +5,7 @@
 #include "./include/scheduler.h"
 #include "./include/pipe.h"
 #include "./include/keyboardDriver.h"
+#include "./include/memoryManager.h"
 
 #define A 25214903917
 #define C 11
@@ -61,7 +62,7 @@ int write(int fd, char* buffer, int size) {
   int pipeID = process->fileDescriptors[fd];
   if (pipeID == STD_OUT) {
     int i;
-    for (i = 0; i < size; i++) {
+    for (i = 0; i < size && buffer[i]!= 0; i++) {
       printChar(buffer[i], WHITE);
     }
     return i;
@@ -73,12 +74,9 @@ int read(int fd, char* buffer, int size) {
   tProcess* process = getCurrentProcess();
   int pipeID = process->fileDescriptors[fd];
   if (pipeID == STD_IN) {
-    int i;
-    for (i = 0; i < size; i++) {
-      semWait(readSem);
-      buffer[i] = getKey();
-    }
-    return i;
+    semWait(readSem);
+    buffer[0] = getKey();
+    return 1;
   }
   return readFromPipe(pipeID, buffer, size);
 }
@@ -172,6 +170,14 @@ void printf(char *fmt, ...) {
     fmt++;
   }
   va_end(args);
+}
+
+void strCpy(char* dest, char* source) {
+  while (*source != 0) {
+    *dest = *source;
+    dest++;
+    source++;
+  }
 }
 /*
 #include <stdint.h>
