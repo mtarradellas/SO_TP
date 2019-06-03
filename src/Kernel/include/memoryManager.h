@@ -61,11 +61,11 @@ void initializeMM();
 
 // used for tesing
 
-//given an address, searches the corresponding node and prints it
+//Given an address, searches the corresponding node and prints it
 void printNode(uint8_t* address);
-//given an address, returns the corresponding node
+//Given an address, returns the corresponding node
 listNode* getBlockNode(uint8_t* address);
-// prints the information of a given node
+// Prints the information of a given node
 void printNode2(listNode *node);
 
 #endif

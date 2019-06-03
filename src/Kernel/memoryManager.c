@@ -10,7 +10,7 @@ static const uint8_t *startAddress = (uint8_t *)0x1000000;
 /*  
  *  Each level corresponds to a certain allocation size and stores a free list. 
  *  Level 0 corresponds to BIGGEST_SIZE_LEVEL and the biggest possible allocation (2^20).
- *  Level 0 corresponds SMALLEST_SIZE_LEVEL and the smallest possible allocation (2^7).
+ *  Level 13 corresponds SMALLEST_SIZE_LEVEL and the smallest possible allocation (2^7).
  */
 static listNode *levelArr[LEVELS];
 
@@ -47,7 +47,25 @@ void *malloc(size_t space) {
 }
 
 void *realloc(void *memoryAddress, size_t space) { 
-  return baseAddress; 
+  
+  if (memoryAddress == NULL) {
+    return malloc(space);
+  }
+  if (baseAddress == NULL) {
+    initializeMM();
+  }
+  if(((uint8_t *)memoryAddress < baseAddress) || ((uint8_t *)memoryAddress > (baseAddress + MEM_SIZE))){
+    return NULL;
+  }
+  listNode * bestFitNode = getBestFitNode(space);
+  if(bestFitNode == NULL){
+    return NULL;
+  }
+  for (int i = 0; i < space; i++) {
+    *((bestFitNode->address)+i) = *((char *)memoryAddress+i);
+  }
+  free(memoryAddress);
+  return bestFitNode->address; 
 }
 
 void free(void *memoryAddress) {
@@ -65,10 +83,16 @@ void free(void *memoryAddress) {
   mergeNodes(node);
 }
 
+
+
 // ****************     A      ********************
 // ****************     U      ********************
 // ****************     X      ********************
 
+
+/*
+ *  Sets up the memory manager
+ */
 void initializeMM() {
   for (int i = BIGGEST_SIZE_LEVEL; i <= SMALLEST_SIZE_LEVEL; i++) {
     levelArr[i] = NULL;
@@ -115,7 +139,9 @@ static listNode *getBestFitNode(size_t space) {
 }
 
 
-// Returns 1 if the given level has available nodes, else returns 0.
+/*
+ * Returns 1 if the given level has available nodes, else returns 0.
+ */
 static int levelHasAvailable(int level) {
   if (levelArr[level] == NULL) {
     return 0;
@@ -149,7 +175,10 @@ listNode *getBlockNode(uint8_t *address) {
   return aux;
 }
 
-//Given an address returns the node corresponding to that address if it exists.
+/*
+ * Given an address returns the node corresponding to that address if it exists.
+ * Searches only in one level (the one corresponding to the given node).
+ */
 static getBlockNodeLevel(listNode * node, uint8_t *address){
   while(node != NULL){
     if(node->address == address){
@@ -160,6 +189,10 @@ static getBlockNodeLevel(listNode * node, uint8_t *address){
   return node;
 }
 
+/*
+ * Returns as an int the highest level (the higher the level the smallest its size) in which the level's size 
+ * satisfies that the space requested is bigger or equal than the space of the level.
+ */
 static int optimalLevel(size_t space) {
   int i = SMALLEST_SIZE_LEVEL;
   for (; i >= 0; i--) {
@@ -170,6 +203,9 @@ static int optimalLevel(size_t space) {
   return -1;
 }
 
+/*
+ *  Given a node, creates its two corresponding children (in the next level) and marks the node as unavailable.
+ */
 static void splitBlock(int level) {
   listNode *node = getNextAvailableBlock(levelArr[level]);
   if(node == NULL){
@@ -201,6 +237,9 @@ static void splitBlock(int level) {
   levelArr[level + 1] = nodeLeft;
 }
 
+/*
+ * Given a list, returns the first available node or NULL.
+ */
 static listNode *getNextAvailableBlock(listNode *node) {
   if (node == NULL) {
     return NULL;
@@ -214,6 +253,9 @@ static listNode *getNextAvailableBlock(listNode *node) {
   return node;
 }
 
+/*
+ * If a buddy pair is free, eliminates both nodes and marks thir parent as available.
+ */
 static void mergeNodes(listNode *node) {
   if(!node->available){
     return;
@@ -236,6 +278,9 @@ static void mergeNodes(listNode *node) {
   mergeNodes(parent);
 }
 
+/*
+ * Deletes a node from its list.
+ */
 static void deleteNode(listNode *node) {
   if(node->prev == NULL){
     levelArr[node->level]= node->next; 
@@ -246,7 +291,9 @@ static void deleteNode(listNode *node) {
   node->freed = 1;
 }
 
-
+/*
+ * Used to assign memory spaces to the nodes' structure.
+ */
 static listNode *getNextNodeAddress() {
   listNode *nextNodeAddress = (listNode *)startAddress;
   for (int i = 1; i <= numNodes; i++) {
@@ -260,6 +307,9 @@ static listNode *getNextNodeAddress() {
   return nextNodeAddress;
 }
 
+/*
+ * Prints the information of a given node.
+ */
 void printNode2(listNode *node) {
   if (node == NULL) {
     printf("Invalid node: this node does not exist or has been freed\n");
@@ -273,6 +323,9 @@ void printNode2(listNode *node) {
   printf("----\n");
 }
 
+/*
+ * Given an address, searches the corresponding node and prints it.
+ */
 void printNode(uint8_t *address) {
   listNode *node = getBlockNode(address);
   printNode2(node);
