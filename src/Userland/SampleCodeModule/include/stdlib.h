@@ -43,6 +43,8 @@ int abs(int n);
 // Prints string
 void putStr(char* word);
 
+void strCpy(char* dest, char* source);
+
 int atoi(char* str);
 
 unsigned long int rand();

@@ -96,7 +96,7 @@ static void pTest();
 static void test1();
 static void test2();
 
-cmd command_array[] = {
+static cmd command_array[] = {
     (cmd)invCom,   (cmd)help,         (cmd)clear,     (cmd)time,
     (cmd)pong,     (cmd)zeroDiv,      (cmd)invOpCode, (cmd)lenia,
     (cmd)exit,     (cmd)pTestWrapper, (cmd)memTest,   (cmd)ps,
@@ -104,12 +104,14 @@ cmd command_array[] = {
     (cmd)pipeTest, (cmd)philosophers, (cmd)nice,      (cmd)dummy,
     (cmd)producer, (cmd)consumer};
 
-int sonsVec[50];
-int sonsSize = 0;
+static int sonsVec[50];
+static int sonsSize = 0;
 static int on;
 static int foreground;
+static int toPipe;
 
-char argv[MAX_ARGUMENTS][MAXLEN];
+static char argv[MAX_ARGUMENTS][MAXLEN];
+
 
 void initShell() {
   on = 1;
@@ -119,20 +121,27 @@ void initShell() {
   char command[MAXLEN];
   while (on) {
     foreground = 1;
+    toPipe = 0;
     printf("\n$> ");
     clearBuffer(command);
     scanAndPrint(command);
     int com = getCommand(command);
 
     int pid = command_array[com]();
-    // pipe proc
+    if (toPipe) {
+      memcpy(command, argv[2], strLen(argv[2])+1);
+      int pid2 = command_array[getCommand(command)]();
+      int fd[2];
+      pipe(fd);
+      dup(pid, fd[1], STD_OUT);
+      dup(pid2, fd[0], STD_IN);
+      closeFD(fd[0]);
+      closeFD(fd[1]);
+      runProcess(pid2);
+    }
     if (pid != 0) runProcess(pid);
-    if (pid == 0) {
-      foreground = 0;
-    }
-    if (foreground == 1) {
-      waitpid(pid);
-    }
+    if (pid == 0) foreground = 0;
+    if (foreground == 1) waitpid(pid);
   }
   printf("\n\n End of program");
 }
@@ -143,10 +152,9 @@ static int getCommand(char* command) {
   for (int i = 0; i < MAX_ARGUMENTS; i++) {
     argv[i][0] = 0;
   }
+  printf("\n");
   splitString(command, argv, MAX_ARGUMENTS);
-  if (argv[1] == '|') {
-    
-  }
+  if (strCmp(argv[1], "\\") == 0) toPipe = 1;
   // printf("\n");
   // for (int i = 0; i < MAX_ARGUMENTS; i++) {
   //   printf("arg%d: %s, ", i + 1, argv[i]);
@@ -170,9 +178,9 @@ static int getCommand(char* command) {
   if (!strCmp("philosophers", argv[0])) return PHILOSOPHERS;
   if (!strCmp("nice", argv[0])) return NICE;
   if (!strCmp("dummy", argv[0])) return DUMMY;
-  if (!strCmp("pipetest", command)) return PIPETEST;
-  if (!strCmp("producer", command)) return PRODUCER;
-  if (!strCmp("consumer", command)) return CONSUMER;
+  if (!strCmp("pipetest", argv[0])) return PIPETEST;
+  if (!strCmp("producer", argv[0])) return PRODUCER;
+  if (!strCmp("consumer", argv[0])) return CONSUMER;
   return INVCOM;
 }
 
@@ -541,8 +549,6 @@ static unsigned long int nice() {
 static unsigned long int producer() {
   printf("\n");
   unsigned long int pid = setProcess("Producer", (mainf)producerProc, 0, NULL, MIDP);
-  // dups
-  // run
   sonsVec[sonsSize++] = pid;
   return pid;
 }
@@ -550,8 +556,6 @@ static unsigned long int producer() {
 static unsigned long int consumer() {
   printf("\n");
   unsigned long int pid = setProcess("Consumer", (mainf)consumerProc, 0, NULL, MIDP);
-  // dups
-  // run
   sonsVec[sonsSize++] = pid;
   return pid;
 }
