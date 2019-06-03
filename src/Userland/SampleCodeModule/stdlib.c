@@ -3,11 +3,12 @@
 #include <stdint.h>
 #include "include/SYSCall.h"
 #include "include/processModule.h"
+#include "include/memoryModule.h"
 
 #define A 25214903917
 #define C 11
 #define M 281474976710656
-
+#define MEM_BLOCK 50
 #define MOD 50
 
 char buffer[BUFFER_SIZE] = {0};
@@ -16,28 +17,49 @@ void printf(char* fmt, ...) {
   va_list args;
   va_start(args, fmt);
 
-  int aux;
+  char* parsedStr = malloc(strLen(fmt)+1);
+  int idx = 0;
+  int size = strLen(fmt)+1;
+
+  int num;
   char* str;
   char aux2;
+  char buff[20];
   while (*fmt) {
     if (*fmt != '%') {
-      putChar(*fmt);
+      if (idx == size) {
+        parsedStr = realloc(parsedStr, size + MEM_BLOCK);
+        size += MEM_BLOCK;
+      }
+      parsedStr[idx++] = *fmt;
     } else {
       switch (*(fmt + 1)) {
         case 'd':
-          aux = va_arg(args, int);
-          putDec(aux);
+          num = va_arg(args, int);
+          decToStr(num, buff);
+          if (idx + strLen(buff) >= size) {
+            parsedStr = realloc(parsedStr, size + MEM_BLOCK);
+            size += MEM_BLOCK;
+          }
+          strCpy(parsedStr + idx, buff);
+          idx += strLen(buff);
           break;
         case 's':
           str = va_arg(args, char*);
-          while (*str) {
-            putChar(*str);
-            str++;
+          if (idx + strLen(str) >= size) {
+            parsedStr = realloc(parsedStr, size + MEM_BLOCK);
+            size += MEM_BLOCK;
           }
+          strCpy(parsedStr + idx, str);
+          idx += strLen(str);
           break;
         case 'c':
           aux2 = va_arg(args, int);
-          putChar(aux2);
+          if (idx + 1 >= size) {
+            parsedStr = realloc(parsedStr, size + MEM_BLOCK);
+            size += MEM_BLOCK;
+          }
+          parsedStr[idx++] = aux2;
           break;
       }
       fmt++;
@@ -45,6 +67,9 @@ void printf(char* fmt, ...) {
     fmt++;
   }
   va_end(args);
+  parsedStr[idx] = 0;
+  putStr(parsedStr);
+  free(parsedStr);
 }
 
 void putChar(char c) {
@@ -155,6 +180,14 @@ int strCmp(char* a, char* b) {
   if (*a) return 1;
   if (*b) return -1;
   return 0;
+}
+
+void strCpy(char* dest, char* source) {
+  while (*source != 0) {
+    *dest = *source;
+    dest++;
+    source++;
+  }
 }
 
 int abs(int n) {
