@@ -32,7 +32,9 @@ typedef enum {
   PIPETEST,
   PHILOSOPHERS,
   NICE,
-  DUMMY
+  DUMMY,
+  PRODUCER,
+  CONSUMER
 } Command;
 
 void _opCode();
@@ -82,6 +84,12 @@ static unsigned long int nice();
 // Spaws a dummy process with the given name
 // and runs for a certain time with given priority
 static unsigned long int dummy();
+// Spawns a producer process that writes numbers to stdout 
+static unsigned long int producer();
+static void producerProc();
+// Spawns a consumer process that reads lines from stdout
+static unsigned long int consumer();
+static void consumerProc();
 
 static unsigned long int mutex();
 static void pTest();
@@ -93,7 +101,8 @@ cmd command_array[] = {
     (cmd)pong,     (cmd)zeroDiv,      (cmd)invOpCode, (cmd)lenia,
     (cmd)exit,     (cmd)pTestWrapper, (cmd)memTest,   (cmd)ps,
     (cmd)killTest, (cmd)stackOv,      (cmd)mutex,     (cmd)prodCon,
-    (cmd)pipeTest, (cmd)philosophers, (cmd)nice,      (cmd)dummy};
+    (cmd)pipeTest, (cmd)philosophers, (cmd)nice,      (cmd)dummy,
+    (cmd)producer, (cmd)consumer};
 
 int sonsVec[50];
 int sonsSize = 0;
@@ -116,6 +125,8 @@ void initShell() {
     int com = getCommand(command);
 
     int pid = command_array[com]();
+    // pipe proc
+    if (pid != 0) runProcess(pid);
     if (pid == 0) {
       foreground = 0;
     }
@@ -133,6 +144,9 @@ static int getCommand(char* command) {
     argv[i][0] = 0;
   }
   splitString(command, argv, MAX_ARGUMENTS);
+  if (argv[1] == '|') {
+    
+  }
   // printf("\n");
   // for (int i = 0; i < MAX_ARGUMENTS; i++) {
   //   printf("arg%d: %s, ", i + 1, argv[i]);
@@ -157,6 +171,8 @@ static int getCommand(char* command) {
   if (!strCmp("nice", argv[0])) return NICE;
   if (!strCmp("dummy", argv[0])) return DUMMY;
   if (!strCmp("pipetest", command)) return PIPETEST;
+  if (!strCmp("producer", command)) return PRODUCER;
+  if (!strCmp("consumer", command)) return CONSUMER;
   return INVCOM;
 }
 
@@ -206,7 +222,8 @@ static unsigned long int help() {
   printf(
       "                         end of game or until user presses 'backspace' "
       "to leave\n");
-  printf("  * pipetest  :       ~~~~~~~~I HAVE NO IDEAA~~~~~~~~~\n");
+  printf(
+      "  * pipetest     :       Shows pipe functionality with processes Father and Son communicating\n");
   printf("\n  Any other command will be taken as invalid\n");
   printf("Commands may be executed on background by typing ' &' at the end\n");
   return 0;
@@ -373,10 +390,6 @@ static unsigned long int memTest() {
   return 0;
 }
 
-static unsigned long int pTestWrapper() {
-  return createProcess("procWrapp", (mainf)pTest, 0, NULL, MIDP);
-}
-
 int global = 0;
 
 static void doSomething() {
@@ -405,6 +418,10 @@ static unsigned long int mutex() {
 
   mutexClose("pepe");
   return 0;
+}
+
+static unsigned long int pTestWrapper() {
+  return setProcess("procWrapp", (mainf)pTest, 0, NULL, MIDP);
 }
 
 static void pTest() {
@@ -519,4 +536,39 @@ static unsigned long int nice() {
   int priority = getPriority(argv[2]);
   niceCall(pid, priority);
   return 0;
+}
+
+static unsigned long int producer() {
+  printf("\n");
+  unsigned long int pid = setProcess("Producer", (mainf)producerProc, 0, NULL, MIDP);
+  // dups
+  // run
+  sonsVec[sonsSize++] = pid;
+  return pid;
+}
+
+static unsigned long int consumer() {
+  printf("\n");
+  unsigned long int pid = setProcess("Consumer", (mainf)consumerProc, 0, NULL, MIDP);
+  // dups
+  // run
+  sonsVec[sonsSize++] = pid;
+  return pid;
+}
+
+static void producerProc() {
+  int times = 0;
+  while (times < 10) {
+    wait(15);
+    printf("%d\n", times++);
+  }
+}
+
+static void consumerProc() {
+  int times = 0;
+  char buff[50] = {0};
+  while (times < 10) {
+    read(STD_IN, buff, 49);
+    printf("(%d) string read: %s\n", times++, buff);
+  }
 }

@@ -73,12 +73,9 @@ int read(int fd, char* buffer, int size) {
   tProcess* process = getCurrentProcess();
   int pipeID = process->fileDescriptors[fd];
   if (pipeID == STD_IN) {
-    int i;
-    for (i = 0; i < size; i++) {
-      semWait(readSem);
-      buffer[i] = getKey();
-    }
-    return i;
+    semWait(readSem);
+    buffer[0] = getKey();
+    return 1;
   }
   return readFromPipe(pipeID, buffer, size);
 }
