@@ -7,9 +7,7 @@
 
 #define MEM_SIZE (1 << 20)
 #define MIN_BLOCK_SIZE 128
-#define LEVELS \
-  (20 - 7 +    \
-   1)  // 1???? //each power from 7 to 20 will be a level (each with a different
+#define LEVELS (20 - 7 +  1)  // 1???? //each power from 7 to 20 will be a level (each with a different
        // size of block). starting from seven because the smallest block will be
        // of size 2^7 and the max will be the whole memory 2^20
 #define MAX_NUM_NODES (1 << 13)  // max_blocks_in_level in last level
@@ -17,8 +15,7 @@
 #define SMALLEST_SIZE_LEVEL 13
 
 //#define log2(i) (1>>i)
-#define level_size(i) \
-  ((MEM_SIZE) / ((1) << (i)))  // size of blocks in a given level
+#define level_size(i) ((MEM_SIZE) / ((1) << (i)))  // size of blocks in a given level
 #define get_level_index(i) ((20) - (i))
 #define max_blocks_in_level(n) ((1) << (n))
 

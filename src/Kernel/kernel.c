@@ -21,6 +21,7 @@ static void* const sampleDataModuleAddress = (void*)0x500000;
 
 void _cli();
 void _go_to(void* sp);
+static void testMem();
 
 typedef int (*EntryPoint)();
 
@@ -47,34 +48,28 @@ void* initializeKernelBinary() {
 }
 
 int main() {
-  // _cli();
-  // _go_to(getStackBase());
-  // loadIDT();
-  // start((EntryPoint)sampleCodeModuleAddress);
-  // return 1;
-
   _cli();
-
-  // _go_to(getStackBase());
+  _go_to(getStackBase());
   loadIDT();
-  // start((EntryPoint)sampleCodeModuleAddress);
-  // schedTestDinamic();
-
-  printf("welcome goma\n");
-
-  char* lenia = malloc(128);
-  // printf("lenia: \n");
-
-  printf("LEnia kernel: %d\n", lenia);
-  printNode((uint8_t*)lenia);
-  printf("leniakernel2: %d\n", lenia);
-  printNode((uint8_t*)lenia);
-  // *(lenia) = 'l';
-  // *(lenia + 1) = '\0';
-
-  // //memcpy(lenia, "hello", sizeof("hello"));
-  // printf("well damn\n" );
-  // 9
-  // printNode(17301616);
+   //start((EntryPoint)sampleCodeModuleAddress);
+  testMem();
   return 1;
 }
+
+
+static void testMem() {
+
+
+  char* lenia2 = malloc(128);
+  //char* lenia3 = malloc(228);
+  //char* lenia4 = malloc(55528);
+  char* lenia1 = malloc(8);
+  memcpy(lenia2, "heli", sizeof("heli")+1);
+  printf("%d\n", lenia2 );
+  printNode(lenia1);
+  printNode(lenia2);
+  //printNode(lenia3);
+  //printNode(lenia4);
+  
+}
+
