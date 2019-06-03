@@ -89,29 +89,28 @@ void initializeMM() {
   node->prev = NULL;
 
   levelArr[BIGGEST_SIZE_LEVEL] = node;
-  // printNode2(node);
+
+
+  printf("printf %d, printf& %d\n", printf,&printf);
 }
 
 static listNode *getBestFitNode(size_t space) {
+
   int opLevel = optimalLevel(space);
-
-
   int level = opLevel;
 
   while ((!levelHasAvailable(level)) && (level > BIGGEST_SIZE_LEVEL)) {
     level--;
   }
 
-  if ((level = BIGGEST_SIZE_LEVEL) && (!levelArr[level]->available)) {
+  if ((level == BIGGEST_SIZE_LEVEL) && (!levelArr[level]->available)) {
     return NULL;
   }
-  // while (opLevel > level) {
-  //   splitBlock(level);
-  //   level++;
-  // }
-  splitBlock(level);
-  splitBlock(level+1);
-  // printNode2(getNextAvailableBlock(levelArr[opLevel]));
+  while (opLevel > level) {
+    splitBlock(level);
+    level++;
+  }
+  //printNode2(getNextAvailableBlock(levelArr[opLevel]));
   listNode * aux = getNextAvailableBlock(levelArr[opLevel]);
   
   return aux;
@@ -170,11 +169,8 @@ static int optimalLevel(size_t space) {
 static void splitBlock(int level) {
   listNode *node = getNextAvailableBlock(levelArr[level]);
   if(node == NULL){
-    printf("fukkk\n");    ////////ENTRA ACA EN EL SEGUNDO SPLIT PORQUE NO ENCUENTRA UN AVAILABLE EN EL ARR?
-                          // CHEQUEAR QUE SE ESTEN AGREGANDO BIEN LOS HIJOS???
     return NULL;
   }
-  ////printNode2(node);
   node->available = 0;
 
   listNode *nodeLeft = getNextNodeAddress();
@@ -191,39 +187,35 @@ static void splitBlock(int level) {
 
   nodeRight->available = 1;
   nodeRight->freed = 0;
-  nodeRight->address = node->address;// + level_size(level + 1);
+  nodeRight->address = node->address + (level_size(level + 1));
   nodeRight->level = level + 1;
   nodeRight->rightBuddy = NULL;
   nodeLeft->parent = node;
   nodeRight->prev = nodeLeft;
   nodeRight->next = levelArr[level + 1];
 
-  printf("parent: \n");
-  printNode2(node);
+  // printf("parent: \n");
+  // printNode2(node);
 
-  printf("leftson: \n");
-  printNode2(nodeLeft);
+  // printf("leftson: \n");
+  // printNode2(nodeLeft);
 
-  printf("rightson: \n");
-  printNode2(nodeRight);
+  // printf("rightson: \n");
+  // printNode2(nodeRight);
 
   levelArr[level + 1] = nodeLeft;
 }
 
 static listNode *getNextAvailableBlock(listNode *node) {
   if (node == NULL) {
-    printf("nulllllll2\n");
     return NULL;
   }
   while (!node->available) {
     if (node->next == NULL) {
-      printf("nulllllll\n");
       return NULL;
     }
     node = node->next;
   }
-  //printf("getNextAvailableBlock: \n");
-  //printNode2(node);
   return node;
 }
 
@@ -236,7 +228,7 @@ static void mergeNodes(listNode *node) {
   }
   if (!node->rightBuddy->available) {
     return;
-  }  // if node got to this point, it is a left node
+  }
   listNode *rightNode = node->rightBuddy;
   listNode *parent = node->parent;
 
@@ -279,8 +271,6 @@ void printNode2(listNode *node) {
 }
 
 void printNode(uint8_t *address) {
-  printf("address en printNode: %d\n", address);
-  printf("%d\n",address );
   listNode *node = getBlockNode(address);
   printNode2(node);
 }
