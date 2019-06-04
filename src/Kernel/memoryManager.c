@@ -54,6 +54,7 @@ void *realloc(void *memoryAddress, size_t space) {
   if((memoryAddress < baseAddress) || (memoryAddress > (baseAddress + MEM_SIZE))){
     return NULL;
   }
+/*
   listNode * bestFitNode = getBestFitNode(space);
   if(bestFitNode == NULL){
     return NULL;
@@ -64,6 +65,13 @@ void *realloc(void *memoryAddress, size_t space) {
   free(memoryAddress);
   bestFitNode->available = 0;
   return bestFitNode->address; 
+*/
+  void* retAddress = malloc(space);
+  if (retAddress == NULL) return NULL;
+  memcpy(retAddress, memoryAddress, space);
+  free(memoryAddress);
+  return retAddress;
+
 }
 
 void free(void *memoryAddress) {
@@ -121,7 +129,6 @@ static listNode *getBestFitNode(size_t space) {
   while ((!levelHasAvailable(level)) && (level > BIGGEST_SIZE_LEVEL)) {
     level--;
   }
-
   if ((level == BIGGEST_SIZE_LEVEL) && (!levelArr[level]->available)) {
     return NULL;
   }
@@ -144,6 +151,7 @@ static int levelHasAvailable(int level) {
   }
   listNode *node = levelArr[level];
   while (node != NULL) {
+    printf(" die ");
     if (node->available) {
       return 1;
     }
@@ -168,7 +176,7 @@ listNode *getBlockNode(void *address) {
       return aux;
     }
   }
-  return aux;
+  return NULL;
 }
 
 /*
@@ -182,7 +190,7 @@ static listNode* getBlockNodeLevel(listNode * node, void *address){
     }
     node = node->next;
   }
-  return node;
+  return NULL;
 }
 
 /*
@@ -256,6 +264,9 @@ static listNode *getNextAvailableBlock(listNode *node) {
  * If a buddy pair is free, eliminates both nodes and marks thir parent as available.
  */
 static void mergeNodes(listNode *node) {
+  if (node == NULL) {
+    return;
+  }
   if(!node->available){
     return;
   }

@@ -47,7 +47,9 @@ void printf(char* fmt, ...) {
         case 's':
           str = va_arg(args, char*);
           if (idx + strLen(str) >= size) {
+            putStr(" rea");
             parsedStr = realloc(parsedStr, size + MEM_BLOCK);
+            putStr("lloc ");
             size += MEM_BLOCK;
           }
           strCpy(parsedStr + idx, str);
