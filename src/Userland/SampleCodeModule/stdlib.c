@@ -78,8 +78,7 @@ void putChar(char c) {
 
 void putDec(int i) {
   char buffer[11] = {0};
-  char* b = decToStr(i, buffer);
-  printf("%s", b);
+  decToStr(i, buffer);
 }
 
 void putStr(char* str) {

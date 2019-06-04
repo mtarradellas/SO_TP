@@ -22,7 +22,6 @@ static void* const sampleDataModuleAddress = (void*)0x500000;
 
 void _cli();
 void _go_to(void* sp);
-static void testMem();
 
 typedef int (*EntryPoint)();
 
@@ -52,54 +51,6 @@ int main() {
   _cli();
   _go_to(getStackBase());
   loadIDT();
-  
-  testMem();
   start((EntryPoint)sampleCodeModuleAddress);
-  // startTest((EntryPoint)sampleCodeModuleAddress);
   return 1;
 }
-
-
-static void testMem() {
-
-  char* lenia1 = malloc(1025);
-  char* lenia2 = malloc(1024);
-  //char* lenia3 = malloc(228);
-  char* lenia4 = malloc(55528);
-
-  memcpy(lenia1, "el", sizeof("el")+1);
-  memcpy(lenia2, "malloc", sizeof("malloc")+1);
-  //memcpy(lenia3, "anda", sizeof("anda")+1);
-  // memcpy(lenia4, "bitch", sizeof("bitch")+1);
-
-  // printf("%s\n", "lenia1" );
-  // printNode(lenia1);
-  printf("%s\n", "lenia2" );
-  printNode(lenia2);
-  // //printf("%s\n", "lenia3" );
-  // //printNode(lenia3);
-  // printf("%s\n", "lenia4" );
-  // printNode(lenia4);
-
-  printf("freeing lenia2:\n");
-  free(lenia2);
-  printf("%s\n", "lenia2" );
-  printNode(lenia2);
-
-  lenia2 = malloc(1024);
-  printf("%s\n", "lenia2" );
-  printNode(lenia2);
-
-  char * lex = lenia2;
-
-  printf("reallocking lenia 2:\n");
-  lenia2 = realloc(lenia2, 1025);
-  printf("%s\n", "lenia2" );
-  printNode(lenia2);
-
-  printf("%s\n", "lex" );
-  printNode(lex);
-
-}
-
-

@@ -122,7 +122,9 @@ void ps(tProcessData*** psVec, int* size) {
   int s = 0;
   while (auxList != NULL) {
     auxVec = realloc(auxVec, (s + 1) * sizeof(tProcessData*));
+    if (auxVec == NULL) printf(" null ");
     auxVec[s] = malloc(sizeof(tProcessData));
+    if (auxVec[s] == NULL) printf(" NULL ");
     getProcessData(auxList->process, auxVec[s]);
     s++;
     auxList = auxList->next;
