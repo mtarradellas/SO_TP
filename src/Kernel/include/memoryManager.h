@@ -21,7 +21,7 @@
 
 typedef struct listNode {  // WILL I NEED ALL OF THIS SHIT AGAIN??
   size_t freed;
-  uint8_t* address;
+  void* address;
   size_t level;
   size_t available;
   struct listNode* next;
@@ -62,10 +62,75 @@ void initializeMM();
 // used for tesing
 
 //Given an address, searches the corresponding node and prints it
-void printNode(uint8_t* address);
+void printNode(void* address);
 //Given an address, returns the corresponding node
-listNode* getBlockNode(uint8_t* address);
+listNode* getBlockNode(void* address);
 // Prints the information of a given node
 void printNode2(listNode *node);
+void printAllNodes();
+void printLevels();
 
 #endif
+
+
+
+//            MEMORY MANAGER TP2
+
+
+// #ifndef memoryManager_h
+// #define memoryManager_h
+
+// #include <stddef.h>
+// #include <stdint.h>
+// #include "./lib.h"
+
+// #define MEM_SIZE (1 << 20)
+// #define MAX_NUM_NODES 5000000
+
+// typedef struct listNode {
+//   size_t freed;
+//   uint8_t* address;
+//   size_t size;
+//   size_t available;
+//   struct listNode* next;
+//   struct listNode* prev;
+// } listNode;
+
+// /*
+//  * Frees a block of memory that was previously allocated.
+//  */
+// void free(void* memoryAddress);
+
+// /*
+//  * Reserves a block of contiguous memory of size equal to the argument (there
+//  * are no controls of incorrect use of memory, it is the responsibility of the
+//  * user to respect the limits requested). Returns the pointer to said block.
+//  */
+// void* malloc(size_t space);
+
+
+//  * Reserves a block of contiguous memory of size equal to the argument (there
+//  * are no controls of incorrect use of memory, it is the responsibility of the
+//  * user to respect the limits requested). It also receives a pointer to a block
+//  * of memory to be copied to the new block. The old block is released. Returns
+//  * the pointer to the new block.
+ 
+// void* realloc(void* memoryAddress, size_t space);
+
+// /*
+//  * Reserves a block of contiguous memory of size equal to the argument (there
+//  * are no controls of incorrect use of memory, it is the responsibility of the
+//  * user to respect the limits requested). Memory is initialized with zeros.
+//  * Returns the pointer to said block.
+//  */
+// void* calloc(size_t space);
+
+// void initializeMM();
+
+// // not for user
+// // used for tesing
+
+// void printNode(uint8_t* address);
+// listNode* getBlockNode(uint8_t* address);
+
+// #endif
