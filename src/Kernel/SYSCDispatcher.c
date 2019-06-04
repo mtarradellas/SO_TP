@@ -189,7 +189,7 @@ static unsigned long int _createProc(char *name, int (*entry)(int, char **),
   return newP->pid;
 }
 
-static void _printNode(void *src) { printNode(src); }
+static void _printNode(void *src) { return; }
 
 static void _kill(unsigned long int pid) {
   killProc(pid);
