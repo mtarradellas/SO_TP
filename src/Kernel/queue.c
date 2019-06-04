@@ -36,7 +36,6 @@ int queueOffer(queue_t queue, void* elem) {
   memcpy(newData, elem, queue->bytes);
   newNode->next = NULL;
   newNode->data = newData;
-
   if (queue->first == NULL) {
     queue->first = queue->last = queue->current = newNode;
   } else {

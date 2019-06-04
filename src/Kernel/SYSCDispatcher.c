@@ -173,13 +173,23 @@ static void _getCursor(int *x, int *y) { getCursor(x, y); }
 
 static void _setCursor(int *x, int *y) { setCursor(*x, *y); }
 
-static void _malloc(void **dest, size_t size) { *dest = malloc(size); }
-
-static void _realloc(void *src, size_t size, void **dest) {
-  *dest = realloc(src, size);
+static void _malloc(void **dest, size_t size) { 
+  _cli();
+  *dest = malloc(size); 
+  _sti();
 }
 
-static void _free(void *src) { free(src); }
+static void _realloc(void *src, size_t size, void **dest) {
+  _cli();
+  *dest = realloc(src, size);
+  _sti();
+}
+
+static void _free(void *src) { 
+  _cli();
+  free(src);
+  _sti(); 
+}
 
 static unsigned long int _createProc(char *name, int (*entry)(int, char **),
                                      int argc, char **argv, int priority) {

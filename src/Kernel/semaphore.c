@@ -24,17 +24,16 @@ void semDelete(sem_t sem) {
 }
 
 void semWait(sem_t sem) {
-  // printf("waiting sem: %d\n", sem);
-  // printf("sem value: %d\n", sem->value);
-  if (sem == NULL) return;
+
+  if (sem == NULL) {
+    return;
+  }
   mutexLock(sem->mutex);
   tProcess* running = getCurrentProcess();
-  // printf("running: %s\n", running->name);
   if (sem->value == 0) {
     queueOffer(sem->lockedQueue, &running);
     mutexUnlock(sem->mutex);
     removeProcess(running);
-    // printf("_interrupt\n\n");
     _interrupt();
   } else {
     sem->value--;
